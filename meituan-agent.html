@@ -390,8 +390,115 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
 /* Canvas image render */
 .gen-canvas{width:100%;border-radius:8px;display:block}
 
-/* Responsive */
-@media(max-width:1100px){#sidebar{width:60px}.s-item span:not(.s-item-icon){display:none}.s-label{display:none}.s-footer-text{display:none}.copy-layout{grid-template-columns:1fr}.comp-grid{grid-template-columns:1fr}.gen-grid{grid-template-columns:1fr 1fr}}
+/* ===== Mobile Hamburger ===== */
+.h-hamburger{display:none;width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.1);align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:20px;flex-shrink:0}
+.h-hamburger:hover{background:rgba(255,255,255,0.2)}
+
+/* ===== Sidebar Overlay (mobile) ===== */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:150}
+.sidebar-overlay.show{display:block}
+#sidebar.mobile-open{left:0 !important}
+
+/* ===== Responsive ===== */
+/* Tablet: compact sidebar */
+@media(max-width:1100px){
+  #sidebar{width:60px;left:0}
+  #main-body{margin-left:60px}
+  .s-item span:not(.s-item-icon){display:none}
+  .s-label{display:none}
+  .s-footer-text{display:none}
+  .copy-layout{grid-template-columns:1fr}
+  .comp-grid{grid-template-columns:1fr}
+  .gen-grid{grid-template-columns:1fr 1fr}
+  .analysis-grid{grid-template-columns:1fr}
+}
+/* Phone: slide-out sidebar + stack everything */
+@media(max-width:768px){
+  /* Sidebar */
+  #sidebar{position:fixed;top:var(--header-h);left:-260px;bottom:0;width:260px;z-index:160;transition:left .3s;box-shadow:4px 0 16px rgba(0,0,0,0.15)}
+  .s-item span:not(.s-item-icon){display:inline}
+  .s-label{display:block}
+  .s-footer-text{display:block}
+  #main-body{margin-left:0 !important}
+
+  /* Hamburger */
+  .h-hamburger{display:flex}
+  .h-logo-sub{display:none}
+  .h-divider:nth-of-type(1){display:none}
+  .h-clinic{font-size:11px !important;padding:4px 8px !important;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .h-clinic span{font-size:11px}
+  .h-right{display:none}
+  #header{padding:0 10px;gap:8px}
+
+  /* Header */
+  .h-logo{font-size:13px}
+  .h-logo-icon{width:28px;height:28px;font-size:12px}
+
+  /* Content */
+  #content{padding:14px 10px !important}
+  .page-header{margin-bottom:16px}
+  .page-title{font-size:18px}
+  .page-sub{font-size:12px}
+
+  /* Cards */
+  .card{padding:14px 12px;border-radius:10px}
+  .card-header{flex-wrap:wrap;gap:8px}
+  .card-title{font-size:15px}
+
+  /* Grid layouts */
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .comp-grid{grid-template-columns:1fr}
+  .gen-grid{grid-template-columns:1fr}
+  .copy-layout{grid-template-columns:1fr}
+
+  /* Forms */
+  .form-row{flex-direction:column}
+  .form-group{min-width:auto}
+  textarea{font-size:16px !important}
+  input{font-size:16px !important}
+
+  /* Tables - horizontal scroll */
+  .clinic-project-table,.comp-table,.layer-table,.roi-table{display:block;overflow-x:auto;white-space:nowrap;font-size:11px}
+  .clinic-project-table th,.clinic-project-table td,.comp-table th,.comp-table td{padding:8px 6px}
+
+  /* Buttons */
+  .btn-lg{padding:12px 20px;font-size:14px}
+  .btn{font-size:13px;padding:8px 14px}
+
+  /* Analysis quadrant */
+  .analysis-grid{grid-template-columns:1fr;gap:8px}
+  .add-form-row{grid-template-columns:1fr}
+
+  /* Modal */
+  .modal-box{width:95vw;max-height:90vh;border-radius:12px}
+  .modal-header{padding:14px 16px;font-size:15px}
+  .modal-body{padding:14px}
+
+  /* Clinic dropdown */
+  .clinic-dropdown{min-width:240px;left:auto;right:0}
+
+  /* Tabs */
+  .tab-btn{font-size:11px;padding:8px 10px}
+
+  /* Page title icon */
+  .page-title-icon{width:32px;height:32px;font-size:14px}
+
+  /* Toast */
+  #toast-box{top:50px;left:10px;right:10px;transform:none}
+  .toast{max-width:100%}
+
+  /* Logo compact */
+  .h-clinic-arrow{display:none}
+
+  /* Sidebar nav item touch target */
+  .s-item{padding:14px 20px;font-size:14px}
+}
+/* Very small phone */
+@media(max-width:400px){
+  .kpi-grid{grid-template-columns:1fr}
+  .h-logo{font-size:11px}
+  .h-logo-sub{display:none}
+}
 
 /* Clinic Collect */
 .tab-switch{display:flex;gap:8px;background:var(--bg);padding:4px;border-radius:10px}
@@ -433,6 +540,7 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
 <div id="app">
   <!-- HEADER -->
   <header id="header">
+    <div class="h-hamburger" onclick="toggleMobileSidebar()">&#9776;</div>
     <div class="h-logo">
       <div class="h-logo-icon">E</div>
       <div>
@@ -461,6 +569,9 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
       <div class="h-logout" onclick="showToast('已退出登录','info')">退出</div>
     </div>
   </header>
+
+  <!-- Sidebar overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
   <!-- MAIN -->
   <div id="main-body">
@@ -1406,6 +1517,28 @@ function switchPage(id) {
   if (nav) nav.classList.add('active');
   document.getElementById('content').scrollTop = 0;
   if (id === 'dash') drawChart();
+  // Auto-close mobile sidebar after navigation
+  closeMobileSidebar();
+}
+
+// ===== MOBILE SIDEBAR =====
+function toggleMobileSidebar() {
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  var isOpen = sidebar.classList.contains('mobile-open');
+  if (isOpen) {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('show');
+  } else {
+    sidebar.classList.add('mobile-open');
+    overlay.classList.add('show');
+  }
+}
+function closeMobileSidebar() {
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.remove('mobile-open');
+  overlay.classList.remove('show');
 }
 
 /* ===== DASHBOARD CHART ===== */
