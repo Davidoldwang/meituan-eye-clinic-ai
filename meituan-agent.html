@@ -1,0 +1,2909 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美团电商眼科运营AI助手</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --primary: #1a3a5c;
+  --primary-dark: #0d1b2a;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --bg: #f5f7fa;
+  --bg-card: #ffffff;
+  --text: #1f2937;
+  --text-sub: #6b7280;
+  --text-light: #9ca3af;
+  --border: #e5e7eb;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-hover: 0 4px 16px rgba(0,0,0,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: 'Microsoft YaHei','PingFang SC',sans-serif;
+  --sidebar-w: 220px;
+  --header-h: 60px;
+}
+
+/* ===== Reset ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg)}
+a{text-decoration:none;color:inherit}
+ul{list-style:none}
+button{cursor:pointer;font-family:var(--font);border:none;outline:none}
+input,textarea,select{font-family:var(--font);outline:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:14px;color:var(--text)}
+input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+
+/* ===== Layout ===== */
+#app{display:flex;flex-direction:column;height:100vh}
+
+/* Header */
+#header{height:var(--header-h);background:var(--primary);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.h-logo{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:#fff;white-space:nowrap}
+.h-logo-icon{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;font-weight:900}
+.h-logo-sub{font-size:11px;color:rgba(255,255,255,0.55);font-weight:400;margin-top:1px}
+.h-divider{width:1px;height:28px;background:rgba(255,255,255,0.15)}
+.h-clinic{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border-radius:8px;padding:6px 14px;cursor:pointer;color:#fff;font-size:13px;transition:background .2s}
+.h-clinic:hover{background:rgba(255,255,255,0.15)}
+.h-clinic-arrow{font-size:10px;opacity:.6}
+.h-clinic{position:relative}
+.clinic-dropdown{position:absolute;top:100%;left:0;margin-top:6px;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.15);min-width:280px;z-index:100;overflow:hidden}
+.clinic-dropdown-item{padding:12px 16px;cursor:pointer;border-bottom:1px solid #f3f4f6;transition:background .15s}
+.clinic-dropdown-item:hover{background:#f0f7ff}
+.clinic-dropdown-item:last-child{border-bottom:none}
+.clinic-dropdown-item-name{font-size:14px;font-weight:700;color:#1f2937}
+.clinic-dropdown-item-doctor{font-size:11px;color:#6b7280;margin-top:2px}
+.clinic-dropdown-item.active .clinic-dropdown-item-name{color:var(--primary)}
+.clinic-dropdown-item.active{background:#eff6ff}
+.clinic-dropdown-item .check{float:right;color:var(--primary);font-weight:700}
+.clinic-dropdown-divider{border-top:1px solid #e5e7eb;margin:4px 0}
+.clinic-dropdown-add{padding:10px 16px;text-align:center;font-size:13px;color:var(--accent);font-weight:600}
+.clinic-dropdown-add:hover{color:#2563eb}
+
+/* Add Clinic Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center}
+.modal-box{background:#fff;border-radius:14px;width:480px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #f3f4f6;font-size:16px;font-weight:700}
+.modal-body{padding:20px}
+.modal-close{font-size:22px;cursor:pointer;color:#9ca3af;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-close:hover{background:#f3f4f6;color:#374151}
+.add-form-field{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:10px;background:var(--bg);color:var(--text);outline:none;transition:border .2s}
+.add-form-field:focus{border-color:var(--accent)}
+.add-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.add-upload-zone{text-align:center;padding:28px;border:2px dashed var(--border);border-radius:10px;cursor:pointer;transition:border .2s;margin-bottom:10px}
+.add-upload-zone:hover{border-color:var(--accent)}
+.add-upload-zone img{max-width:100%;max-height:180px;border-radius:6px;margin-top:8px}
+.h-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.h-notif{position:relative;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:15px;transition:background .2s}
+.h-notif:hover{background:rgba(255,255,255,0.18)}
+.h-notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--danger);border:2px solid var(--primary)}
+.h-user{display:flex;align-items:center;gap:10px;color:#fff;cursor:pointer}
+.h-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.h-user-info{display:flex;flex-direction:column}
+.h-user-name{font-size:13px;font-weight:600;line-height:1.3}
+.h-user-role{font-size:11px;color:rgba(255,255,255,0.5)}
+.h-logout{font-size:12px;color:rgba(255,255,255,0.5);cursor:pointer;padding:6px 10px;border-radius:6px;transition:all .2s}
+.h-logout:hover{color:#fff;background:rgba(255,255,255,0.1)}
+
+/* Main Body */
+#main-body{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar */
+#sidebar{width:var(--sidebar-w);background:linear-gradient(180deg,var(--primary-dark),var(--primary));display:flex;flex-direction:column;flex-shrink:0;transition:width .3s}
+.s-nav{padding:12px 10px;flex:1}
+.s-label{font-size:10px;color:rgba(255,255,255,0.3);padding:8px 14px 6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.s-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,0.65);font-size:13px;font-weight:500;transition:all .2s;margin-bottom:2px}
+.s-item:hover{background:rgba(255,255,255,0.06);color:#fff}
+.s-item.active{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(59,130,246,0.3)}
+.s-item-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.s-item-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;min-width:18px;text-align:center}
+.s-footer{padding:14px 16px;border-top:1px solid rgba(255,255,255,0.06);text-align:center}
+.s-footer-text{font-size:10px;color:rgba(255,255,255,0.3)}
+
+/* Content */
+#content{flex:1;overflow-y:auto;padding:24px;background:var(--bg)}
+
+/* Pages */
+.page{display:none;animation:fadeIn .25s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== Common Components ===== */
+.page-header{margin-bottom:22px}
+.page-title{font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px}
+.page-title-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex-shrink:0}
+.page-sub{font-size:13px;color:var(--text-sub);margin-top:4px}
+.card{background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;border:1px solid var(--border)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(59,130,246,0.25)}
+.btn-primary:hover{background:var(--accent-hover);box-shadow:0 4px 12px rgba(59,130,246,0.35);transform:translateY(-1px)}
+.btn-secondary{background:#f3f4f6;color:var(--text)}
+.btn-secondary:hover{background:#e5e7eb}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#059669}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-outline{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.btn-outline:hover{background:rgba(59,130,246,0.06)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-lg{padding:12px 24px;font-size:15px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.tag-success{background:#d1fae5;color:#065f46}
+.tag-warning{background:#fef3c7;color:#92400e}
+.tag-danger{background:#fee2e2;color:#991b1b}
+.tag-primary{background:#dbeafe;color:#1e40af}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+
+/* Toast */
+#toast-box{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toast{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;background:var(--primary);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.18);font-size:13px;font-weight:500;animation:toastIn .3s ease;white-space:nowrap}
+.toast.success{background:#065f46}
+.toast.warning{background:#92400e}
+.toast.error{background:#991b1b}
+.toast.info{background:var(--primary)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(-10px)}}
+
+/* ===== DASHBOARD ===== */
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:var(--bg-card);border-radius:var(--radius);padding:18px;border:1px solid var(--border);box-shadow:var(--shadow);transition:all .2s}
+.stat-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
+.stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
+.stat-label{font-size:12px;color:var(--text-sub);margin-bottom:3px}
+.stat-value{font-size:24px;font-weight:800;line-height:1.2}
+.stat-change{font-size:11px;margin-top:4px}
+.stat-change.up{color:var(--success)}
+.stat-change.down{color:var(--danger)}
+.dash-mid{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;margin-bottom:20px}
+.chart-wrap{position:relative}
+.chart-wrap canvas{width:100%;height:220px}
+.todo-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.todo-item:last-child{border-bottom:none}
+.todo-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.todo-text{flex:1;font-size:13px}
+.todo-action{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600}
+.dash-shortcuts{display:flex;gap:20px;justify-content:center}
+.shortcut-btn{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:16px 20px;border-radius:var(--radius);transition:all .2s;border:1px solid var(--border);background:var(--bg-card);min-width:100px}
+.shortcut-btn:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);border-color:var(--accent)}
+.shortcut-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff}
+.shortcut-label{font-size:12px;font-weight:600;color:var(--text)}
+
+/* ===== COMPETITOR ===== */
+.comp-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:16px}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:#fafbfc}
+.upload-zone:hover{border-color:var(--accent);background:rgba(59,130,246,0.02)}
+.upload-icon{width:48px;height:48px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px;color:var(--text-sub)}
+.upload-text{font-size:13px;color:var(--text-sub)}
+.upload-hint{font-size:11px;color:var(--text-light);margin-top:4px}
+.upload-zone.dragover{border-color:var(--accent);background:rgba(59,130,246,0.06);border-style:solid}
+.comp-table-wrap{overflow-x:auto;margin-bottom:16px}
+.comp-table{width:100%;border-collapse:collapse;font-size:13px}
+.comp-table th{background:var(--primary);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px}
+.comp-table th:first-child{border-radius:8px 0 0 0}
+.comp-table th:last-child{border-radius:0 8px 0 0}
+.comp-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.comp-table tr:hover td{background:#f9fafb}
+.c-good{color:var(--success);font-weight:600}
+.c-warn{color:var(--warning);font-weight:600}
+.c-bad{color:var(--danger);font-weight:600}
+.c-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-left:4px}
+.c-badge-good{background:#d1fae5;color:#065f46}
+.c-badge-warn{background:#fef3c7;color:#92400e}
+.c-badge-bad{background:#fee2e2;color:#991b1b}
+.sug-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:8px;border-left:3px solid}
+.sug-item.p1{border-left-color:var(--danger);background:#fff8f8}
+.sug-item.p2{border-left-color:var(--warning);background:#fffbf2}
+.sug-item.p3{border-left-color:var(--success);background:#f0fdf4}
+.sug-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.p1 .sug-tag{background:#fee2e2;color:#991b1b}
+.p2 .sug-tag{background:#fef3c7;color:#92400e}
+.p3 .sug-tag{background:#d1fae5;color:#065f46}
+.sug-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.sug-desc{font-size:12px;color:var(--text-sub)}
+
+/* ===== COPYWRITING ===== */
+.copy-layout{display:grid;grid-template-columns:280px 1fr;gap:16px}
+.product-tabs{display:flex;gap:0;margin-bottom:14px;border-bottom:2px solid var(--border)}
+.product-tab{padding:8px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-sub);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.product-tab:hover{color:var(--text)}
+.product-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.product-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .15s;margin-bottom:4px;border:1px solid transparent}
+.product-item:hover{background:#f9fafb}
+.product-item.active{background:rgba(59,130,246,0.04);border-color:var(--accent)}
+.product-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.product-info{flex:1}
+.product-name{font-size:13px;font-weight:600}
+.product-meta{font-size:11px;color:var(--text-sub);margin-top:1px}
+.product-price{font-size:15px;font-weight:800;color:var(--danger)}
+.acc-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px}
+.acc-head{display:flex;align-items:center;padding:12px 16px;cursor:pointer;background:var(--bg-card);transition:background .15s;gap:10px}
+.acc-head:hover{background:#f9fafb}
+.acc-num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.acc-title{font-size:13px;font-weight:600;flex:1}
+.acc-arrow{color:var(--text-light);font-size:12px;transition:transform .2s}
+.acc-head.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{display:none;padding:14px 16px;background:#fafbfc;border-top:1px solid var(--border);font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap}
+.acc-body.open{display:block}
+
+/* ===== IMAGE GEN ===== */
+.style-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.style-card{border:2px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .2s;background:var(--bg-card);display:flex;align-items:center;gap:14px}
+.style-card:hover{border-color:var(--accent)}
+.style-card.selected{border-color:var(--accent);background:rgba(59,130,246,0.03);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.style-preview{width:56px;height:56px;border-radius:10px;flex-shrink:0}
+.style-name{font-size:14px;font-weight:700}
+.style-desc{font-size:11px;color:var(--text-sub);margin-top:3px}
+.gen-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.gen-card{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);transition:all .2s}
+.gen-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
+.gen-placeholder{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:rgba(255,255,255,0.85);font-size:12px;font-weight:600}
+.gen-info{padding:10px 12px}
+.gen-name{font-size:12px;font-weight:600}
+.gen-size{font-size:11px;color:var(--text-sub);margin-top:2px}
+
+/* ===== SCRIPT ===== */
+.scene-tabs{display:flex;gap:0;margin-bottom:18px;border-bottom:2px solid var(--border)}
+.scene-tab{padding:10px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-sub);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.scene-tab:hover{color:var(--text)}
+.scene-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.script-cards{display:flex;flex-direction:column;gap:14px}
+.script-card{background:var(--bg-card);border-radius:var(--radius);padding:18px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.script-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.script-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0}
+.script-meta{flex:1}
+.script-name{font-size:14px;font-weight:700}
+.script-desc{font-size:12px;color:var(--text-sub);margin-top:2px}
+.script-bubble{background:#f3f4f6;border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.9;color:var(--text);border-left:3px solid var(--accent);margin-bottom:12px;white-space:pre-wrap}
+.script-actions{display:flex;gap:8px}
+
+/* ===== REVIEW ===== */
+.sop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.sop-card{border-radius:var(--radius);padding:16px;color:#fff;position:relative;overflow:hidden}
+.sop-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08)}
+.sop-num{font-size:32px;font-weight:900;opacity:.3;position:absolute;top:8px;right:12px}
+.sop-title{font-size:14px;font-weight:700;margin-bottom:6px}
+.sop-desc{font-size:12px;opacity:.9;line-height:1.6}
+.review-tabs{display:flex;gap:0;margin-bottom:16px;background:#f3f4f6;border-radius:10px;padding:4px;width:fit-content}
+.review-tab{padding:7px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-sub);transition:all .2s}
+.review-tab.active{background:#fff;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.review-item{background:var(--bg-card);border-radius:var(--radius);padding:18px;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:12px}
+.review-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rv-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.rv-meta{flex:1}
+.rv-name{font-size:13px;font-weight:600}
+.rv-date{font-size:11px;color:var(--text-light)}
+.rv-stars{color:var(--warning);font-size:14px;letter-spacing:1px}
+.rv-content{font-size:13px;line-height:1.7;margin-bottom:10px}
+.rv-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ai-reply{background:linear-gradient(135deg,#f0f7ff,#e8f4ff);border-radius:10px;padding:14px;margin-top:12px;border-left:3px solid var(--accent)}
+.ai-label{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ai-text{font-size:13px;line-height:1.7;margin-bottom:10px}
+.review-assist-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:16px;margin-bottom:20px}
+.review-assist-input textarea{width:100%;height:90px;resize:vertical;background:#f9fafb;font-size:13px;margin-bottom:10px}
+.review-assist-input .upload-zone{padding:16px;margin-bottom:10px}
+.review-assist-input .upload-zone .upload-icon{width:36px;height:36px;font-size:16px}
+.review-assist-input .upload-zone .upload-text{font-size:12px}
+.review-assist-result{display:none}
+.review-assist-result.show{display:block}
+.rar-analysis{background:linear-gradient(135deg,#fef3c7,#fff7ed);border-radius:10px;padding:12px 14px;margin-bottom:12px;border-left:3px solid var(--warning)}
+.rar-analysis-title{font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px}
+.rar-analysis-text{font-size:13px;color:var(--text);line-height:1.6}
+.rar-reply-item{background:linear-gradient(135deg,#f0f7ff,#e8f4ff);border-radius:10px;padding:14px;margin-bottom:10px;border-left:3px solid var(--accent)}
+.rar-reply-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.rar-reply-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:#dbeafe;color:#1e40af}
+.rar-reply-text{font-size:13px;line-height:1.7;margin-bottom:10px}
+.rar-reply-actions{display:flex;gap:8px}
+.guide-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.guide-header{padding:14px 18px;background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;font-weight:700;font-size:14px}
+.guide-item{border-bottom:1px solid var(--border)}
+.guide-item:last-child{border-bottom:none}
+.guide-trigger{display:flex;align-items:center;gap:12px;padding:12px 18px;cursor:pointer;transition:background .15s}
+.guide-trigger:hover{background:#f9fafb}
+.guide-trigger-icon{font-size:18px;width:28px;text-align:center}
+.guide-trigger-title{font-size:13px;font-weight:600;flex:1}
+.guide-trigger-arrow{color:var(--text-light);font-size:12px;transition:transform .2s}
+.guide-trigger.open .guide-trigger-arrow{transform:rotate(180deg)}
+.guide-body{display:none;padding:0 18px 12px 58px;font-size:13px;line-height:1.8;color:var(--text)}
+.guide-body.open{display:block}
+
+/* ===== SKILL PAGE STYLES ===== */
+.score-ring{display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:50%;font-size:22px;font-weight:900;color:#fff;margin-bottom:6px}
+.diag-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.diag-card{background:var(--bg-card);border-radius:var(--radius);padding:14px;border:1px solid var(--border);text-align:center;transition:all .2s}
+.diag-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
+.diag-card .diag-bar{height:6px;border-radius:3px;background:#e5e7eb;margin:8px auto 6px;max-width:80px;overflow:hidden}
+.diag-card .diag-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.diag-card .diag-area{font-size:13px;font-weight:700;margin-bottom:2px}
+.diag-card .diag-tip{font-size:11px;color:var(--text-sub);line-height:1.5;margin-top:4px}
+.action-item{display:flex;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:8px;border-left:3px solid}
+.action-item.p1{border-left-color:var(--danger);background:#fff8f8}
+.action-item.p2{border-left-color:var(--warning);background:#fffbf2}
+.action-priority{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;flex-shrink:0;align-self:flex-start}
+.p1 .action-priority{background:#fee2e2;color:#991b1b}
+.p2 .action-priority{background:#fef3c7;color:#92400e}
+.action-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.action-desc{font-size:12px;color:var(--text-sub);line-height:1.6}
+.action-impact{font-size:11px;color:var(--accent);font-weight:600;margin-top:4px}
+.script-section{background:var(--bg-card);border-radius:var(--radius);padding:16px;border:1px solid var(--border);margin-bottom:14px}
+.script-section-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.script-bubble-new{background:#f3f4f6;border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.9;color:var(--text);border-left:3px solid var(--accent);margin-bottom:10px;white-space:pre-wrap}
+.sop-timeline{display:flex;gap:0;margin-bottom:16px}
+.sop-time-item{flex:1;text-align:center;padding:10px 8px;font-size:11px;color:var(--text-sub);position:relative}
+.sop-time-item::after{content:'';position:absolute;bottom:18px;right:-50%;width:100%;height:2px;background:var(--border);z-index:0}
+.sop-time-item:last-child::after{display:none}
+.sop-time-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);margin:0 auto 6px;position:relative;z-index:1}
+.layer-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}
+.layer-table th{background:var(--primary);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px}
+.layer-table th:first-child{border-radius:8px 0 0 0}
+.layer-table th:last-child{border-radius:0 8px 0 0}
+.layer-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.layer-table tr:hover td{background:#f9fafb}
+.calendar-row{display:flex;gap:12px;margin-bottom:10px}
+.calendar-day{background:linear-gradient(135deg,var(--accent),#60a5fa);color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;min-width:48px;text-align:center;flex-shrink:0}
+.calendar-topic{flex:1;font-size:13px;padding:8px 0}
+.calendar-type{font-size:11px;color:var(--text-sub)}
+.funnel-stage{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.funnel-label{width:60px;font-size:12px;font-weight:700;text-align:right;flex-shrink:0}
+.funnel-bar-wrap{flex:1;background:#e5e7eb;border-radius:6px;height:28px;overflow:hidden;position:relative}
+.funnel-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:11px;font-weight:700;transition:width .6s ease}
+.funnel-rate{width:50px;font-size:12px;color:var(--text-sub);flex-shrink:0}
+.roi-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}
+.roi-table th{background:var(--primary);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px}
+.roi-table th:first-child{border-radius:8px 0 0 0}
+.roi-table th:last-child{border-radius:0 8px 0 0}
+.roi-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.roi-table tr:hover td{background:#f9fafb}
+.experiment-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.experiment-name{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.experiment-row{font-size:12px;color:var(--text-sub);line-height:1.8}
+.menu-tree{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px}
+.menu-col{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.menu-col-title{font-size:13px;font-weight:700;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--accent)}
+.menu-col-item{font-size:12px;padding:4px 0;color:var(--text-sub)}
+.tag-sm{display:inline-flex;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:600}
+.tag-sm-p0{background:#fee2e2;color:#991b1b}
+.tag-sm-p1{background:#fef3c7;color:#92400e}
+.copy-btn-sm{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#f9fafb;color:var(--text);transition:all .15s}
+.copy-btn-sm:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#9ca3af}
+
+/* Loading Spinner */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:12px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:var(--text-sub)}
+/* Fade in for AI results */
+.ai-result{animation:fadeIn .4s ease}
+/* Canvas image render */
+.gen-canvas{width:100%;border-radius:8px;display:block}
+
+/* Responsive */
+@media(max-width:1100px){#sidebar{width:60px}.s-item span:not(.s-item-icon){display:none}.s-label{display:none}.s-footer-text{display:none}.copy-layout{grid-template-columns:1fr}.comp-grid{grid-template-columns:1fr}.gen-grid{grid-template-columns:1fr 1fr}}
+
+/* Clinic Collect */
+.tab-switch{display:flex;gap:8px;background:var(--bg);padding:4px;border-radius:10px}
+.tab-btn{flex:1;padding:10px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--text-sub);transition:all .2s}
+.tab-btn.active{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.tab-btn:hover:not(.active){color:var(--text)}
+.url-input-wrap input:focus{border-color:var(--accent)}
+.clinic-card{background:linear-gradient(135deg,#f0fdf4,#f0f7ff);border:1px solid #d1fae5;border-radius:12px;padding:16px;margin-bottom:16px}
+.clinic-card-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.clinic-card-name{font-size:18px;font-weight:700;color:var(--primary)}
+.clinic-card-rating{display:flex;align-items:center;gap:4px;background:#fef3c7;padding:4px 10px;border-radius:20px;font-size:13px;font-weight:700;color:#d97706}
+.clinic-card-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--text-sub);margin-top:8px}
+.clinic-project-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+.clinic-project-table th{background:var(--bg);padding:10px 8px;text-align:left;font-weight:600;color:var(--text-sub);border-bottom:2px solid var(--border)}
+.clinic-project-table td{padding:10px 8px;border-bottom:1px solid var(--border);color:var(--text)}
+.clinic-project-table tr:hover td{background:#f9fafb}
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.analysis-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px}
+.analysis-card-title{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.analysis-card-score{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;font-size:16px;font-weight:800;color:#fff;margin-bottom:8px}
+.analysis-card-comment{font-size:12px;color:var(--text-sub);line-height:1.7;margin-bottom:8px}
+.analysis-card-issues{font-size:11px;color:var(--danger)}
+.suggestion-card{border-left:3px solid;padding:12px 14px;margin-bottom:10px;border-radius:0 8px 8px 0;background:#f9fafb}
+.suggestion-card.p0{border-color:#ef4444;background:#fef2f2}
+.suggestion-card.p1{border-color:#f59e0b;background:#fffbeb}
+.suggestion-card.p2{border-color:#3b82f6;background:#eff6ff}
+.suggestion-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.suggestion-priority{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;color:#fff}
+.suggestion-priority.p0{background:#ef4444}
+.suggestion-priority.p1{background:#f59e0b}
+.suggestion-priority.p2{background:#3b82f6}
+.suggestion-title{font-size:14px;font-weight:700;color:var(--text)}
+.suggestion-desc{font-size:12px;color:var(--text-sub);line-height:1.6;margin-bottom:4px}
+.suggestion-impact{font-size:11px;color:var(--accent);font-weight:600}
+@media(max-width:1100px){.analysis-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- HEADER -->
+  <header id="header">
+    <div class="h-logo">
+      <div class="h-logo-icon">E</div>
+      <div>
+        <div>美团电商眼科运营AI助手</div>
+        <div class="h-logo-sub">智能运营平台</div>
+      </div>
+    </div>
+    <div class="h-divider"></div>
+    <div class="h-clinic" onclick="toggleClinicDropdown(event)">
+      <span>&#9881;</span> <span id="hClinicName">临沂爱尔眼科光门诊(金水河畔店)</span> <span class="h-clinic-arrow">&#9660;</span>
+      <div class="clinic-dropdown" id="clinicDropdown" style="display:none">
+      </div>
+    </div>
+    <div class="h-right">
+      <div class="h-notif" onclick="showToast('您有3条新消息','info')">
+        <span style="font-size:16px">&#9993;</span>
+        <div class="h-notif-dot"></div>
+      </div>
+      <div class="h-user">
+        <div class="h-avatar">王</div>
+        <div class="h-user-info">
+          <div class="h-user-name">王皓</div>
+          <div class="h-user-role">运营专员</div>
+        </div>
+      </div>
+      <div class="h-logout" onclick="showToast('已退出登录','info')">退出</div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <div id="main-body">
+    <aside id="sidebar">
+      <nav class="s-nav">
+        <div class="s-label">导航菜单</div>
+        <div class="s-item active" data-page="dash" onclick="switchPage('dash')">
+          <span class="s-item-icon">&#9638;</span><span>首页仪表盘</span>
+        </div>
+        <div class="s-item" data-page="comp" onclick="switchPage('comp')">
+          <span class="s-item-icon">&#9673;</span><span>竞品分析</span>
+        </div>
+        <div class="s-item" data-page="copy" onclick="switchPage('copy')">
+          <span class="s-item-icon">&#9998;</span><span>文案生成</span>
+        </div>
+        <div class="s-item" data-page="img" onclick="switchPage('img')">
+          <span class="s-item-icon">&#9635;</span><span>套图生成</span>
+        </div>
+        <div class="s-item" data-page="script" onclick="switchPage('script')">
+          <span class="s-item-icon">&#9994;</span><span>话术建议</span>
+          <span class="s-item-badge">3</span>
+        </div>
+        <div class="s-item" data-page="review" onclick="switchPage('review')">
+          <span class="s-item-icon">&#9733;</span><span>评价管理</span>
+          <span class="s-item-badge">1</span>
+        </div>
+        <div class="s-item" data-page="meituan-ops" onclick="switchPage('meituan-ops')">
+          <span class="s-item-icon">&#9874;</span><span>美团运营</span>
+        </div>
+        <div class="s-item" data-page="private-domain" onclick="switchPage('private-domain')">
+          <span class="s-item-icon">&#9741;</span><span>私域运营</span>
+        </div>
+        <div class="s-item" data-page="douyin" onclick="switchPage('douyin')">
+          <span class="s-item-icon">&#9654;</span><span>抖音策略</span>
+        </div>
+        <div class="s-item" data-page="xiaohongshu" onclick="switchPage('xiaohongshu')">
+          <span class="s-item-icon">&#9829;</span><span>小红书</span>
+        </div>
+        <div class="s-item" data-page="wechat" onclick="switchPage('wechat')">
+          <span class="s-item-icon">&#9993;</span><span>公众号</span>
+        </div>
+        <div class="s-item" data-page="growth" onclick="switchPage('growth')">
+          <span class="s-item-icon">&#9734;</span><span>增长策略</span>
+        </div>
+        <div class="s-item" data-page="clinic-collect" onclick="switchPage('clinic-collect')">
+          <span class="s-item-icon">&#127973;</span><span>门诊采集</span>
+        </div>
+      </nav>
+      <div class="s-footer">
+        <div class="s-footer-text">v1.0.0</div>
+      </div>
+    </aside>
+
+    <main id="content">
+
+      <!-- ===== PAGE: DASHBOARD ===== -->
+      <section id="page-dash" class="page active">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:var(--accent)">&#9638;</span>首页仪表盘</div>
+          <div class="page-sub">临沂爱尔眼科光门诊 · 运营数据概览</div>
+        </div>
+        <div class="dash-stats">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1e40af">&#9733;</div>
+            <div class="stat-label">店铺评分</div>
+            <div class="stat-value">4.5</div>
+            <div class="stat-change up">&#9650; 0.1 本月</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46">&#9998;</div>
+            <div class="stat-label">评价数</div>
+            <div class="stat-value">105条</div>
+            <div class="stat-change up">&#9650; 15 本月</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e">&#165;</div>
+            <div class="stat-label">月GMV</div>
+            <div class="stat-value">&#165;5.8w</div>
+            <div class="stat-change up">&#9650; 22%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:#5b21b6">&#9635;</div>
+            <div class="stat-label">活跃项目</div>
+            <div class="stat-value">19个</div>
+            <div class="stat-change up">&#9650; 4 本月</div>
+          </div>
+        </div>
+        <div class="dash-mid">
+          <div class="card chart-wrap">
+            <div class="card-header">
+              <div class="card-title">最近7天订单趋势</div>
+            </div>
+            <canvas id="orderChart" width="600" height="220"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">待办事项</div>
+              <span class="tag tag-danger">3项</span>
+            </div>
+            <div class="todo-item">
+              <div class="todo-dot" style="background:var(--danger)"></div>
+              <div class="todo-text">1条差评待处理 — 用户"匿名"3星差评</div>
+              <div class="todo-action" onclick="switchPage('review')">去处理</div>
+            </div>
+            <div class="todo-item">
+              <div class="todo-dot" style="background:var(--warning)"></div>
+              <div class="todo-text">2个项目待上线 — 视功能训练/干眼理疗</div>
+              <div class="todo-action" onclick="switchPage('copy')">去处理</div>
+            </div>
+            <div class="todo-item">
+              <div class="todo-dot" style="background:var(--accent)"></div>
+              <div class="todo-text">1次复查提醒 — 刘女士5月20日回访</div>
+              <div class="todo-action" onclick="showToast('已标记提醒','success')">标已完成</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">快捷操作</div></div>
+          <div class="dash-shortcuts">
+            <div class="shortcut-btn" onclick="switchPage('comp')">
+              <div class="shortcut-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">&#9673;</div>
+              <div class="shortcut-label">竞品分析</div>
+            </div>
+            <div class="shortcut-btn" onclick="switchPage('copy')">
+              <div class="shortcut-icon" style="background:linear-gradient(135deg,#10b981,#059669)">&#9998;</div>
+              <div class="shortcut-label">文案生成</div>
+            </div>
+            <div class="shortcut-btn" onclick="switchPage('img')">
+              <div class="shortcut-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">&#9635;</div>
+              <div class="shortcut-label">套图生成</div>
+            </div>
+            <div class="shortcut-btn" onclick="switchPage('script')">
+              <div class="shortcut-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">&#9994;</div>
+              <div class="shortcut-label">话术建议</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: COMPETITOR ===== -->
+      <section id="page-comp" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:#3b82f6">&#9673;</span>竞品分析</div>
+          <div class="page-sub">上传竞品截图或填写数据，AI生成专业分析报告</div>
+        </div>
+        <div class="comp-grid">
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header"><div class="card-title">信息录入</div></div>
+              <input type="file" id="comp-file-input" accept="image/*" style="display:none" onchange="handleCompUpload(this)">
+              <div class="upload-zone" id="comp-upload-zone" onclick="document.getElementById('comp-file-input').click()" ondrop="handleCompDrop(event)" ondragover="handleCompDragOver(event)" ondragleave="handleCompDragLeave(event)" style="margin-bottom:14px">
+                <div id="comp-upload-content">
+                  <div class="upload-icon">&#8686;</div>
+                  <div class="upload-text">上传竞品截图</div>
+                  <div class="upload-hint">支持 JPG / PNG，拖拽或点击上传</div>
+                </div>
+                <div id="comp-upload-preview" style="display:none;position:relative;">
+                  <img id="comp-preview-img" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);">
+                  <div onclick="clearCompImage(event)" style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.5);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;line-height:1;">&times;</div>
+                </div>
+              </div>
+              <div style="margin-bottom:10px"><div class="form-label" style="font-size:12px;font-weight:600;color:var(--text-sub);margin-bottom:6px">粘贴竞品信息</div></div>
+              <textarea style="width:100%;height:100px;resize:vertical;background:#f9fafb;font-size:13px" placeholder="可粘贴竞品美团页面文字信息...&#10;如：临沂华厦眼科 儿童视力检查 ¥49 评分4.3 评价68条">临沂华厦眼科 儿童视力检查 ¥49 评分4.3 评价68条 有效期90天 主图为白底医生图</textarea>
+              <div style="margin-top:14px"><button class="btn btn-primary btn-lg" style="width:100%" onclick="runAnalysis()">&#9889; 开始AI分析</button></div>
+            </div>
+          </div>
+          <div>
+            <div class="card" id="comp-result">
+              <div class="card-header">
+                <div class="card-title">分析结果</div>
+                <span class="tag tag-success">AI已分析</span>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-sub);margin-bottom:10px">6维竞品对比</div>
+              <div class="comp-table-wrap">
+                <table class="comp-table">
+                  <thead>
+                    <tr><th>维度</th><th>我方（临沂爱尔光门诊）</th><th>竞品（临沂华厦眼科）</th><th>差距</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>项目名称</strong></td>
+                      <td>儿童青少年视力检查</td>
+                      <td>儿童视力检查</td>
+                      <td><span class="c-badge c-badge-good">持平</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>价格</strong></td>
+                      <td class="c-good">¥39.9</td>
+                      <td class="c-warn">¥49</td>
+                      <td><span class="c-badge c-badge-good">我方低18%</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>评分</strong></td>
+                      <td class="c-good">4.5</td>
+                      <td class="c-warn">4.3</td>
+                      <td><span class="c-badge c-badge-good">我方高0.2</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>评价数</strong></td>
+                      <td class="c-good">105条</td>
+                      <td class="c-warn">68条</td>
+                      <td><span class="c-badge c-badge-good">我方多37条</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>主图风格</strong></td>
+                      <td class="c-warn">纯白底文字图</td>
+                      <td class="c-good">白底医生形象图</td>
+                      <td><span class="c-badge c-badge-warn">需优化</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>有效期</strong></td>
+                      <td class="c-bad">30天</td>
+                      <td class="c-good">90天</td>
+                      <td><span class="c-badge c-badge-bad">差距60天</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-sub);margin:16px 0 10px">AI优化建议</div>
+              <div>
+                <div class="sug-item p1">
+                  <span class="sug-tag">P1</span>
+                  <div><div class="sug-title">将有效期从30天延长至90天</div><div class="sug-desc">竞品90天有效期是重要转化因素，延长有效期可降低用户决策压力，预计提升转化率15-20%</div></div>
+                </div>
+                <div class="sug-item p1">
+                  <span class="sug-tag">P1</span>
+                  <div><div class="sug-title">主图替换为亲子场景图</div><div class="sug-desc">当前纯文字主图点击率低，建议使用杜秀臻医生+儿童互动的场景图，强化信任感和专业感</div></div>
+                </div>
+                <div class="sug-item p2">
+                  <span class="sug-tag">P2</span>
+                  <div><div class="sug-title">项目名加入"近视防控"关键词</div><div class="sug-desc">搜索"近视防控"的用户意图更强，将"儿童青少年视力检查"优化为"儿童青少年近视防控视力检查"可提升搜索曝光率</div></div>
+                </div>
+              </div>
+              <div style="margin-top:16px"><button class="btn btn-primary" style="width:100%" onclick="showToast('优化方案已生成，即将跳转文案生成','success');setTimeout(()=>switchPage('copy'),1500)">基于建议生成优化方案 &#8594;</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: COPYWRITING ===== -->
+      <section id="page-copy" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:#10b981">&#9998;</span>文案生成</div>
+          <div class="page-sub">选择产品矩阵，AI生成7屏完整美团内页文案</div>
+        </div>
+        <div class="copy-layout">
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">产品矩阵</div></div>
+              <div class="product-tabs" id="prodTabs">
+                <div class="product-tab active" data-filter="all" onclick="filterProducts('all')">全部</div>
+                <div class="product-tab" data-filter="traffic" onclick="filterProducts('traffic')">引流款</div>
+                <div class="product-tab" data-filter="profit" onclick="filterProducts('profit')">利润款</div>
+                <div class="product-tab" data-filter="bundle" onclick="filterProducts('bundle')">套餐款</div>
+              </div>
+              <div id="prodList"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">7屏内页文案预览</div>
+              <button class="btn btn-primary btn-sm" onclick="copyAllCopywriting()">&#9998; 一键复制全部文案</button>
+            </div>
+            <div id="accList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: IMAGE GEN ===== -->
+      <section id="page-img" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:#8b5cf6">&#9635;</span>套图生成</div>
+          <div class="page-sub">选择设计风格，AI生成完整套图方案</div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">风格选择</div></div>
+          <div class="style-grid" id="styleGrid"></div>
+        </div>
+        <div class="grid-2" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">参考图上传</div></div>
+            <input type="file" id="img-file-input" accept="image/*" style="display:none" onchange="handleImgUpload(this)">
+            <div class="upload-zone" id="img-upload-zone" onclick="document.getElementById('img-file-input').click()" ondrop="handleImgDrop(event)" ondragover="handleImgDragOver(event)" ondragleave="handleImgDragLeave(event)">
+              <div id="img-upload-content">
+                <div class="upload-icon">&#8686;</div>
+                <div class="upload-text">上传参考图（可选）</div>
+                <div class="upload-hint">AI将参考您的风格进行设计</div>
+              </div>
+              <div id="img-upload-preview" style="display:none;position:relative;">
+                <img id="img-preview-img" style="max-width:100%;max-height:180px;border-radius:8px;border:1px solid var(--border);">
+                <div onclick="clearImgRef(event)" style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.5);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;line-height:1;">&times;</div>
+              </div>
+            </div>
+            <div style="margin-top:14px"><button class="btn btn-primary btn-lg" style="width:100%" onclick="generateImages()">&#9889; 开始AI生成套图</button></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">生成结果</div></div>
+            <div class="gen-grid" id="genGrid" style="grid-template-columns:1fr 1fr"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: SCRIPT ===== -->
+      <section id="page-script" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:#f59e0b">&#9994;</span>话术建议</div>
+          <div class="page-sub">针对不同场景的标准化话术，一键复制使用</div>
+        </div>
+        <div class="card">
+          <div class="scene-tabs" id="sceneTabs"></div>
+          <div class="script-cards" id="scriptCards"></div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: REVIEW ===== -->
+      <section id="page-review" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:#ef4444">&#9733;</span>评价管理</div>
+          <div class="page-sub">好评引导 · 差评智能回复 · 评价数据统计</div>
+        </div>
+        <div class="review-assist-grid">
+          <div class="card">
+            <div class="card-header"><div class="card-title">&#129302; 差评智能回复助手</div></div>
+            <div class="review-assist-input">
+              <div style="font-size:12px;font-weight:600;color:var(--text-sub);margin-bottom:6px">输入差评内容</div>
+              <textarea id="rvAssistText" placeholder="粘贴客户的差评文字..."></textarea>
+              <input type="file" id="rv-file-input" accept="image/*" style="display:none" onchange="handleRvUpload(this)">
+              <div class="upload-zone" id="rv-upload-zone" onclick="document.getElementById('rv-file-input').click()" ondrop="handleRvDrop(event)" ondragover="handleRvDragOver(event)" ondragleave="handleRvDragLeave(event)">
+                <div id="rv-upload-content">
+                  <div class="upload-icon">&#8686;</div>
+                  <div class="upload-text">上传差评截图（可选）</div>
+                  <div class="upload-hint">JPG / PNG，AI将识别图片内容</div>
+                </div>
+                <div id="rv-upload-preview" style="display:none;position:relative;">
+                  <img id="rv-preview-img" style="max-width:100%;max-height:140px;border-radius:8px;border:1px solid var(--border);">
+                  <div onclick="clearRvImage(event)" style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.5);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;line-height:1;">&times;</div>
+                </div>
+              </div>
+              <div style="margin-top:10px"><button class="btn btn-primary btn-lg" style="width:100%" onclick="analyzeReview()">&#9889; AI分析并生成回复</button></div>
+            </div>
+          </div>
+          <div class="card review-assist-result" id="rvAssistResult">
+            <div class="card-header"><div class="card-title">AI分析结果</div></div>
+            <div id="rvAssistBody">
+              <div class="empty" style="padding:40px 0">输入差评内容并点击分析，AI将为您生成回复建议</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:12px">好评引导三步SOP</div>
+          <div class="sop-grid">
+            <div class="sop-card" style="background:linear-gradient(135deg,#1a3a5c,#1e4d7b)">
+              <div class="sop-num">01</div>
+              <div class="sop-title">就诊结束时口头邀请</div>
+              <div class="sop-desc">杜秀臻医生/护士：「感谢您今天的信任，如果满意欢迎在美团给我们留下评价~」</div>
+            </div>
+            <div class="sop-card" style="background:linear-gradient(135deg,#065f46,#047857)">
+              <div class="sop-num">02</div>
+              <div class="sop-title">离院后2小时企微发送</div>
+              <div class="sop-desc">「感谢今天到访！点击评价链接为我们5分好评，即可获得下次免检查费优惠券」</div>
+            </div>
+            <div class="sop-card" style="background:linear-gradient(135deg,#92400e,#b45309)">
+              <div class="sop-num">03</div>
+              <div class="sop-title">7天内二次跟进</div>
+              <div class="sop-desc">「您的眼健康情况有没有改善？我们非常重视您的反馈，期待您分享就诊体验~」</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div class="card-title">评价列表</div>
+            <div class="review-tabs" id="rvTabs">
+              <div class="review-tab active" data-rv="all" onclick="filterReviews('all')">全部 (3)</div>
+              <div class="review-tab" data-rv="good" onclick="filterReviews('good')">好评 (2)</div>
+              <div class="review-tab" data-rv="bad" onclick="filterReviews('bad')">差评 (1)</div>
+            </div>
+          </div>
+          <div id="rvList"></div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-header">差评分类处理指南</div>
+          <div id="guideItems"></div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: MEITUAN OPS ===== -->
+      <section id="page-meituan-ops" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">&#9874;</span>美团运营诊断</div>
+          <div class="page-sub">全面诊断店铺运营状态，输出优化方案</div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">诊断维度</div></div>
+          <div style="padding:16px">
+            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runMeituanOps()">&#9889; 开始美团运营诊断</button>
+            <div id="meituanOpsResult"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: PRIVATE DOMAIN ===== -->
+      <section id="page-private-domain" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#10b981,#06b6d4)">&#9741;</span>私域运营</div>
+          <div class="page-sub">企微SCRM、复查提醒、社群运营一站式方案</div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">私域运营方案</div></div>
+          <div style="padding:16px">
+            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runPrivateDomain()">&#9889; 生成私域运营方案</button>
+            <div id="privateDomainResult"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: DOUYIN ===== -->
+      <section id="page-douyin" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#1f2937,#ef4444)">&#9654;</span>抖音策略</div>
+          <div class="page-sub">短视频脚本、直播方案、投放策略</div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">抖音内容方案</div></div>
+          <div style="padding:16px">
+            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runDouyinPlan()">&#9889; 生成抖音策略方案</button>
+            <div id="douyinPlanResult"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: XIAOHONGSHU ===== -->
+      <section id="page-xiaohongshu" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#ef4444,#f472b6)">&#9829;</span>小红书策略</div>
+          <div class="page-sub">种草笔记、达人合作、趋势运营</div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">小红书种草方案</div></div>
+          <div style="padding:16px">
+            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runXiaohongshuPlan()">&#9889; 生成小红书策略方案</button>
+            <div id="xiaohongshuPlanResult"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: WECHAT ===== -->
+      <section id="page-wechat" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#10b981,#3b82f6)">&#9993;</span>公众号运营</div>
+          <div class="page-sub">推文策划、菜单架构、内容日历</div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">公众号运营方案</div></div>
+          <div style="padding:16px">
+            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runWechatPlan()">&#9889; 生成公众号运营方案</button>
+            <div id="wechatPlanResult"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: GROWTH ===== -->
+      <section id="page-growth" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#8b5cf6,#3b82f6)">&#9734;</span>增长策略</div>
+          <div class="page-sub">转化漏斗、渠道ROI、增长实验、月度计划</div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">增长策略方案</div></div>
+          <div style="padding:16px">
+            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runGrowthPlan()">&#9889; 生成增长策略方案</button>
+            <div id="growthPlanResult"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: CLINIC COLLECT ===== -->
+      <section id="page-clinic-collect" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#10b981,#06b6d4)">&#127973;</span>门诊采集分析</div>
+          <div class="page-sub">上传美团门诊截图或输入大众点评网址，AI自动分析项目设置、定价、销量、评价</div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">数据源</div></div>
+          <div style="padding:16px">
+            <div class="tab-switch" style="margin-bottom:16px">
+              <button class="tab-btn active" id="clinicTabScreenshot" onclick="switchClinicTab('screenshot')">&#128247; 上传截图</button>
+              <button class="tab-btn" id="clinicTabUrl" onclick="switchClinicTab('url')">&#127760; 输入网址</button>
+            </div>
+            <div id="clinicScreenshotPanel">
+              <input type="file" id="clinic-file-input" accept="image/*" style="display:none" onchange="clinicHandleUpload(this)">
+              <div class="upload-zone" id="clinic-upload-zone" onclick="document.getElementById('clinic-file-input').click()" ondrop="clinicHandleDrop(event)" ondragover="clinicHandleDragOver(event)" ondragleave="clinicHandleDragLeave(event)" style="margin-bottom:14px">
+                <div id="clinic-upload-content">
+                  <div class="upload-icon">&#8686;</div>
+                  <div class="upload-text">上传美团门诊截图</div>
+                  <div class="upload-hint">支持 JPG / PNG，拖拽或点击上传</div>
+                </div>
+                <div id="clinic-upload-preview" style="display:none;position:relative;">
+                  <img id="clinic-preview-img" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);">
+                  <div onclick="clinicClearImage(event)" style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.5);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;line-height:1;">&times;</div>
+                </div>
+              </div>
+            </div>
+            <div id="clinicUrlPanel" style="display:none">
+              <div class="url-input-wrap">
+                <input type="text" id="clinicUrlInput" placeholder="请输入大众点评门店网址，如 https://www.dianping.com/shop/xxx" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:border-color .2s">
+              </div>
+              <div class="upload-hint" style="margin-top:8px">支持大众点评门店页面URL，AI自动抓取并分析</div>
+            </div>
+            <button class="btn btn-primary btn-lg" style="width:100%;margin-top:16px" onclick="runClinicAnalysis()">&#128269; 开始智能分析</button>
+            <div id="clinicCollectResult" style="margin-top:16px"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast-box"></div>
+
+<!-- Add Clinic Modal -->
+<div class="modal-overlay" id="addClinicModal" style="display:none" onclick="if(event.target===this)closeAddClinicModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>🏥 新增门诊</span>
+      <span class="modal-close" onclick="closeAddClinicModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="tab-switch" style="margin-bottom:16px">
+        <button class="tab-btn active" id="addTabManual" onclick="switchAddTab('manual')">✏️ 手动输入</button>
+        <button class="tab-btn" id="addTabUrl" onclick="switchAddTab('url')">🔗 大众点评</button>
+        <button class="tab-btn" id="addTabScreenshot" onclick="switchAddTab('screenshot')">📷 美团截图</button>
+      </div>
+      <!-- Manual -->
+      <div id="addPanelManual">
+        <input class="add-form-field" id="addName" placeholder="门诊名称（必填）*">
+        <input class="add-form-field" id="addDoctor" placeholder="主诊医生">
+        <div class="add-form-row">
+          <input class="add-form-field" id="addDoctorExp" placeholder="从业年限">
+          <input class="add-form-field" id="addPhone" placeholder="联系电话">
+        </div>
+        <input class="add-form-field" id="addAddress" placeholder="门诊地址">
+        <div class="add-form-row">
+          <input class="add-form-field" id="addRating" type="number" step="0.1" min="1" max="5" placeholder="评分(1-5)">
+          <input class="add-form-field" id="addReviews" type="number" placeholder="评价数">
+        </div>
+      </div>
+      <!-- URL -->
+      <div id="addPanelUrl" style="display:none">
+        <input class="add-form-field" id="addUrl" placeholder="请输入大众点评门店链接，AI自动识别门诊信息">
+        <div style="font-size:11px;color:var(--text-sub);margin-bottom:10px">支持大众点评门店页面URL，系统将自动抓取门诊名称、评分、医生等信息</div>
+      </div>
+      <!-- Screenshot -->
+      <div id="addPanelScreenshot" style="display:none">
+        <input type="file" id="add-file-input" accept="image/*" style="display:none" onchange="handleAddScreenshot(this)">
+        <div class="add-upload-zone" id="add-upload-zone" onclick="document.getElementById('add-file-input').click()">
+          <div id="add-upload-text">
+            <div style="font-size:28px;margin-bottom:8px">📷</div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px">上传美团门诊截图</div>
+            <div style="font-size:11px;color:var(--text-sub)">支持 JPG / PNG，AI自动识别门诊信息</div>
+          </div>
+          <div id="add-upload-preview" style="display:none">
+            <img id="add-preview-img" style="max-width:100%;max-height:180px;border-radius:8px">
+            <div style="font-size:11px;color:var(--accent);margin-top:6px;cursor:pointer" onclick="clearAddScreenshot(event)">✕ 清除图片</div>
+          </div>
+        </div>
+      </div>
+      <div id="addLoading" style="display:none;text-align:center;padding:20px"><div class="spinner" style="margin:0 auto 10px"></div><div style="font-size:13px;color:var(--text-sub)">AI正在识别门诊信息...</div></div>
+      <button class="btn btn-primary btn-lg" style="width:100%;margin-top:12px" onclick="submitAddClinic()">✅ 确认新增</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== DATA ===== */
+var PRODUCTS = [
+  {id:'p1',type:'traffic',dot:'#3b82f6',name:'儿童青少年视力检查',meta:'眼轴检测/角膜塑形镜/近视防控验配 | 已售207+',price:'\u00a539.9'},
+  {id:'p2',type:'traffic',dot:'#3b82f6',name:'成人医学验光',meta:'成人验光套餐数显+支抗外配眼镜 | 已售97',price:'\u00a519.9'},
+  {id:'p3',type:'bundle',dot:'#8b5cf6',name:'儿童青少年视力检查',meta:'眼轴测量/角膜塑形镜/近视防控验配',price:'\u00a597'},
+  {id:'p4',type:'profit',dot:'#10b981',name:'干预理疗舒缓疲劳',meta:'舒缓疲劳调适/感疲劳SPA套餐',price:'\u00a599'},
+  {id:'p5',type:'profit',dot:'#10b981',name:'成人医学验光配深度版',meta:'不满品牌镜片+框架备套',price:'\u00a5299'},
+  {id:'p6',type:'traffic',dot:'#3b82f6',name:'干眼检查',meta:'裂干/眼红/眼痒/眼有涩感必备检查',price:'\u00a519.9'},
+  {id:'p7',type:'profit',dot:'#10b981',name:'视功能训练',meta:'斜弱视视功能训练体验卡次',price:'\u00a5199'},
+  {id:'p8',type:'bundle',dot:'#8b5cf6',name:'近视儿童度数防护24次复查',meta:'含查散瞳',price:'\u00a5298'},
+  {id:'p9',type:'bundle',dot:'#8b5cf6',name:'成人医学验配精选',meta:'不限品牌镜片+医美级镜框',price:'\u00a5699'},
+  {id:'p10',type:'bundle',dot:'#8b5cf6',name:'OK镜摘戴检查',meta:'角膜塑形镜儿童视觉控制验配套 | 原价\u00a51789',price:'\u00a51178'},
+  {id:'p11',type:'traffic',dot:'#3b82f6',name:'成人医学验光(按日租用)',meta:'不支持院外配镜需求',price:'\u00a559'},
+  {id:'p12',type:'bundle',dot:'#8b5cf6',name:'多敏近视控制离焦镜',meta:'儿童近视防控镜片+镜架套装',price:'\u00a5990'},
+  {id:'p13',type:'traffic',dot:'#3b82f6',name:'眼镜日常保养',meta:'眼镜维护保养套含鼻托清洁剂清洗',price:'\u00a59.9'},
+  {id:'p14',type:'profit',dot:'#10b981',name:'近视眼健康套餐',meta:'同款浓度按摩托',price:'\u00a589'},
+  {id:'p15',type:'bundle',dot:'#8b5cf6',name:'ICL晶体眼复',meta:'角膜塑形镜验检4次复诊含跟踪服务',price:'\u00a5499'},
+  {id:'p16',type:'bundle',dot:'#8b5cf6',name:'医学验光全家套餐',meta:'近视控制家庭套餐一套6次复诊',price:'\u00a5198'},
+  {id:'p17',type:'bundle',dot:'#8b5cf6',name:'爱尔斜肌角膜塑形机养',meta:'青少年近视防控散防',price:'\u00a5500'},
+  {id:'p18',type:'bundle',dot:'#8b5cf6',name:'青少年远控镜制',meta:'小青麦智能能控近视潮提提用服好用习惯',price:'\u00a52376'},
+  {id:'p19',type:'bundle',dot:'#8b5cf6',name:'儿童低视功能套餐',meta:'小青麦多焦点高清片+镜架',price:'\u00a54131'}
+];
+
+var SCREENS = [
+  {title:'第1屏 \u00b7 利益钩子',body:'儿童青少年视力检查 | 仅\u00a539.9 \u00b7 眼轴检测/角膜塑形镜\n爱尔眼科 \u00b7 杜秀臻医生1对1解读报告\n\n今日还剩12份 | 已有207+人购买 | 90天有效期'},
+  {title:'第2屏 \u00b7 痛点场景',body:'"孩子总说看不清黑板"\n"你担心过是近视还是假性近视吗？"\n"及早筛查，才能及早干预"\n\n适合人群：\n\u2022 6-18岁儿童青少年\n\u2022 经常揉眼眯眼\n\u2022 佩戴眼镜度数增长快'},
+  {title:'第3屏 \u00b7 服务流程',body:'4步完成检查，全程约45分钟\n\n\u2460 预约到店(5分钟)\n   \u2193\n\u2461 专业验光 \u00b7 眼轴检测等多项检查(20分钟)\n   \u2193\n\u2462 杜秀臻医生报告解读(15分钟)\n   \u2193\n\u2463 个性化建议(5分钟)'},
+  {title:'第4屏 \u00b7 资质背书',body:'爱尔眼科 \u00b7 临沂光门诊(金水河畔店)\n\n\u2713 三甲水准服务标准\n\u2713 注册眼科医师团队\n\u2713 杜秀臻医生 \u2014 从业10年\n\u2713 先进仪器全国位验配设备\n\u2713 A股上市眼科集团（300015）\n\u2713 全国900+门诊覆盖'},
+  {title:'第5屏 \u00b7 真实评价',body:'\u201c先进仪器全国位验配设备，\n能精准适配合视力矫正所需！\n服务从挂号到\u2026\u201d\n\n\u2014\u2014 朱大大宝贝 \u2605\u2605\u2605\u2605\u2605\n\n\u201c验光师很专业，团购价也很实惠！\u201d\n\n\u2014\u2014 匿名用户 \u2605\u2605\u2605\u2605\u2605'},
+  {title:'第6屏 \u00b7 FAQ解疑',body:'家长最关心的5个问题\n\nQ: 孩子多大可以做？\nA: 建议3岁以上\n\nQ: 检查前需要准备什么？\nA: 停戴隐形眼镜3天\n\nQ: 当天能拿报告吗？\nA: 是的，当场出具\n\nQ: 需要空腹吗？\nA: 不需要，正常饮食即可\n\nQ: 多久需要复查一次？\nA: 建议每3-6个月复查'},
+  {title:'第7屏 \u00b7 预约CTA',body:'立即预约 \u00b7 锁定今日份额\n\n\u260e 0539-XXXX-XXXX\n\u2302 临沂市兰山区金水河畔XX号\n\u2299 杜秀臻医生 \u00b7 眼科 \u00b7 从业10年\n\n预约后1小时内确认\n营业时间：周一至周日 8:00-20:00'}
+];
+
+var STYLES = [
+  {id:'warm',name:'亲子温暖型',desc:'蓝绿配色，温馨家庭感',bg:'linear-gradient(135deg,#06b6d4,#10b981)'},
+  {id:'pro',name:'专业信任型',desc:'深蓝白配色，权威医疗感',bg:'linear-gradient(135deg,#1a3a5c,#3b82f6)'},
+  {id:'promo',name:'优惠促销型',desc:'红黄配色，活力促销感',bg:'linear-gradient(135deg,#ef4444,#f59e0b)'},
+  {id:'premium',name:'高端医疗型',desc:'深灰金色配色，高端质感',bg:'linear-gradient(135deg,#1f2937,#d97706)'}
+];
+
+var GEN_ITEMS = [
+  {name:'内页图\u00b7第1屏',size:'750\u00d71400px',h:160},
+  {name:'内页图\u00b7第2屏',size:'750\u00d71400px',h:160},
+  {name:'主图A/B测试',size:'800\u00d7800px',h:160},
+  {name:'活动Banner',size:'1200\u00d7400px',h:100}
+];
+
+var SCENES = ['全部','预约确认','到店接待','检查结果','升级引导','离店跟进'];
+
+var SCRIPTS = [
+  {scene:'预约确认',iconBg:'#3b82f6',iconChar:'A',name:'预约确认短信',desc:'用户下单后30分钟内发送',
+   text:'已成功为您预约儿童青少年视力检查，时间XX月XX日，地址：临沂市兰山区金水河畔店。温馨提示：检查前停戴隐形眼镜3天。如需改期请提前2小时告知。'},
+  {scene:'到店接待',iconBg:'#10b981',iconChar:'B',name:'到店接待话术',desc:'患者到店前台接待时使用',
+   text:'您好，欢迎来到临沂爱尔眼科光门诊！是来做儿童青少年视力检查的吗？太好了，我们今天会为孩子做眼轴检测等多项专业检查，全程大约45分钟，杜秀臻医生会为您1对1解读报告。先帮您登记一下。'},
+  {scene:'检查结果',iconBg:'#8b5cf6',iconChar:'C',name:'检查结果沟通',desc:'医生出具报告后沟通结果',
+   text:'检查结果出来了，孩子目前处于近视增长关键期，建议每3个月复查一次。我们有一个近视儿童度数防护24次复查方案，可以系统地帮助孩子控制度数增长，还包含散瞳检查。'},
+  {scene:'离店跟进',iconBg:'#f59e0b',iconChar:'D',name:'离店48小时跟进',desc:'就诊后48小时企微发送',
+   text:'您好！孩子今天检查很配合，报告显示一切正常请放心。如果孩子近期有眯眼、揉眼等情况随时联系我们。另外，如果满意的话，能在美团给我们留个评价吗？'}
+];
+
+var REVIEWS = [
+  {id:1,type:'good',name:'朱大大宝贝',color:'#3b82f6',stars:5,date:'2025-05-08',
+   content:'服务：先进仪器全国位验配设备，能精准适配合视力矫正所需！服务从挂号到检查全程都很贴心',
+   tags:['服务好','手法专业']},
+  {id:2,type:'good',name:'User202820950',color:'#10b981',stars:5,date:'2025-05-05',
+   content:'干眼理疗真的是太难变了，去这边做了一次效果就非常明显，值得推荐。',
+   tags:['效果明显','环境好']},
+  {id:3,type:'bad',name:'匿名用户',color:'#ef4444',stars:3,date:'2025-05-03',
+   content:'等了40多分钟才轮到，体验很差，预约了感觉也没用',
+   tags:['等待时间长'],
+   aiReply:'非常感谢您选择临沂爱尔眼科光门诊，也非常抱歉让您久等了。您提到的等待问题确实反映了我们在预约管理上有待改进的地方，我们已将您的反馈反映给门诊管理团队。如方便，我们诚挚邀请您再次到访，确保体验更顺畅。'}
+];
+
+var GUIDES = [
+  {icon:'&#9201;',title:'等太久',steps:'1. 立即公开回复表达歉意\n2. 说明当天候诊情况\n3. 告知改善措施（增号/提醒功能）\n4. 私信提供复查优惠\n5. 反馈给运营组排查系统问题'},
+  {icon:'&#9785;',title:'效果差',steps:'1. 先共情，不争辩\n2. 解释眼科检查的客观性\n3. 免费安排复诊让患者感受专业\n4. 将案例反馈给对应医生\n5. 两周后电话回访'},
+  {icon:'&#9888;',title:'态度差',steps:'1. 诚恳道歉不推卸责任\n2. 内部核查当班员工情况\n3. 回复中承诺已进行内部培训\n4. 私信邀请重新体验\n5. 纳入月度服务培训案例'},
+  {icon:'&#9888;',title:'恶意差评',steps:'1. 核查用户是否有真实就诊记录\n2. 公开回复保持专业不正面对抗\n3. 确认非真实就诊则美团后台申诉\n4. 截图保存相关记录备用\n5. 严重诽谤咨询法律意见'}
+];
+
+/* ===== STATE ===== */
+var selectedStyle = 'pro';
+var selectedProduct = 'p1';
+var productFilter = 'all';
+var sceneFilter = '全部';
+var reviewFilter = 'all';
+
+/* ===== API CONFIG ===== */
+var API_BASE = 'http://localhost:3000/api';
+var CLINIC = {
+  name: '临沂爱尔眼科光门诊(金水河畔店)',
+  doctor: '杜秀臻',
+  doctorExp: '从业10年',
+  address: '临沂市兰山区金水河畔',
+  phone: '0539-XXXX-XXXX',
+  rating: 4.5,
+  reviews: 105
+};
+
+var CLINIC_LIST = [
+  { name: '临沂爱尔眼科光门诊(金水河畔店)', doctor: '杜秀臻', doctorExp: '从业10年', address: '临沂市兰山区金水河畔', phone: '0539-XXXX-XXXX', rating: 4.5, reviews: 105 },
+  { name: '临沂爱尔眼科(红旗路店)', doctor: '李眼科', doctorExp: '从业8年', address: '临沂市兰山区红旗路56号', phone: '0539-YYYY-YYYY', rating: 4.6, reviews: 89 },
+  { name: '临沂华厦眼科门诊', doctor: '张明华', doctorExp: '从业12年', address: '临沂市兰山区解放路88号', phone: '0539-ZZZZ-ZZZZ', rating: 4.3, reviews: 68 },
+  { name: '蔡甸门诊(武汉爱尔)', doctor: '王主任', doctorExp: '从业15年', address: '武汉市蔡甸区新天大道168号', phone: '027-AAAA-AAAA', rating: 4.7, reviews: 132 }
+];
+
+var clinicIndex = 0;
+
+function buildDropdownItems() {
+  var html = '';
+  CLINIC_LIST.forEach(function(c, i) {
+    var isActive = i === clinicIndex;
+    html += '<div class="clinic-dropdown-item' + (isActive ? ' active' : '') + '" onclick="switchClinic(' + i + ', event)">';
+    html += '<div class="clinic-dropdown-item-name">' + c.name + (isActive ? ' <span class="check">✓</span>' : '') + '</div>';
+    html += '<div class="clinic-dropdown-item-doctor">' + c.doctor + ' · ' + c.doctorExp + ' · 评分' + c.rating + ' · ' + c.reviews + '条评价</div>';
+    html += '</div>';
+  });
+  html += '<div class="clinic-dropdown-divider"></div>';
+  html += '<div class="clinic-dropdown-item clinic-dropdown-add" onclick="showAddClinicModal(event)">+ 新增门诊...</div>';
+  return html;
+}
+
+function toggleClinicDropdown(e) {
+  if (e) e.stopPropagation();
+  var dd = document.getElementById('clinicDropdown');
+  var isOpen = dd.style.display === 'block';
+  if (isOpen) {
+    dd.style.display = 'none';
+  } else {
+    dd.innerHTML = buildDropdownItems();
+    dd.style.display = 'block';
+  }
+}
+
+function switchClinic(index, e) {
+  if (e) e.stopPropagation();
+  clinicIndex = index;
+  var c = CLINIC_LIST[index];
+  CLINIC.name = c.name;
+  CLINIC.doctor = c.doctor;
+  CLINIC.doctorExp = c.doctorExp;
+  CLINIC.address = c.address;
+  CLINIC.phone = c.phone;
+  CLINIC.rating = c.rating;
+  CLINIC.reviews = c.reviews;
+  document.getElementById('hClinicName').textContent = c.name;
+  document.getElementById('clinicDropdown').style.display = 'none';
+  showToast('已切换至：' + c.name, 'success');
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', function() {
+  var dd = document.getElementById('clinicDropdown');
+  if (dd && dd.style.display === 'block') dd.style.display = 'none';
+});
+
+// ===== ADD CLINIC MODULE =====
+var addScreenshotImage = null;
+var addCurrentTab = 'manual';
+
+// Load custom clinics from localStorage
+function loadCustomClinics() {
+  try {
+    var saved = localStorage.getItem('customClinics');
+    if (saved) {
+      var custom = JSON.parse(saved);
+      custom.forEach(function(c) { CLINIC_LIST.push(c); });
+    }
+  } catch(e) { /* ignore */ }
+}
+
+function saveCustomClinics() {
+  try {
+    var custom = CLINIC_LIST.slice(4); // keep first 4 presets, save the rest
+    if (custom.length > 0) localStorage.setItem('customClinics', JSON.stringify(custom));
+  } catch(e) { /* ignore */ }
+}
+
+function showAddClinicModal(e) {
+  if (e) e.stopPropagation();
+  document.getElementById('addClinicModal').style.display = 'flex';
+  resetAddForm();
+}
+
+function closeAddClinicModal() {
+  document.getElementById('addClinicModal').style.display = 'none';
+  resetAddForm();
+}
+
+function resetAddForm() {
+  addScreenshotImage = null;
+  addCurrentTab = 'manual';
+  ['addName','addDoctor','addDoctorExp','addAddress','addPhone','addUrl'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('addRating').value = '';
+  document.getElementById('addReviews').value = '';
+  document.getElementById('add-file-input').value = '';
+  document.getElementById('add-upload-text').style.display = '';
+  document.getElementById('add-upload-preview').style.display = 'none';
+  document.getElementById('addLoading').style.display = 'none';
+  // Reset tabs
+  switchAddTab('manual');
+}
+
+function switchAddTab(tab) {
+  addCurrentTab = tab;
+  document.getElementById('addTabManual').classList.toggle('active', tab === 'manual');
+  document.getElementById('addTabUrl').classList.toggle('active', tab === 'url');
+  document.getElementById('addTabScreenshot').classList.toggle('active', tab === 'screenshot');
+  document.getElementById('addPanelManual').style.display = tab === 'manual' ? '' : 'none';
+  document.getElementById('addPanelUrl').style.display = tab === 'url' ? '' : 'none';
+  document.getElementById('addPanelScreenshot').style.display = tab === 'screenshot' ? '' : 'none';
+}
+
+function handleAddScreenshot(input) {
+  if (input.files && input.files[0]) {
+    var file = input.files[0];
+    if (file.size > 5 * 1024 * 1024) { showToast('图片不超过5MB', 'error'); return; }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      addScreenshotImage = e.target.result;
+      document.getElementById('add-upload-text').style.display = 'none';
+      document.getElementById('add-upload-preview').style.display = '';
+      document.getElementById('add-preview-img').src = addScreenshotImage;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function clearAddScreenshot(e) {
+  if (e) e.stopPropagation();
+  addScreenshotImage = null;
+  document.getElementById('add-file-input').value = '';
+  document.getElementById('add-upload-text').style.display = '';
+  document.getElementById('add-upload-preview').style.display = 'none';
+}
+
+async function submitAddClinic() {
+  // Manual mode
+  if (addCurrentTab === 'manual') {
+    var name = document.getElementById('addName').value.trim();
+    if (!name) { showToast('请输入门诊名称', 'warning'); return; }
+    var clinic = {
+      name: name,
+      doctor: document.getElementById('addDoctor').value.trim() || '待补充',
+      doctorExp: document.getElementById('addDoctorExp').value.trim() || '待补充',
+      address: document.getElementById('addAddress').value.trim() || '待补充',
+      phone: document.getElementById('addPhone').value.trim() || '待补充',
+      rating: parseFloat(document.getElementById('addRating').value) || 4.5,
+      reviews: parseInt(document.getElementById('addReviews').value) || 0
+    };
+    addClinicToList(clinic);
+    return;
+  }
+
+  // URL or Screenshot mode - call API
+  var body = { sourceType: addCurrentTab === 'url' ? 'url' : 'screenshot' };
+  if (addCurrentTab === 'url') {
+    var url = document.getElementById('addUrl').value.trim();
+    if (!url) { showToast('请输入大众点评链接', 'warning'); return; }
+    body.url = url;
+  } else {
+    if (!addScreenshotImage) { showToast('请上传美团截图', 'warning'); return; }
+    body.imageBase64 = addScreenshotImage;
+  }
+
+  document.getElementById('addLoading').style.display = '';
+  try {
+    var data = await callAPI('/clinic-analysis', body);
+    var clinic = {
+      name: data.clinicInfo.name,
+      doctor: 'AI识别',
+      doctorExp: '待补充',
+      address: data.clinicInfo.address,
+      phone: '待补充',
+      rating: parseFloat(data.clinicInfo.rating) || 4.5,
+      reviews: parseInt(data.clinicInfo.reviewCount) || 0
+    };
+    document.getElementById('addLoading').style.display = 'none';
+    addClinicToList(clinic);
+  } catch(e) {
+    document.getElementById('addLoading').style.display = 'none';
+    showToast('AI识别失败，请手动输入', 'error');
+  }
+}
+
+function addClinicToList(clinic) {
+  CLINIC_LIST.push(clinic);
+  clinicIndex = CLINIC_LIST.length - 1;
+  CLINIC.name = clinic.name;
+  CLINIC.doctor = clinic.doctor;
+  CLINIC.doctorExp = clinic.doctorExp;
+  CLINIC.address = clinic.address;
+  CLINIC.phone = clinic.phone;
+  CLINIC.rating = clinic.rating;
+  CLINIC.reviews = clinic.reviews;
+  document.getElementById('hClinicName').textContent = clinic.name;
+  saveCustomClinics();
+  closeAddClinicModal();
+  showToast('✅ 已新增：' + clinic.name, 'success');
+}
+
+// Load custom clinics on page init
+loadCustomClinics();
+
+/* ===== API HELPER ===== */
+async function callAPI(endpoint, data) {
+  try {
+    var resp = await fetch(API_BASE + endpoint, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    if (!resp.ok) throw new Error('API错误: ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    showToast('服务连接失败，请确保已启动后端服务(node server.js)','error');
+    throw e;
+  }
+}
+
+function showLoading(container) {
+  container.innerHTML = '<div class="loading"><div class="spinner"></div><div class="loading-text">AI正在生成中...</div></div>';
+}
+
+/* ===== TOAST ===== */
+function showToast(msg, type) {
+  type = type || 'success';
+  var box = document.getElementById('toast-box');
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  var icons = {success:'\u2714',warning:'\u26A0',error:'\u2716',info:'\u2139'};
+  t.innerHTML = '<span>' + (icons[type]||'\u2714') + '</span><span>' + msg + '</span>';
+  box.appendChild(t);
+  setTimeout(function(){
+    t.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(function(){ t.remove(); }, 300);
+  }, 2000);
+}
+
+/* ===== CLIPBOARD ===== */
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){
+      showToast('复制成功！','success');
+    }).catch(function(){ fallbackCopy(text); });
+  } else {
+    fallbackCopy(text);
+  }
+}
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showToast('复制成功！','success'); }
+  catch(e) { showToast('复制失败，请手动复制','error'); }
+  document.body.removeChild(ta);
+}
+
+/* ===== PAGE SWITCH ===== */
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.s-item').forEach(function(n){ n.classList.remove('active'); });
+  var page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  var nav = document.querySelector('.s-item[data-page="'+id+'"]');
+  if (nav) nav.classList.add('active');
+  document.getElementById('content').scrollTop = 0;
+  if (id === 'dash') drawChart();
+}
+
+/* ===== DASHBOARD CHART ===== */
+function drawChart() {
+  var canvas = document.getElementById('orderChart');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var rect = canvas.parentElement.getBoundingClientRect();
+  var w = rect.width - 40;
+  var h = 220;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.scale(dpr, dpr);
+
+  var data = [18,22,15,28,35,30,42];
+  var labels = ['7/8','7/9','7/10','7/11','7/12','7/13','7/14'];
+  var maxV = Math.max.apply(null, data) * 1.2;
+  var padL = 40, padR = 20, padT = 20, padB = 30;
+  var cw = w - padL - padR;
+  var ch = h - padT - padB;
+
+  ctx.clearRect(0,0,w,h);
+
+  // Grid lines
+  ctx.strokeStyle = '#f0f0f0';
+  ctx.lineWidth = 1;
+  for (var i = 0; i <= 4; i++) {
+    var y = padT + ch * (1 - i/4);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + cw, y); ctx.stroke();
+    ctx.fillStyle = '#9ca3af'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxV * i/4), padL - 6, y + 4);
+  }
+
+  // X labels
+  ctx.fillStyle = '#9ca3af'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  var step = cw / (data.length - 1);
+  for (var i = 0; i < data.length; i++) {
+    ctx.fillText(labels[i], padL + step * i, h - 6);
+  }
+
+  // Area fill
+  ctx.beginPath();
+  for (var i = 0; i < data.length; i++) {
+    var x = padL + step * i;
+    var y = padT + ch * (1 - data[i]/maxV);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.lineTo(padL + step * (data.length - 1), padT + ch);
+  ctx.lineTo(padL, padT + ch);
+  ctx.closePath();
+  var grad = ctx.createLinearGradient(0, padT, 0, padT + ch);
+  grad.addColorStop(0, 'rgba(59,130,246,0.15)');
+  grad.addColorStop(1, 'rgba(59,130,246,0)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+  for (var i = 0; i < data.length; i++) {
+    var x = padL + step * i;
+    var y = padT + ch * (1 - data[i]/maxV);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Dots
+  for (var i = 0; i < data.length; i++) {
+    var x = padL + step * i;
+    var y = padT + ch * (1 - data[i]/maxV);
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2);
+    ctx.fillStyle = '#3b82f6'; ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI*2);
+    ctx.fillStyle = '#fff'; ctx.fill();
+  }
+}
+
+/* ===== COMPETITOR ===== */
+var compUploadedImage = null;
+
+function handleCompUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+  processCompFile(file);
+}
+
+function handleCompDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('comp-upload-zone').classList.remove('dragover');
+  var files = e.dataTransfer.files;
+  if (files.length > 0) processCompFile(files[0]);
+}
+
+function handleCompDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('comp-upload-zone').classList.add('dragover');
+}
+
+function handleCompDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('comp-upload-zone').classList.remove('dragover');
+}
+
+function processCompFile(file) {
+  if (!file.type.startsWith('image/')) {
+    showToast('请上传图片文件（JPG/PNG）', 'error');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('图片过大，请上传5MB以内的截图', 'error');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    compUploadedImage = e.target.result;
+    document.getElementById('comp-upload-content').style.display = 'none';
+    var preview = document.getElementById('comp-upload-preview');
+    preview.style.display = 'block';
+    document.getElementById('comp-preview-img').src = compUploadedImage;
+    document.getElementById('comp-upload-zone').style.padding = '12px';
+    showToast('截图上传成功！AI将结合图片和文本进行分析', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearCompImage(e) {
+  e.stopPropagation();
+  compUploadedImage = null;
+  document.getElementById('comp-file-input').value = '';
+  document.getElementById('comp-upload-content').style.display = '';
+  document.getElementById('comp-upload-preview').style.display = 'none';
+  document.getElementById('comp-upload-zone').style.padding = '28px';
+}
+
+async function runAnalysis() {
+  var resultDiv = document.getElementById('comp-result');
+  var bodyArea = resultDiv.querySelector('.card-header');
+  // Show loading in result area
+  var resultContent = resultDiv.querySelectorAll('div:not(.card-header)');
+  resultContent.forEach(function(el){ el.style.display = 'none'; });
+  var loadingEl = document.createElement('div');
+  loadingEl.className = 'loading';
+  loadingEl.innerHTML = '<div class="spinner"></div><div class="loading-text">AI正在分析竞品数据...</div>';
+  resultDiv.appendChild(loadingEl);
+
+  var text = document.querySelector('#page-comp textarea').value;
+  try {
+    var data = await callAPI('/competitor-analysis', {
+      text: text,
+      clinicData: CLINIC,
+      imageBase64: compUploadedImage
+    });
+    // Remove loading
+    loadingEl.remove();
+    resultContent.forEach(function(el){ el.style.display = ''; });
+
+    // Render dynamic comparison table
+    renderCompResult(data);
+    resultDiv.classList.add('ai-result');
+    showToast('AI分析完成！', 'success');
+    resultDiv.scrollIntoView({behavior:'smooth'});
+  } catch(e) {
+    loadingEl.remove();
+    resultContent.forEach(function(el){ el.style.display = ''; });
+    // Fallback: show mock toast
+    showToast('使用本地数据分析完成', 'info');
+    resultDiv.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+function renderCompResult(data) {
+  var resultDiv = document.getElementById('comp-result');
+  // Find table body
+  var tableWrap = resultDiv.querySelector('.comp-table-wrap');
+  if (tableWrap && data.table) {
+    var rows = data.table.map(function(row){
+      var levelClass = row.level === 'good' ? 'c-good' : row.level === 'warn' ? 'c-warn' : 'c-bad';
+      var badgeClass = row.level === 'good' ? 'c-badge-good' : row.level === 'warn' ? 'c-badge-warn' : 'c-badge-bad';
+      return '<tr><td><strong>' + row.dim + '</strong></td><td class="' + levelClass + '">' + row.ours + '</td><td class="' + (row.level==='good'?'c-warn':'c-good') + '">' + row.theirs + '</td><td><span class="c-badge ' + badgeClass + '">' + row.gap + '</span></td></tr>';
+    }).join('');
+    tableWrap.innerHTML = '<table class="comp-table"><thead><tr><th>维度</th><th>我方（临沂爱尔光门诊）</th><th>竞品</th><th>差距</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+  // Render suggestions
+  var sugContainer = resultDiv.querySelectorAll('.sug-item');
+  if (sugContainer.length && data.suggestions) {
+    sugContainer.forEach(function(el, i){
+      if (data.suggestions[i]) {
+        var sug = data.suggestions[i];
+        el.className = 'sug-item ' + sug.priority.toLowerCase();
+        el.querySelector('.sug-tag').textContent = sug.priority;
+        el.querySelector('.sug-title').textContent = sug.title;
+        el.querySelector('.sug-desc').textContent = sug.desc;
+      }
+    });
+  }
+}
+
+/* ===== COPYWRITING ===== */
+function renderProducts() {
+  var list = document.getElementById('prodList');
+  var filtered = productFilter === 'all' ? PRODUCTS : PRODUCTS.filter(function(p){ return p.type === productFilter; });
+  list.innerHTML = filtered.map(function(p){
+    return '<div class="product-item ' + (p.id===selectedProduct?'active':'') + '" onclick="selectProduct(\''+p.id+'\')">' +
+      '<div class="product-dot" style="background:'+p.dot+'"></div>' +
+      '<div class="product-info"><div class="product-name">'+p.name+'</div><div class="product-meta">'+p.meta+'</div></div>' +
+      '<div class="product-price">'+p.price+'</div></div>';
+  }).join('');
+}
+
+function filterProducts(f) {
+  productFilter = f;
+  document.querySelectorAll('#prodTabs .product-tab').forEach(function(t){
+    t.classList.toggle('active', t.getAttribute('data-filter') === f);
+  });
+  renderProducts();
+}
+
+async function selectProduct(id) {
+  selectedProduct = id;
+  renderProducts();
+  // Trigger AI copywriting generation
+  await generateCopywriting();
+}
+
+async function generateCopywriting() {
+  var accList = document.getElementById('accList');
+  showLoading(accList);
+
+  var product = PRODUCTS.find(function(p){ return p.id === selectedProduct; });
+  if (!product) { renderAccordion(); return; }
+
+  try {
+    var data = await callAPI('/copywriting-generate', {
+      product: { name: product.name, price: product.price, meta: product.meta, type: product.type },
+      clinicData: CLINIC
+    });
+    // Update SCREENS with AI-generated content
+    if (data.screens && data.screens.length === 7) {
+      SCREENS = data.screens;
+    }
+    renderAccordion();
+    // Open first accordion by default
+    var firstHead = accList.querySelector('.acc-head');
+    var firstBody = accList.querySelector('.acc-body');
+    if (firstHead && firstBody) {
+      firstHead.classList.add('open');
+      firstBody.classList.add('open');
+    }
+    accList.classList.add('ai-result');
+    showToast('AI文案生成完成！', 'success');
+  } catch(e) {
+    // Fallback to default SCREENS
+    renderAccordion();
+    showToast('使用本地文案模板', 'info');
+  }
+}
+
+function renderAccordion() {
+  var list = document.getElementById('accList');
+  list.innerHTML = SCREENS.map(function(s, i){
+    return '<div class="acc-item">' +
+      '<div class="acc-head" onclick="toggleAcc(this)">' +
+        '<div class="acc-num">'+(i+1)+'</div>' +
+        '<div class="acc-title">'+s.title+'</div>' +
+        '<div class="acc-arrow">&#9660;</div>' +
+      '</div>' +
+      '<div class="acc-body">'+s.body+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleAcc(head) {
+  head.classList.toggle('open');
+  var body = head.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function copyAllCopywriting() {
+  var all = SCREENS.map(function(s){ return '=== '+s.title+' ===\n'+s.body; }).join('\n\n');
+  copyText(all);
+}
+
+/* ===== IMAGE GEN ===== */
+function renderStyles() {
+  var grid = document.getElementById('styleGrid');
+  grid.innerHTML = STYLES.map(function(s){
+    return '<div class="style-card ' + (s.id===selectedStyle?'selected':'') + '" onclick="selectStyle(\''+s.id+'\',this)">' +
+      '<div class="style-preview" style="background:'+s.bg+'"></div>' +
+      '<div><div class="style-name">'+s.name+'</div><div class="style-desc">'+s.desc+'</div></div>' +
+    '</div>';
+  }).join('');
+}
+
+function selectStyle(id, el) {
+  selectedStyle = id;
+  document.querySelectorAll('.style-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+var imgUploadedRef = null;
+
+function handleImgUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+  processImgFile(file);
+}
+
+function handleImgDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('img-upload-zone').classList.remove('dragover');
+  var files = e.dataTransfer.files;
+  if (files.length > 0) processImgFile(files[0]);
+}
+
+function handleImgDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('img-upload-zone').classList.add('dragover');
+}
+
+function handleImgDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('img-upload-zone').classList.remove('dragover');
+}
+
+function processImgFile(file) {
+  if (!file.type.startsWith('image/')) {
+    showToast('请上传图片文件（JPG/PNG）', 'error');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('图片过大，请上传5MB以内的参考图', 'error');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    imgUploadedRef = e.target.result;
+    document.getElementById('img-upload-content').style.display = 'none';
+    var preview = document.getElementById('img-upload-preview');
+    preview.style.display = 'block';
+    document.getElementById('img-preview-img').src = imgUploadedRef;
+    document.getElementById('img-upload-zone').style.padding = '12px';
+    showToast('参考图上传成功！AI将参考您的风格进行设计', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImgRef(e) {
+  e.stopPropagation();
+  imgUploadedRef = null;
+  document.getElementById('img-file-input').value = '';
+  document.getElementById('img-upload-content').style.display = '';
+  document.getElementById('img-upload-preview').style.display = 'none';
+  document.getElementById('img-upload-zone').style.padding = '28px';
+}
+
+async function generateImages() {
+  var grid = document.getElementById('genGrid');
+  showLoading(grid);
+
+  var product = PRODUCTS.find(function(p){ return p.id === selectedProduct; }) || PRODUCTS[0];
+
+  try {
+    var data = await callAPI('/image-generate', {
+      style: selectedStyle,
+      product: { name: product.name, price: product.price },
+      imageBase64: imgUploadedRef
+    });
+
+    if (data.images && data.images.length) {
+      grid.style.gridTemplateColumns = '1fr 1fr';
+      grid.innerHTML = data.images.map(function(img, idx){
+        // Seedream 返回真实图片 URL
+        if (img.url) {
+          return '<div class="gen-card">' +
+            '<div style="position:relative;overflow:hidden;border-radius:8px;background:#fff;line-height:0;">' +
+              '<img src="' + img.url + '" style="width:100%;height:auto;display:block;object-fit:cover;background:#fff;" alt="' + img.name + '" loading="lazy">' +
+            '</div>' +
+            '<div class="gen-info" style="display:flex;align-items:center;justify-content:space-between">' +
+              '<div><div class="gen-name">' + img.name + '</div><div class="gen-size">' + img.width + '\u00d7' + img.height + 'px</div></div>' +
+              '<a href="' + img.url + '" target="_blank" download class="btn btn-outline btn-sm">\u2b07 下载</a>' +
+            '</div>' +
+          '</div>';
+        }
+        // 回退：本地 Canvas 渲染
+        return '<div class="gen-card">' +
+          '<canvas id="genCanvas' + idx + '" width="' + img.width + '" height="' + img.height + '" class="gen-canvas"></canvas>' +
+          '<div class="gen-info" style="display:flex;align-items:center;justify-content:space-between">' +
+            '<div><div class="gen-name">' + img.name + '</div><div class="gen-size">' + img.width + '\u00d7' + img.height + 'px</div></div>' +
+            '<button class="btn btn-outline btn-sm" onclick="downloadCanvas(\'genCanvas' + idx + '\',\'' + img.name + '.png\')">\u2b07 下载</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      // 仅对无 URL 的项渲染 Canvas
+      setTimeout(function(){
+        data.images.forEach(function(img, idx){
+          if (!img.url) {
+            var canvas = document.getElementById('genCanvas' + idx);
+            if (canvas) renderImageCanvas(canvas, img);
+          }
+        });
+      }, 50);
+      grid.classList.add('ai-result');
+      if (data.refImage) {
+        showToast('AI已结合您的参考图风格生成套图！', 'success');
+      } else {
+        showToast('AI套图生成完成！', 'success');
+      }
+    }
+  } catch(e) {
+    // Fallback to mock
+    grid.style.gridTemplateColumns = '1fr 1fr';
+    var style = STYLES.find(function(s){ return s.id===selectedStyle; });
+    grid.innerHTML = GEN_ITEMS.map(function(g){
+      return '<div class="gen-card">' +
+        '<div class="gen-placeholder" style="background:'+style.bg+';height:'+g.h+'px">' +
+          '<div style="font-size:24px;font-weight:700">'+style.name.charAt(0)+'</div>' +
+          '<div>'+g.name+'</div>' +
+        '</div>' +
+        '<div class="gen-info"><div class="gen-name">'+g.name+'</div><div class="gen-size">'+g.size+'</div></div>' +
+      '</div>';
+    }).join('');
+    showToast('使用本地模板生成', 'info');
+  }
+}
+
+function renderImageCanvas(canvas, spec) {
+  var ctx = canvas.getContext('2d');
+  var w = spec.width;
+  var h = spec.height;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = 'auto';
+  ctx.scale(dpr, dpr);
+
+  // Draw gradient background
+  var grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0, spec.bg[0]);
+  grad.addColorStop(1, spec.bg[1]);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Draw decorative elements
+  if (spec.elements) {
+    spec.elements.forEach(function(el){
+      if (el.type === 'circle') {
+        ctx.beginPath();
+        ctx.arc(el.x, el.y, el.r, 0, Math.PI * 2);
+        ctx.fillStyle = el.color;
+        ctx.fill();
+      } else if (el.type === 'line') {
+        ctx.beginPath();
+        ctx.moveTo(el.x1, el.y1);
+        ctx.lineTo(el.x2, el.y2);
+        ctx.strokeStyle = el.color;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      } else if (el.type === 'priceTag') {
+        ctx.fillStyle = '#ef4444';
+        var pw = 160, ph = 50, px = el.x, py = el.y;
+        ctx.beginPath();
+        ctx.moveTo(px, py); ctx.lineTo(px + pw, py); ctx.lineTo(px + pw, py + ph); ctx.lineTo(px, py + ph);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px "Microsoft YaHei", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(el.price || '', px + 12, py + 35);
+      } else if (el.type === 'badge') {
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        var bw = 120, bh = 36, bx = el.x, by = el.y;
+        ctx.beginPath();
+        ctx.moveTo(bx + 18, by); ctx.lineTo(bx + bw - 18, by);
+        ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + 18);
+        ctx.lineTo(bx + bw, by + bh - 18);
+        ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - 18, by + bh);
+        ctx.lineTo(bx + 18, by + bh);
+        ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - 18);
+        ctx.lineTo(bx, by + 18);
+        ctx.quadraticCurveTo(bx, by, bx + 18, by);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 16px "Microsoft YaHei", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(el.text || '', bx + 12, by + 25);
+      }
+    });
+  }
+
+  // Draw title
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 36px "Microsoft YaHei", sans-serif';
+  ctx.textAlign = 'left';
+  var titleLines = wrapText(ctx, spec.title, w - 100);
+  var titleY = h * 0.15;
+  titleLines.forEach(function(line, i){
+    ctx.fillText(line, 50, titleY + i * 48);
+  });
+
+  // Draw subtitle
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = '22px "Microsoft YaHei", sans-serif';
+  ctx.fillText(spec.subtitle, 50, titleY + titleLines.length * 48 + 20);
+
+  // Draw brand mark at bottom
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '14px "Microsoft YaHei", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('\u7f8e\u56e2 | \u4e34\u6c82\u7231\u5c14\u773c\u79d1\u5149\u95e8\u8bca', w / 2, h - 30);
+}
+
+function wrapText(ctx, text, maxWidth) {
+  var lines = [];
+  var line = '';
+  for (var i = 0; i < text.length; i++) {
+    var testLine = line + text[i];
+    var metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && line.length > 0) {
+      lines.push(line);
+      line = text[i];
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function downloadCanvas(canvasId, filename) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var link = document.createElement('a');
+  link.download = filename;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast('图片下载中...', 'success');
+}
+
+/* ===== SCRIPT ===== */
+function renderSceneTabs() {
+  var tabs = document.getElementById('sceneTabs');
+  tabs.innerHTML = SCENES.map(function(s){
+    return '<div class="scene-tab ' + (s===sceneFilter?'active':'') + '" onclick="filterScene(\''+s+'\')">'+s+'</div>';
+  }).join('');
+}
+
+async function filterScene(s) {
+  sceneFilter = s;
+  renderSceneTabs();
+
+  var cards = document.getElementById('scriptCards');
+  showLoading(cards);
+
+  var product = PRODUCTS.find(function(p){ return p.id === selectedProduct; }) || PRODUCTS[0];
+
+  try {
+    var data = await callAPI('/script-suggest', {
+      scene: s,
+      product: { name: product.name, price: product.price },
+      clinicData: CLINIC
+    });
+    if (data.scripts && data.scripts.length) {
+      renderScriptCardsFromData(data.scripts);
+      cards.classList.add('ai-result');
+      showToast('AI话术生成完成！', 'success');
+    }
+  } catch(e) {
+    // Fallback to local data
+    renderScriptCards();
+    showToast('使用本地话术模板', 'info');
+  }
+}
+
+function renderScriptCardsFromData(scripts) {
+  var cards = document.getElementById('scriptCards');
+  cards.innerHTML = scripts.map(function(s){
+    var escapedText = s.text.replace(/'/g, "\\'").replace(/\n/g, '\\n');
+    return '<div class="script-card">' +
+      '<div class="script-head">' +
+        '<div class="script-icon" style="background:'+s.iconBg+'">'+s.iconChar+'</div>' +
+        '<div class="script-meta"><div class="script-name">'+s.name+'</div><div class="script-desc">'+s.desc+'</div></div>' +
+      '</div>' +
+      '<div class="script-bubble">'+s.text+'</div>' +
+      '<div class="script-actions">' +
+        '<button class="btn btn-outline btn-sm" onclick="copyText(\''+escapedText+'\')">&#9998; 复制话术</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="showToast(\'已分享到企业微信\',\'success\')">&#8594; 分享到企微</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function renderScriptCards() {
+  var cards = document.getElementById('scriptCards');
+  var filtered = sceneFilter === '全部' ? SCRIPTS : SCRIPTS.filter(function(s){ return s.scene === sceneFilter; });
+  cards.innerHTML = filtered.map(function(s){
+    return '<div class="script-card">' +
+      '<div class="script-head">' +
+        '<div class="script-icon" style="background:'+s.iconBg+'">'+s.iconChar+'</div>' +
+        '<div class="script-meta"><div class="script-name">'+s.name+'</div><div class="script-desc">'+s.desc+'</div></div>' +
+      '</div>' +
+      '<div class="script-bubble">'+s.text+'</div>' +
+      '<div class="script-actions">' +
+        '<button class="btn btn-outline btn-sm" onclick="copyText(\''+s.text.replace(/'/g,"\\'")+'\')">&#9998; 复制话术</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="showToast(\'已分享到企业微信\',\'success\')">&#8594; 分享到企微</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+/* ===== REVIEW ===== */
+function filterReviews(f) {
+  reviewFilter = f;
+  document.querySelectorAll('#rvTabs .review-tab').forEach(function(t){
+    t.classList.toggle('active', t.getAttribute('data-rv') === f);
+  });
+  renderReviews();
+}
+
+function renderReviews() {
+  var list = document.getElementById('rvList');
+  var filtered = reviewFilter === 'all' ? REVIEWS : REVIEWS.filter(function(r){ return r.type === reviewFilter; });
+  list.innerHTML = filtered.map(function(r){
+    var stars = '';
+    for (var i = 0; i < 5; i++) stars += i < r.stars ? '\u2605' : '\u2606';
+    var tags = (r.tags||[]).map(function(t){ return '<span class="tag tag-primary">'+t+'</span>'; }).join('');
+    var aiSection = r.aiReply ?
+      '<div class="ai-reply">' +
+        '<div class="ai-label">&#129302; AI推荐回复</div>' +
+        '<div class="ai-text">'+r.aiReply+'</div>' +
+        '<button class="btn btn-primary btn-sm" onclick="showToast(\'AI回复已采纳\',\'success\')">&#10003; 一键采纳AI回复</button>' +
+      '</div>' : '';
+    return '<div class="review-item">' +
+      '<div class="review-head">' +
+        '<div class="rv-avatar" style="background:'+r.color+'">'+r.name.charAt(0)+'</div>' +
+        '<div class="rv-meta"><div class="rv-name">'+r.name+'</div><div class="rv-date">'+r.date+'</div></div>' +
+        '<div class="rv-stars">'+stars+'</div>' +
+      '</div>' +
+      '<div class="rv-content">'+r.content+'</div>' +
+      '<div class="rv-tags">'+tags+'</div>' +
+      (r.type==='good' ? '<button class="btn btn-success btn-sm" onclick="showToast(\'已标记已处理\',\'success\')">&#10003; 标记已处理</button>' : '') +
+      aiSection +
+    '</div>';
+  }).join('');
+}
+
+/* ===== REVIEW ASSISTANT ===== */
+var rvUploadedImage = null;
+
+function handleRvUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+  processRvFile(file);
+}
+
+function handleRvDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('rv-upload-zone').classList.remove('dragover');
+  var files = e.dataTransfer.files;
+  if (files.length > 0) processRvFile(files[0]);
+}
+
+function handleRvDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('rv-upload-zone').classList.add('dragover');
+}
+
+function handleRvDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('rv-upload-zone').classList.remove('dragover');
+}
+
+function processRvFile(file) {
+  if (!file.type.startsWith('image/')) {
+    showToast('请上传图片文件（JPG/PNG）', 'error');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('图片过大，请上传5MB以内的截图', 'error');
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    rvUploadedImage = e.target.result;
+    document.getElementById('rv-upload-content').style.display = 'none';
+    var preview = document.getElementById('rv-upload-preview');
+    preview.style.display = 'block';
+    document.getElementById('rv-preview-img').src = rvUploadedImage;
+    document.getElementById('rv-upload-zone').style.padding = '12px';
+    showToast('差评截图上传成功！', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearRvImage(e) {
+  e.stopPropagation();
+  rvUploadedImage = null;
+  document.getElementById('rv-file-input').value = '';
+  document.getElementById('rv-upload-content').style.display = '';
+  document.getElementById('rv-upload-preview').style.display = 'none';
+  document.getElementById('rv-upload-zone').style.padding = '16px';
+}
+
+async function analyzeReview() {
+  var text = document.getElementById('rvAssistText').value.trim();
+  if (!text && !rvUploadedImage) {
+    showToast('请输入差评内容或上传差评截图', 'warning');
+    return;
+  }
+  var resultCard = document.getElementById('rvAssistResult');
+  var body = document.getElementById('rvAssistBody');
+  resultCard.classList.add('show');
+  showLoading(body);
+
+  try {
+    var data = await callAPI('/review-reply', {
+      text: text,
+      imageBase64: rvUploadedImage,
+      clinicData: CLINIC
+    });
+    renderReviewAssistResult(data);
+    showToast('AI分析完成！', 'success');
+  } catch(e) {
+    // Fallback: local analysis
+    var fallbackData = localReviewAnalysis(text);
+    renderReviewAssistResult(fallbackData);
+    showToast('使用本地模板生成回复', 'info');
+  }
+}
+
+function localReviewAnalysis(text) {
+  var issues = [];
+  if (text.indexOf('等') >= 0 && (text.indexOf('分钟') >= 0 || text.indexOf('小时') >= 0)) issues.push('等待时间长');
+  if (text.indexOf('态度') >= 0 || text.indexOf('服务') >= 0) issues.push('服务态度');
+  if (text.indexOf('效果') >= 0 || text.indexOf('没用') >= 0 || text.indexOf('没用') >= 0) issues.push('效果不满意');
+  if (text.indexOf('贵') >= 0 || text.indexOf('价格') >= 0 || text.indexOf('钱') >= 0) issues.push('价格问题');
+  if (text.indexOf('环境') >= 0 || text.indexOf('脏') >= 0) issues.push('环境问题');
+  if (issues.length === 0) issues.push('其他问题');
+
+  var issueType = issues[0];
+  var reply1 = '非常抱歉给您带来了不好的体验。您反馈的' + issueType + '问题我们高度重视，已第一时间转达给门诊管理团队进行核查和改进。我们诚挚邀请您再次到访，我们将为您提供优先预约和专属服务。如有任何疑问，请随时联系我们。';
+  var reply2 = '感谢您抽出宝贵时间反馈问题。对于' + issueType + '给您造成的困扰，我们深表歉意。我们已经对相关流程进行了复盘，并将采取具体措施避免类似情况再次发生。为表达诚意，我们希望能为您提供一次免费复查服务，期待您的回复。';
+  return {
+    analysis: '检测到问题类型：' + issues.join('、') + '。建议诚恳道歉 + 说明改进措施 + 提供补偿方案。',
+    replies: [
+      { tag: '标准道歉+改进', text: reply1 },
+      { tag: '深度共情+补偿', text: reply2 }
+    ]
+  };
+}
+
+function renderReviewAssistResult(data) {
+  var body = document.getElementById('rvAssistBody');
+  var html = '';
+  if (data.analysis) {
+    html += '<div class="rar-analysis">' +
+      '<div class="rar-analysis-title">&#128161; AI问题分析</div>' +
+      '<div class="rar-analysis-text">' + escapeHtml(data.analysis) + '</div>' +
+    '</div>';
+  }
+  if (data.replies && data.replies.length) {
+    data.replies.forEach(function(r, i) {
+      html += '<div class="rar-reply-item">' +
+        '<div class="rar-reply-header"><span class="rar-reply-tag">' + escapeHtml(r.tag) + '</span><span style="font-size:11px;color:var(--text-light)">方案 ' + (i+1) + '</span></div>' +
+        '<div class="rar-reply-text">' + escapeHtml(r.text) + '</div>' +
+        '<div class="rar-reply-actions">' +
+          '<button class="btn btn-primary btn-sm" onclick="copyReply(this,' + i + ')">&#128203; 复制回复</button>' +
+          '<button class="btn btn-outline btn-sm" onclick="adoptReply(' + i + ')">&#10003; 采纳此回复</button>' +
+        '</div>' +
+      '</div>';
+    });
+  }
+  body.innerHTML = html;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyReply(btn, idx) {
+  var items = document.querySelectorAll('.rar-reply-text');
+  if (items[idx]) {
+    navigator.clipboard.writeText(items[idx].textContent).then(function(){
+      showToast('回复已复制到剪贴板', 'success');
+    }).catch(function(){
+      showToast('复制失败，请手动复制', 'error');
+    });
+  }
+}
+
+function adoptReply(idx) {
+  var items = document.querySelectorAll('.rar-reply-text');
+  if (items[idx]) {
+    showToast('已采纳方案' + (idx+1) + '的回复，请前往美团后台粘贴', 'success');
+  }
+}
+
+function renderGuides() {
+  var items = document.getElementById('guideItems');
+  items.innerHTML = GUIDES.map(function(g, i){
+    return '<div class="guide-item">' +
+      '<div class="guide-trigger" onclick="toggleGuide(this)">' +
+        '<div class="guide-trigger-icon">'+g.icon+'</div>' +
+        '<div class="guide-trigger-title">'+g.title+'</div>' +
+        '<div class="guide-trigger-arrow">&#9660;</div>' +
+      '</div>' +
+      '<div class="guide-body">'+g.steps+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleGuide(trigger) {
+  trigger.classList.toggle('open');
+  var body = trigger.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+/* ===== MEITUAN OPS ===== */
+async function runMeituanOps() {
+  var container = document.getElementById('meituanOpsResult');
+  showLoading(container);
+  try {
+    var data = await callAPI('/meituan-ops', { clinicData: CLINIC });
+    renderMeituanOps(data);
+    showToast('美团运营诊断完成！', 'success');
+  } catch(e) {
+    renderMeituanOpsFallback();
+    showToast('使用本地数据分析完成', 'info');
+  }
+}
+
+function renderMeituanOps(data) {
+  var container = document.getElementById('meituanOpsResult');
+  var scoreColor = data.score >= 80 ? 'var(--success)' : data.score >= 70 ? 'var(--warning)' : 'var(--danger)';
+  var html = '';
+
+  // Score ring
+  html += '<div style="text-align:center;margin-bottom:20px">';
+  html += '<div class="score-ring" style="background:' + scoreColor + '">' + data.score + '</div>';
+  html += '<div style="font-size:13px;color:var(--text-sub)">综合运营评分</div>';
+  html += '</div>';
+
+  // Diagnosis grid
+  html += '<div class="diag-grid">';
+  data.diagnosis.forEach(function(d) {
+    var statusColor = d.status === 'good' ? 'var(--success)' : d.status === 'warn' ? 'var(--warning)' : 'var(--danger)';
+    var statusLabel = d.status === 'good' ? '优' : d.status === 'warn' ? '良' : '差';
+    html += '<div class="diag-card">';
+    html += '<div class="diag-area">' + d.area + '</div>';
+    html += '<div class="diag-bar"><div class="diag-bar-fill" style="width:' + d.score + '%;background:' + statusColor + '"></div></div>';
+    html += '<span class="tag tag-' + (d.status === 'good' ? 'success' : d.status === 'warn' ? 'warning' : 'danger') + '">' + statusLabel + ' ' + d.score + '</span>';
+    html += '<div class="diag-tip">' + d.tip + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Action items
+  html += '<div class="script-section"><div class="script-section-title">&#128221; 优化行动项</div>';
+  data.actionItems.forEach(function(a) {
+    html += '<div class="action-item ' + a.priority.toLowerCase() + '">';
+    html += '<span class="action-priority">' + a.priority + '</span>';
+    html += '<div style="flex:1"><div class="action-title">' + a.title + '</div>';
+    html += '<div class="action-desc">' + a.desc + '</div>';
+    html += '<div class="action-impact">&#9650; ' + a.impact + '</div></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Promotion plan
+  html += '<div class="grid-2" style="margin-bottom:0">';
+  html += '<div class="script-section"><div class="script-section-title">&#128640; 推广方案</div>';
+  html += '<div style="margin-bottom:8px"><strong>关键词：</strong>' + data.promotionPlan.keywords.join('、') + '</div>';
+  html += '<div style="margin-bottom:8px"><strong>日预算：</strong>' + data.promotionPlan.dailyBudget + '</div>';
+  html += '<div><strong>排期：</strong>' + data.promotionPlan.schedule + '</div>';
+  html += '</div>';
+  html += '<div class="script-section"><div class="script-section-title">&#127880; 活动规划</div>';
+  (data.eventPlan.upcoming || []).forEach(function(ev) {
+    html += '<div style="margin-bottom:8px;font-size:13px"><strong>' + ev.name + '</strong>（' + ev.time + '）<br>预算 ' + ev.budget + ' · 预期GMV ' + ev.expectedGMV + '</div>';
+  });
+  html += '</div></div>';
+
+  container.innerHTML = html;
+  // Animate diag bars
+  setTimeout(function(){
+    container.querySelectorAll('.diag-bar-fill').forEach(function(bar){
+      var w = bar.style.width;
+      bar.style.width = '0';
+      setTimeout(function(){ bar.style.width = w; }, 50);
+    });
+  }, 50);
+}
+
+function renderMeituanOpsFallback() {
+  var data = {
+    score: 72,
+    diagnosis: [
+      {area:'店铺装修',status:'warn',score:75,tip:'头图轮播建议更换为医生亲子场景'},
+      {area:'团购项目',status:'good',score:82,tip:'引流款价格竞争力不足，建议降至29.9'},
+      {area:'评价管理',status:'bad',score:60,tip:'近30天差评回复率仅60%'},
+      {area:'推广投放',status:'warn',score:68,tip:'搜索推广关键词需补充"近视防控"'},
+      {area:'活动策划',status:'good',score:80,tip:'开学季活动预热不足，提前2周启动'}
+    ],
+    actionItems: [
+      {priority:'P1',title:'优化店铺头图和团购详情页',desc:'将头图更换为杜秀臻医生与儿童的温馨互动场景',impact:'预计提升点击率15-20%'},
+      {priority:'P1',title:'建立差评24小时回复机制',desc:'设置专人负责每日评价监控，确保差评24小时内回复',impact:'预计评分提升至4.8+'},
+      {priority:'P2',title:'调整推广投放策略',desc:'补充"近视防控""OK镜"等核心关键词',impact:'预计曝光量提升30%'}
+    ],
+    promotionPlan: {keywords:['眼科','近视','OK镜','配镜'],dailyBudget:'200-300元',schedule:'工作日白天搜索推广，周末信息流+搜索'},
+    eventPlan: {upcoming:[{name:'开学季护眼活动',time:'3月',budget:'5000元',expectedGMV:'30000元'}]}
+  };
+  renderMeituanOps(data);
+}
+
+/* ===== PRIVATE DOMAIN ===== */
+async function runPrivateDomain() {
+  var container = document.getElementById('privateDomainResult');
+  showLoading(container);
+  try {
+    var data = await callAPI('/private-domain', { clinicData: CLINIC });
+    renderPrivateDomain(data);
+    showToast('私域运营方案生成完成！', 'success');
+  } catch(e) {
+    renderPrivateDomainFallback();
+    showToast('使用本地模板生成完成', 'info');
+  }
+}
+
+function renderPrivateDomain(data) {
+  var container = document.getElementById('privateDomainResult');
+  var html = '';
+
+  // Welcome scripts
+  html += '<div class="script-section"><div class="script-section-title">&#128075; 欢迎话术</div>';
+  data.welcomeScripts.forEach(function(s) {
+    html += '<div style="margin-bottom:12px">';
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><strong>' + s.name + '</strong><span class="tag tag-primary">' + s.timing + '</span></div>';
+    html += '<div class="script-bubble-new">' + escapeHtml(s.text) + '</div>';
+    html += '<button class="copy-btn-sm" onclick="copyText(this.previousElementSibling.textContent)">&#128203; 复制</button>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Follow-up scripts
+  html += '<div class="script-section"><div class="script-section-title">&#128276; 复查提醒话术</div>';
+  data.followUpScripts.forEach(function(s) {
+    html += '<div style="margin-bottom:12px">';
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><strong>' + s.name + '</strong><span class="tag tag-success">' + s.timing + '</span></div>';
+    html += '<div class="script-bubble-new">' + escapeHtml(s.text) + '</div>';
+    html += '<button class="copy-btn-sm" onclick="copyText(this.previousElementSibling.textContent)">&#128203; 复制</button>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Community SOP
+  html += '<div class="script-section"><div class="script-section-title">&#128483; 社群SOP节奏</div>';
+  html += '<div class="sop-timeline">';
+  var sopItems = [
+    {time:'早8:30',desc:data.communitySOP.morning},
+    {time:'午12:00',desc:data.communitySOP.noon},
+    {time:'晚19:30',desc:data.communitySOP.evening},
+    {time:'周五',desc:data.communitySOP.weekly}
+  ];
+  sopItems.forEach(function(s) {
+    html += '<div class="sop-time-item"><div class="sop-time-dot"></div><div style="font-weight:700;font-size:12px">' + s.time + '</div><div style="font-size:11px;margin-top:4px">' + s.desc + '</div></div>';
+  });
+  html += '</div></div>';
+
+  // Patient layers
+  html += '<div class="script-section"><div class="script-section-title">&#127919; 患者分层运营</div>';
+  html += '<table class="layer-table"><thead><tr><th>层级</th><th>条件</th><th>策略</th><th>频率</th></tr></thead><tbody>';
+  data.patientLayers.forEach(function(p) {
+    html += '<tr><td><strong>' + p.layer + '</strong></td><td>' + p.condition + '</td><td>' + p.strategy + '</td><td>' + p.frequency + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+
+  container.innerHTML = html;
+}
+
+function renderPrivateDomainFallback() {
+  renderPrivateDomain({
+    welcomeScripts: [
+      {name:'新患者欢迎语',text:'您好！欢迎加入眼健康守护群！\n我是您的专属眼健康顾问。\n\n📚 为您准备了《儿童近视防控指南》\n🎁 首购优惠券已发放至您的账户\n📞 有任何问题随时咨询',timing:'添加后自动发送'},
+      {name:'首购关怀',text:'感谢您选择本门诊！\n\n📅 请按照预约时间到店\n💡 检查前停戴隐形眼镜3天\n📞 如需改期请提前2小时告知',timing:'下单后1小时'}
+    ],
+    followUpScripts: [
+      {name:'OK镜1周复查提醒',text:'孩子佩戴OK镜已经1周了，建议安排首次复查。\n\n🔍 复查内容：镜片适配度、角膜健康\n📅 建议时间：配镜后7-10天',timing:'配镜后7天'},
+      {name:'离焦镜3月复查提醒',text:'孩子佩戴离焦镜片已3个月，建议回院复查。\n\n🔍 复查内容：度数变化、镜片磨损检查',timing:'配镜后90天'}
+    ],
+    communitySOP: {morning:'8:30 护眼小知识图文',noon:'12:00 互动话题/投票',evening:'19:30 案例分享/专家答疑预告',weekly:'周五会员日优惠/限时秒杀活动'},
+    patientLayers: [
+      {layer:'新患者',condition:'首次到店0-7天',strategy:'激活体验+使用指导',frequency:'1次/天'},
+      {layer:'活跃患者',condition:'30天内有互动',strategy:'内容种草+复购提醒',frequency:'2次/周'},
+      {layer:'VIP患者',condition:'累计消费>5000',strategy:'专属顾问+优先预约',frequency:'1次/周'},
+      {layer:'沉默患者',condition:'90天无互动',strategy:'激活优惠+关怀回访',frequency:'1次/月'}
+    ]
+  });
+}
+
+/* ===== DOUYIN PLAN ===== */
+async function runDouyinPlan() {
+  var container = document.getElementById('douyinPlanResult');
+  showLoading(container);
+  try {
+    var data = await callAPI('/douyin-plan', { clinicData: CLINIC });
+    renderDouyinPlan(data);
+    showToast('抖音策略方案生成完成！', 'success');
+  } catch(e) {
+    renderDouyinPlanFallback();
+    showToast('使用本地模板生成完成', 'info');
+  }
+}
+
+function renderDouyinPlan(data) {
+  var container = document.getElementById('douyinPlanResult');
+  var html = '';
+
+  // Video scripts
+  html += '<div class="script-section"><div class="script-section-title">&#127916; 短视频脚本</div>';
+  data.videoScripts.forEach(function(v, i) {
+    html += '<div style="margin-bottom:16px;padding-bottom:16px;' + (i < data.videoScripts.length - 1 ? 'border-bottom:1px solid var(--border)' : '') + '">';
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><strong style="font-size:14px">' + v.title + '</strong><span class="tag tag-primary">' + v.duration + '</span></div>';
+    html += '<div style="font-size:12px;color:var(--text-sub);margin-bottom:6px">&#128071; ' + v.opening + '</div>';
+    html += '<div class="script-bubble-new">' + escapeHtml(v.script) + '</div>';
+    html += '<div style="display:flex;gap:12px;align-items:center;font-size:12px;color:var(--text-sub)">';
+    html += '<span>&#127925; ' + v.bgm + '</span>';
+    html += '<span>' + v.hashtags.join(' ') + '</span>';
+    html += '<button class="copy-btn-sm" onclick="copyText(this.parentElement.previousElementSibling.textContent)">&#128203; 复制脚本</button>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+
+  // Weekly calendar
+  html += '<div class="script-section"><div class="script-section-title">&#128197; 周更内容日历</div>';
+  data.weeklyCalendar.forEach(function(c) {
+    html += '<div class="calendar-row">';
+    html += '<div class="calendar-day">' + c.day + '</div>';
+    html += '<div class="calendar-topic">' + c.topic + '<div class="calendar-type">' + c.type + '</div></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Live plan
+  html += '<div class="script-section"><div class="script-section-title">&#127909; 直播方案</div>';
+  html += '<div style="font-size:14px;font-weight:700;margin-bottom:8px">' + data.livePlan.theme + '</div>';
+  html += '<div style="font-size:12px;color:var(--text-sub);margin-bottom:8px">时长：' + data.livePlan.duration + ' · 商品：' + data.livePlan.products.join('、') + '</div>';
+  html += '<div class="script-bubble-new">' + escapeHtml(data.livePlan.script) + '</div>';
+  html += '</div>';
+
+  // Ad strategy
+  html += '<div class="script-section"><div class="script-section-title">&#128176; 投放策略</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
+  html += '<div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">月预算</div><div style="font-size:18px;font-weight:800;color:var(--accent)">' + data.adStrategy.budget + '</div></div>';
+  html += '<div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">定向人群</div><div style="font-size:12px;font-weight:600;margin-top:4px">' + data.adStrategy.targeting + '</div></div>';
+  html += '<div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">目标</div><div style="font-size:12px;font-weight:600;margin-top:4px">' + data.adStrategy.goal + '</div></div>';
+  html += '</div></div>';
+
+  container.innerHTML = html;
+}
+
+function renderDouyinPlanFallback() {
+  renderDouyinPlan({
+    videoScripts: [
+      {title:'孩子近视了千万别做这3件事',duration:'35s',opening:'冲突型："孩子近视了，90%的家长都在做错！"',script:'【0-3s】文字+表情冲击："孩子近视了，90%的家长都做错了！"\n【3-15s】错误1：盲目配镜不检查眼轴\n【15-25s】错误2：忽视每天2小时户外活动\n【25-35s】错误3：从不复查，度数年年涨',bgm:'本周热门BGM',hashtags:['#近视防控','#OK镜','#护眼知识']},
+      {title:'眼科医生自己孩子怎么防控近视',duration:'45s',opening:'共鸣型："作为眼科医生，我是这样给孩子防控近视的..."',script:'【0-3s】医生出镜\n【3-20s】分享5个日常习惯\n【20-40s】现场展示检查设备\n【40-45s】CTA：关注+预约检查',bgm:'温馨治愈系BGM',hashtags:['#眼科医生','#近视防控','#OK镜']}
+    ],
+    weeklyCalendar: [
+      {day:'周一',topic:'护眼科普：20-20-20法则',type:'科普讲解'},
+      {day:'周三',topic:'杜秀臻医生答疑：OK镜适合谁？',type:'医生IP'},
+      {day:'周五',topic:'8岁近视200度，1年后控制0增长',type:'患者故事'}
+    ],
+    livePlan: {theme:'杜秀臻医生在线答疑 · 开学季护眼专场',script:'【0-15min】留人开场\n【15-45min】痛点放大\n【45-75min】方案讲解\n【75-85min】限时优惠\n【85-90min】关注引导',products:['视力检查39.9','OK镜验配咨询','离焦镜套餐'],duration:'1.5小时'},
+    adStrategy: {budget:'2000元/月',targeting:'3-15岁家长 / 近视人群 / 临沂同城',goal:'粉丝增长500+/月 + 到店转化30+/月'}
+  });
+}
+
+/* ===== XIAOHONGSHU PLAN ===== */
+async function runXiaohongshuPlan() {
+  var container = document.getElementById('xiaohongshuPlanResult');
+  showLoading(container);
+  try {
+    var data = await callAPI('/xiaohongshu-plan', { clinicData: CLINIC });
+    renderXiaohongshuPlan(data);
+    showToast('小红书策略方案生成完成！', 'success');
+  } catch(e) {
+    renderXiaohongshuPlanFallback();
+    showToast('使用本地模板生成完成', 'info');
+  }
+}
+
+function renderXiaohongshuPlan(data) {
+  var container = document.getElementById('xiaohongshuPlanResult');
+  var html = '';
+
+  // Note scripts
+  html += '<div class="script-section"><div class="script-section-title">&#128214; 种草笔记脚本</div>';
+  data.noteScripts.forEach(function(n, i) {
+    html += '<div style="margin-bottom:16px;padding-bottom:16px;' + (i < data.noteScripts.length - 1 ? 'border-bottom:1px solid var(--border)' : '') + '">';
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><strong style="font-size:14px">' + n.title + '</strong><span class="tag tag-danger">' + n.type + '</span></div>';
+    html += '<div class="script-bubble-new">' + escapeHtml(n.body) + '</div>';
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">';
+    n.tags.forEach(function(t){ html += '<span class="tag tag-primary" style="font-size:11px">#' + t + '</span>'; });
+    html += '</div>';
+    html += '<div style="font-size:12px;color:var(--text-sub)">&#128444; 封面建议：' + n.cover + '</div>';
+    html += '<button class="copy-btn-sm" style="margin-top:6px" onclick="copyText(this.parentElement.querySelector(\'.script-bubble-new\').textContent)">&#128203; 复制笔记</button>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Weekly calendar
+  html += '<div class="script-section"><div class="script-section-title">&#128197; 周更内容日历</div>';
+  data.weeklyCalendar.forEach(function(c) {
+    html += '<div class="calendar-row">';
+    html += '<div class="calendar-day" style="background:linear-gradient(135deg,#ef4444,#f472b6)">' + c.day + '</div>';
+    html += '<div class="calendar-topic">' + c.topic + '<div class="calendar-type">' + c.type + '</div></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Seeding plan
+  html += '<div class="script-section"><div class="script-section-title">&#127793; 种草投放计划</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
+  html += '<div style="text-align:center;padding:12px;background:#fff5f5;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">投放量</div><div style="font-size:16px;font-weight:800;color:#ef4444">' + data.seedingPlan.quantity + '</div></div>';
+  html += '<div style="text-align:center;padding:12px;background:#fff5f5;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">预算</div><div style="font-size:16px;font-weight:800;color:#ef4444">' + data.seedingPlan.budget + '</div></div>';
+  html += '<div style="text-align:center;padding:12px;background:#fff5f5;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">策略</div><div style="font-size:12px;font-weight:600;margin-top:4px;line-height:1.5">' + data.seedingPlan.strategy + '</div></div>';
+  html += '</div></div>';
+
+  container.innerHTML = html;
+}
+
+function renderXiaohongshuPlanFallback() {
+  renderXiaohongshuPlan({
+    noteScripts: [
+      {title:'打工人护眼清单｜杜秀臻医生推荐7个好习惯',type:'图文',body:'【封面】护眼清单大字报\n\n1️⃣ 20-20-20法则\n2️⃣ 每天2小时户外活动\n3️⃣ 用眼距离保持33cm以上\n4️⃣ 每半年一次专业检查\n5️⃣ 睡前热敷缓解疲劳\n6️⃣ 多吃叶黄素食物\n7️⃣ OK镜/离焦镜科学防控',tags:['近视防控','护眼','OK镜','打工人'],cover:'蓝绿色调护眼清单大字报，突出数字7'},
+      {title:'OK镜VS离焦镜，近视防控到底选哪个',type:'图文',body:'【封面】OK镜🆚离焦镜对比图\n\n💡 OK镜\n✓ 夜戴白天清晰\n✓ 控制效果60%以上\n✗ 价格较高\n\n💡 离焦镜片\n✓ 日间佩戴方便\n✓ 控制效果30-60%\n✓ 价格适中',tags:['OK镜','离焦镜','近视防控'],cover:'对比风格，左右分栏，蓝金配色'}
+    ],
+    weeklyCalendar: [
+      {day:'周二',topic:'打工人护眼清单7个好习惯',type:'护眼干货'},
+      {day:'周四',topic:'OK镜VS离焦镜到底怎么选',type:'产品测评'},
+      {day:'周六',topic:'39.9做了超全眼科检查！附攻略',type:'探店分享'}
+    ],
+    seedingPlan: {quantity:'60-80篇/月',budget:'6000-10000元/月',strategy:'素人铺量(50篇) + 腰部达人(15篇) + 头部联动(3篇)'}
+  });
+}
+
+/* ===== WECHAT PLAN ===== */
+async function runWechatPlan() {
+  var container = document.getElementById('wechatPlanResult');
+  showLoading(container);
+  try {
+    var data = await callAPI('/wechat-plan', { clinicData: CLINIC });
+    renderWechatPlan(data);
+    showToast('公众号运营方案生成完成！', 'success');
+  } catch(e) {
+    renderWechatPlanFallback();
+    showToast('使用本地模板生成完成', 'info');
+  }
+}
+
+function renderWechatPlan(data) {
+  var container = document.getElementById('wechatPlanResult');
+  var html = '';
+
+  // Article draft
+  html += '<div class="script-section"><div class="script-section-title">&#128240; 推文草稿</div>';
+  html += '<div style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--primary)">' + data.articleDraft.title + '</div>';
+  html += '<div class="script-bubble-new">' + escapeHtml(data.articleDraft.body) + '</div>';
+  html += '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">';
+  html += '<span style="font-size:12px;color:var(--accent);font-weight:600">CTA: ' + data.articleDraft.cta + '</span>';
+  html += '<button class="copy-btn-sm" onclick="copyText(this.parentElement.previousElementSibling.textContent)">&#128203; 复制全文</button>';
+  html += '</div></div>';
+
+  // Menu plan
+  html += '<div class="script-section"><div class="script-section-title">&#128203; 公众号菜单架构</div>';
+  html += '<div class="menu-tree">';
+  var menuKeys = ['menu1','menu2','menu3'];
+  menuKeys.forEach(function(key) {
+    var m = data.menuPlan[key];
+    html += '<div class="menu-col">';
+    html += '<div class="menu-col-title">' + m.name + '</div>';
+    m.items.forEach(function(item) {
+      html += '<div class="menu-col-item">&#8226; ' + item + '</div>';
+    });
+    html += '</div>';
+  });
+  html += '</div></div>';
+
+  // Monthly calendar
+  html += '<div class="script-section"><div class="script-section-title">&#128197; 月度内容日历</div>';
+  data.monthlyCalendar.forEach(function(c) {
+    var typeColor = c.type === '科普类' ? 'tag-primary' : c.type === '故事类' ? 'tag-success' : c.type === '活动类' ? 'tag-danger' : 'tag-warning';
+    html += '<div class="calendar-row">';
+    html += '<div class="calendar-day" style="background:linear-gradient(135deg,#10b981,#3b82f6)">' + c.week + '</div>';
+    html += '<div class="calendar-topic">' + c.theme + '<span class="tag ' + typeColor + '" style="margin-left:8px">' + c.type + '</span></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
+function renderWechatPlanFallback() {
+  renderWechatPlan({
+    articleDraft: {title:'7个护眼习惯，第3个90%人不知道',body:'"孩子又揉眼睛了？写作业越凑越近？"\n\n作为家长，你可能正在忽视孩子近视的信号...\n\n1️⃣ 每20分钟远眺20秒\n2️⃣ 每天户外活动2小时\n3️⃣ 定期检查眼轴（90%家长忽略！）\n...\n\n🏥 临沂爱尔眼科光门诊\n👨‍⚕️ 杜秀臻医生亲诊',cta:'点击下方阅读原文，预约39.9儿童视力检查'},
+    menuPlan: {
+      menu1:{name:'护眼服务',items:['在线预约','专家团队','门店导航']},
+      menu2:{name:'眼健康',items:['护眼知识','近视防控','自测工具']},
+      menu3:{name:'会员中心',items:['我的积分','复查提醒','在线咨询']}
+    },
+    monthlyCalendar: [
+      {week:'第1周',theme:'开学季护眼指南',type:'科普类'},
+      {week:'第2周',theme:'杜秀臻医生专访：近视防控新进展',type:'故事类'},
+      {week:'第3周',theme:'限时特惠：视力检查套餐',type:'活动类'},
+      {week:'第4周',theme:'OK镜VS离焦镜深度对比',type:'评测类'}
+    ]
+  });
+}
+
+/* ===== GROWTH PLAN ===== */
+async function runGrowthPlan() {
+  var container = document.getElementById('growthPlanResult');
+  showLoading(container);
+  try {
+    var data = await callAPI('/growth-plan', { clinicData: CLINIC });
+    renderGrowthPlan(data);
+    showToast('增长策略方案生成完成！', 'success');
+  } catch(e) {
+    renderGrowthPlanFallback();
+    showToast('使用本地模板生成完成', 'info');
+  }
+}
+
+function renderGrowthPlan(data) {
+  var container = document.getElementById('growthPlanResult');
+  var html = '';
+
+  // Funnel analysis
+  html += '<div class="script-section"><div class="script-section-title">&#128200; 转化漏斗分析</div>';
+  var funnelColors = ['#3b82f6','#6366f1','#8b5cf6','#a855f7','#d946ef','#ec4899'];
+  var funnelWidths = [100, 65, 50, 40, 32, 25];
+  data.funnelAnalysis.stages.forEach(function(s, i) {
+    html += '<div class="funnel-stage">';
+    html += '<div class="funnel-label">' + s.stage + '</div>';
+    html += '<div class="funnel-bar-wrap"><div class="funnel-bar" style="width:' + funnelWidths[i] + '%;background:' + funnelColors[i] + '">' + s.rate + '</div></div>';
+    html += '<div class="funnel-rate" style="font-size:11px">' + s.target + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Channel ROI
+  html += '<div class="script-section"><div class="script-section-title">&#128178; 渠道ROI对比</div>';
+  html += '<table class="roi-table"><thead><tr><th>渠道</th><th>获客成本</th><th>转化率</th><th>ROI</th><th>优先级</th></tr></thead><tbody>';
+  data.channelROI.forEach(function(c) {
+    var pClass = c.priority === 'P0' ? 'tag-sm-p0' : 'tag-sm-p1';
+    html += '<tr><td><strong>' + c.channel + '</strong></td><td>' + c.cac + '</td><td>' + c.conversion + '</td><td style="font-weight:700;color:var(--success)">' + c.roi + '</td><td><span class="tag-sm ' + pClass + '">' + c.priority + '</span></td></tr>';
+  });
+  html += '</tbody></table></div>';
+
+  // Growth experiments
+  html += '<div class="script-section"><div class="script-section-title">&#129514; 增长实验</div>';
+  data.growthExperiments.forEach(function(exp) {
+    html += '<div class="experiment-card">';
+    html += '<div class="experiment-name">&#128300; ' + exp.name + '</div>';
+    html += '<div class="experiment-row"><strong>假设：</strong>' + exp.hypothesis + '</div>';
+    html += '<div class="experiment-row"><strong>方法：</strong>' + exp.method + '</div>';
+    html += '<div class="experiment-row"><strong>预算：</strong>' + exp.budget + '</div>';
+    html += '<div class="experiment-row"><strong>预期：</strong>' + exp.expected + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Monthly plan
+  html += '<div class="script-section"><div class="script-section-title">&#128197; 月度增长计划</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  html += '<div style="padding:12px;background:#f0f7ff;border-radius:8px;border-left:3px solid var(--accent)"><div style="font-size:12px;color:var(--text-sub)">增长目标</div><div style="font-size:14px;font-weight:700;margin-top:4px">' + data.monthlyPlan.target + '</div></div>';
+  html += '<div style="padding:12px;background:#f0fdf4;border-radius:8px;border-left:3px solid var(--success)"><div style="font-size:12px;color:var(--text-sub)">总预算</div><div style="font-size:14px;font-weight:700;margin-top:4px">' + data.monthlyPlan.budget + '</div></div>';
+  html += '</div>';
+  html += '<div style="margin-top:10px;font-size:13px;color:var(--text-sub);line-height:1.8">' + data.monthlyPlan.breakdown + '</div>';
+  html += '</div>';
+
+  container.innerHTML = html;
+
+  // Animate funnel bars
+  setTimeout(function(){
+    container.querySelectorAll('.funnel-bar').forEach(function(bar){
+      var w = bar.style.width;
+      bar.style.width = '0';
+      setTimeout(function(){ bar.style.width = w; }, 50);
+    });
+  }, 50);
+}
+
+function renderGrowthPlanFallback() {
+  renderGrowthPlan({
+    funnelAnalysis: {
+      stages: [
+        {stage:'曝光',rate:'100%',target:'提升美团搜索排名至前3'},
+        {stage:'点击',rate:'3-5%',target:'优化主图和标题'},
+        {stage:'咨询',rate:'20-30%',target:'完善FAQ和自动回复'},
+        {stage:'预约',rate:'40-50%',target:'简化预约流程'},
+        {stage:'到店',rate:'60-70%',target:'提醒SOP+导航指引'},
+        {stage:'成交',rate:'50-60%',target:'话术优化+套餐推荐'}
+      ]
+    },
+    channelROI: [
+      {channel:'美团推广通',cac:'50-80元',conversion:'15-25%',roi:'2-4:1',priority:'P0'},
+      {channel:'企微转介绍',cac:'5-10元',conversion:'40-60%',roi:'8-15:1',priority:'P0'},
+      {channel:'抖音DOU+',cac:'30-60元',conversion:'8-15%',roi:'1.5-3:1',priority:'P1'},
+      {channel:'小红书种草',cac:'20-40元',conversion:'5-10%',roi:'2-5:1',priority:'P1'}
+    ],
+    growthExperiments: [
+      {name:'主图A/B测试',hypothesis:'如果主图从文字图改为医生场景图，点击率将提升20%',method:'同时上架2个相同项目，仅主图不同，测试2周',budget:'500元',expected:'点击率从3%提升至3.6%'},
+      {name:'有效期延长测试',hypothesis:'如果有效期从30天延长至90天，转化率将提升15%',method:'随机50%用户展示90天有效期，对比转化数据',budget:'0元（仅让利）',expected:'转化率从15%提升至17%'}
+    ],
+    monthlyPlan: {target:'到店量+20%',budget:'15000元',breakdown:'推广费用40%（6000元）+ 优惠补贴30%（4500元）+ 内容制作20%（3000元）+ 物料奖品10%（1500元）'}
+  });
+}
+
+// ===== CLINIC COLLECT MODULE =====
+var clinicCollectImage = null;
+var clinicCurrentMode = 'screenshot';
+
+function switchClinicTab(tab) {
+  clinicCurrentMode = tab;
+  document.getElementById('clinicTabScreenshot').classList.toggle('active', tab === 'screenshot');
+  document.getElementById('clinicTabUrl').classList.toggle('active', tab === 'url');
+  document.getElementById('clinicScreenshotPanel').style.display = tab === 'screenshot' ? '' : 'none';
+  document.getElementById('clinicUrlPanel').style.display = tab === 'url' ? '' : 'none';
+  document.getElementById('clinicCollectResult').innerHTML = '';
+}
+
+function clinicHandleUpload(input) {
+  if (input.files && input.files[0]) clinicProcessFile(input.files[0]);
+}
+
+function clinicProcessFile(file) {
+  if (file.size > 5 * 1024 * 1024) { showToast('图片大小不能超过5MB', 'error'); return; }
+  if (!file.type.match(/image\/(jpeg|png)/)) { showToast('仅支持JPG/PNG格式', 'error'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    clinicCollectImage = e.target.result;
+    document.getElementById('clinic-upload-content').style.display = 'none';
+    var preview = document.getElementById('clinic-upload-preview');
+    preview.style.display = '';
+    document.getElementById('clinic-preview-img').src = clinicCollectImage;
+    document.getElementById('clinic-upload-zone').style.padding = '12px';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clinicClearImage(e) {
+  if (e) e.stopPropagation();
+  clinicCollectImage = null;
+  document.getElementById('clinic-file-input').value = '';
+  document.getElementById('clinic-upload-content').style.display = '';
+  document.getElementById('clinic-upload-preview').style.display = 'none';
+  document.getElementById('clinic-upload-zone').style.padding = '28px';
+}
+
+function clinicHandleDrop(e) {
+  e.preventDefault();
+  document.getElementById('clinic-upload-zone').classList.remove('dragover');
+  if (e.dataTransfer.files && e.dataTransfer.files[0]) clinicProcessFile(e.dataTransfer.files[0]);
+}
+
+function clinicHandleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('clinic-upload-zone').classList.add('dragover');
+}
+
+function clinicHandleDragLeave(e) {
+  document.getElementById('clinic-upload-zone').classList.remove('dragover');
+}
+
+async function runClinicAnalysis() {
+  var container = document.getElementById('clinicCollectResult');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div><div class="loading-text">AI正在分析门诊数据...</div></div>';
+  var body = { sourceType: clinicCurrentMode };
+  if (clinicCurrentMode === 'screenshot' && clinicCollectImage) {
+    body.imageBase64 = clinicCollectImage;
+  } else if (clinicCurrentMode === 'url') {
+    var urlInput = document.getElementById('clinicUrlInput').value.trim();
+    if (!urlInput) { showToast('请输入大众点评网址', 'warning'); container.innerHTML = ''; return; }
+    body.url = urlInput;
+  }
+  try {
+    var data = await callAPI('/clinic-analysis', body);
+    renderClinicAnalysis(data);
+  } catch (e) {
+    renderClinicAnalysisFallback();
+  }
+}
+
+function renderClinicAnalysis(data) {
+  var container = document.getElementById('clinicCollectResult');
+  var html = '';
+  // Clinic info
+  html += '<div class="clinic-card"><div class="clinic-card-header"><div class="clinic-card-name">' + escapeHtml(data.clinicInfo.name) + '</div><div class="clinic-card-rating">&#11088; ' + data.clinicInfo.rating + '分</div><span style="font-size:12px;color:var(--text-sub)">' + data.clinicInfo.reviewCount + '评价</span></div>';
+  html += '<div style="font-size:12px;color:var(--text-sub);margin-bottom:6px">' + escapeHtml(data.clinicInfo.address) + '</div><div class="clinic-card-meta">';
+  data.clinicInfo.tags.forEach(function(t) { html += '<span class="tag tag-primary" style="font-size:11px">' + escapeHtml(t) + '</span>'; });
+  html += '</div></div>';
+  // Project table
+  html += '<div class="script-section"><div class="script-section-title">&#128202; 团购项目分析（' + data.projects.length + '项）</div><div style="overflow-x:auto"><table class="clinic-project-table"><thead><tr><th>项目名称</th><th>团购价</th><th>原价</th><th>销量</th><th>分类</th><th>状态</th><th>问题</th></tr></thead><tbody>';
+  data.projects.forEach(function(p) {
+    var sc = p.status === '热销' ? 'var(--success)' : p.status === '正常' ? 'var(--warning)' : 'var(--danger)';
+    html += '<tr><td style="font-weight:600">' + escapeHtml(p.name) + '</td><td style="color:var(--danger);font-weight:700">' + p.price + '</td><td style="text-decoration:line-through;color:var(--text-sub)">' + p.originalPrice + '</td><td>' + p.sales + '</td><td><span class="tag tag-primary" style="font-size:10px">' + p.category + '</span></td><td><span style="color:' + sc + ';font-weight:600">' + p.status + '</span></td><td style="font-size:11px;color:var(--text-sub);max-width:160px">' + escapeHtml(p.issues || '—') + '</td></tr>';
+  });
+  html += '</tbody></table></div></div>';
+  // 4-quadrant analysis
+  html += '<div class="analysis-grid">';
+  // Pricing
+  var pc = data.analysis.pricing.score >= 75 ? '#10b981' : data.analysis.pricing.score >= 60 ? '#f59e0b' : '#ef4444';
+  html += '<div class="analysis-card"><div class="analysis-card-title">&#128176; 定价分析</div><div class="analysis-card-score" style="background:' + pc + '">' + data.analysis.pricing.score + '</div><div style="font-size:11px;color:var(--text-sub);margin-bottom:6px">均价' + data.analysis.pricing.avgPrice + ' | ' + data.analysis.pricing.priceRange + '</div><div class="analysis-card-comment">' + data.analysis.pricing.comment + '</div>';
+  if (data.analysis.pricing.issues && data.analysis.pricing.issues.length) html += '<div class="analysis-card-issues">⚠ ' + data.analysis.pricing.issues.join('<br>⚠ ') + '</div>';
+  html += '</div>';
+  // Project setup
+  html += '<div class="analysis-card"><div class="analysis-card-title">&#128203; 项目设置</div><div style="font-size:22px;font-weight:800;color:var(--primary);margin-bottom:4px">' + data.analysis.projectSetup.totalCount + '<span style="font-size:12px;font-weight:400;color:var(--text-sub)"> 个项目</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
+  Object.keys(data.analysis.projectSetup.categoryBreakdown).forEach(function(cat) { html += '<span style="font-size:11px;background:var(--bg);padding:3px 8px;border-radius:4px;border:1px solid var(--border)">' + cat + ' ×' + data.analysis.projectSetup.categoryBreakdown[cat] + '</span>'; });
+  html += '</div><div class="analysis-card-comment">' + data.analysis.projectSetup.comment + '</div>';
+  if (data.analysis.projectSetup.missingCategories && data.analysis.projectSetup.missingCategories.length) html += '<div class="analysis-card-issues">⚠ 建议新增：' + data.analysis.projectSetup.missingCategories.join('、') + '</div>';
+  html += '</div>';
+  // Sales
+  html += '<div class="analysis-card"><div class="analysis-card-title">&#128200; 销量分析</div><div style="font-size:22px;font-weight:800;color:var(--success);margin-bottom:4px">' + data.analysis.sales.totalSales + '<span style="font-size:12px;font-weight:400;color:var(--text-sub)"> 总销量</span></div><div style="font-size:12px;color:var(--text-sub);margin-bottom:6px"><span style="color:var(--success)">&#9650; 热销：</span>' + escapeHtml(data.analysis.sales.topSeller) + '</div><div style="font-size:12px;color:var(--text-sub);margin-bottom:8px"><span style="color:var(--danger)">&#9660; 滞销：</span>' + escapeHtml(data.analysis.sales.bottomSeller) + '</div><div class="analysis-card-comment">' + data.analysis.sales.comment + '</div></div>';
+  // Reviews
+  html += '<div class="analysis-card"><div class="analysis-card-title">&#128172; 评价分析</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px"><span style="font-size:11px;color:var(--success);font-weight:600">👍</span>';
+  data.analysis.reviews.positive.forEach(function(kw) { html += '<span class="tag tag-success" style="font-size:10px">' + kw + '</span>'; });
+  html += '</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px"><span style="font-size:11px;color:var(--danger);font-weight:600">👎</span>';
+  data.analysis.reviews.negative.forEach(function(kw) { html += '<span class="tag tag-danger" style="font-size:10px">' + kw + '</span>'; });
+  html += '</div><div class="analysis-card-comment">' + data.analysis.reviews.summary + '</div></div>';
+  html += '</div>';
+  // Suggestions
+  html += '<div class="script-section"><div class="script-section-title">&#128161; 优化建议</div>';
+  data.suggestions.forEach(function(s) {
+    var pClass = s.priority.toLowerCase();
+    var tagCls = s.priority === 'P0' ? 'tag-danger' : s.priority === 'P1' ? 'tag-warning' : 'tag-primary';
+    html += '<div class="suggestion-card ' + pClass + '"><div class="suggestion-header"><span class="suggestion-priority ' + pClass + '">' + s.priority + '</span><span class="suggestion-title">' + escapeHtml(s.title) + '</span><span class="tag ' + tagCls + '" style="font-size:10px">' + s.category + '</span></div><div class="suggestion-desc">' + escapeHtml(s.desc) + '</div><div class="suggestion-impact">&#128640; ' + escapeHtml(s.impact) + '</div></div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+  container.classList.add('ai-result');
+}
+
+function renderClinicAnalysisFallback() {
+  renderClinicAnalysis({
+    clinicInfo: { name: '待分析门诊', rating: '4.5', reviewCount: '105条', address: '临沂爱尔眼科光门诊(金水河畔店) — 杜秀臻医生', tags: ['服务好74', '环境好23', '专业4', '⚠️模拟数据，请上传截图或输入URL'] },
+    projects: [
+      { name: '儿童青少年视力检查', price: '¥39.9', originalPrice: '¥128', sales: '已售1500+', category: '视力检查', status: '热销', issues: '低价引流效果好，建议关联高价值套餐' },
+      { name: '成人综合眼健康检查', price: '¥68', originalPrice: '¥198', sales: '已售800+', category: '眼健康', status: '正常', issues: '' },
+      { name: 'OK镜验配评估', price: '¥199', originalPrice: '¥500', sales: '已售600+', category: 'OK镜', status: '正常', issues: '建议降至¥99作为引流入口' },
+      { name: '角膜塑形镜全套', price: '¥6800', originalPrice: '¥8800', sales: '已售120+', category: 'OK镜', status: '正常', issues: '转化率偏低' },
+      { name: '离焦镜验配', price: '¥1680', originalPrice: '¥2380', sales: '已售200+', category: '离焦镜', status: '正常', issues: '' },
+      { name: '干眼症检查套餐', price: '¥29.9', originalPrice: '¥99', sales: '已售900+', category: '眼健康', status: '热销', issues: '利润空间有限' },
+      { name: 'OK镜护理套装', price: '¥169', originalPrice: '¥269', sales: '已售700+', category: 'OK镜', status: '热销', issues: '' },
+      { name: '眼底照相检查', price: '¥89', originalPrice: '¥200', sales: '已售250+', category: '眼健康', status: '正常', issues: '' },
+      { name: '视功能训练（单次）', price: '¥120', originalPrice: '¥200', sales: '已售350+', category: '视功能', status: '正常', issues: '' }
+    ],
+    analysis: {
+      pricing: { score: 78, avgPrice: '¥836', priceRange: '¥29.9-¥6800', comment: '定价结构合理，低价引流与高价值项目梯度清晰', issues: ['部分高价项目缺少中间梯度过渡'] },
+      projectSetup: { totalCount: 9, categoryBreakdown: { '视力检查': 1, '眼健康': 3, 'OK镜': 3, '离焦镜': 1, '视功能': 1 }, missingCategories: ['功能镜'], comment: '缺少功能镜品类，建议补充抗疲劳和防蓝光功能镜项目' },
+      sales: { totalSales: '5200+', topSeller: '儿童青少年视力检查', bottomSeller: '角膜塑形镜全套', comment: '热销集中在低价款，高价值产品需加强案例展示和信任建设' },
+      reviews: { positive: ['医生专业', '态度好', '环境干净', '检查仔细', '效果明显'], negative: ['等待时间长', '停车不便', '价格偏贵'], summary: '好评集中在医生专业度，差评涉及等待和停车。建议优化排班+提供停车指引' }
+    },
+    suggestions: [
+      { priority: 'P0', category: '定价', title: '增设OK镜验配评估引流价', desc: '当前OK镜产品线缺少低价入口。建议新增¥99验配评估，降低首次接触门槛。', impact: '预计引流+30%，OK镜转化率+5%' },
+      { priority: 'P0', category: '评价', title: '建立差评快速响应机制', desc: '差评回复率不足50%，建议AI监测+人工审核2小时内回复。', impact: '差评转化率+15%，评分回升0.1-0.2' },
+      { priority: 'P1', category: '项目', title: '补充功能镜品类', desc: '当前缺失核心品类，建议新增抗疲劳功能镜片、防蓝光镜片团购。', impact: '覆盖新增搜索流量20%，GMV+10%' },
+      { priority: 'P1', category: '销量', title: '高价值项目添加患者案例', desc: 'OK镜/离焦镜页面缺少真实案例。添加患儿数据展示增强信任。', impact: '高价值项目点击率+25%' },
+      { priority: 'P2', category: '定价', title: '设置组合套餐提升客单价', desc: '设计"视力检查+干眼筛查"等组合套餐，优惠15-20%。', impact: '客单价+15-25%' }
+    ]
+  });
+}
+
+/* ===== INIT ===== */
+function init() {
+  renderProducts();
+  renderAccordion();
+  renderStyles();
+  renderSceneTabs();
+  renderScriptCards();
+  renderReviews();
+  renderGuides();
+  // Draw chart after DOM ready
+  setTimeout(drawChart, 100);
+}
+
+window.addEventListener('resize', function(){ if(document.getElementById('page-dash').classList.contains('active')) drawChart(); });
+init();
+</script>
+</body>
+</html>

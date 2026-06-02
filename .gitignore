@@ -1,0 +1,7 @@
+node_modules/
+server.log
+server_out.log
+server_debug.log
+server_test.log
+.env
+.workbuddy/
