@@ -30,6 +30,15 @@ app.get('/api/health', (req, res) => {
     seedreamModel: SEEDREAM_MODEL,
     node: process.version,
     envKeys: Object.keys(process.env).filter(k => /VOLC|SEEDREAM|RAILWAY/i.test(k)),
+    identity: {
+      project: process.env.RAILWAY_PROJECT_NAME,
+      projectId: process.env.RAILWAY_PROJECT_ID,
+      service: process.env.RAILWAY_SERVICE_NAME,
+      serviceId: process.env.RAILWAY_SERVICE_ID,
+      environment: process.env.RAILWAY_ENVIRONMENT_NAME,
+      publicDomain: process.env.RAILWAY_PUBLIC_DOMAIN,
+      commit: (process.env.RAILWAY_GIT_COMMIT_SHA || '').slice(0, 7)
+    },
     pid: process.pid,
     time: new Date().toISOString()
   });
