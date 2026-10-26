@@ -129,14 +129,21 @@ const VISION_MODEL_CANDIDATES = [
   'doubao-vision-lite-250314',
 ].filter(Boolean);
 
+// 视觉 OCR 可用性：无 key 直接跳过；单端点超时与总预算都压到 Railway 网关(~35s)以内，避免线上 502
+const VISION_OCR_TIMEOUT_MS = 10000;   // 单端点 10s
+const VISION_OCR_DEADLINE_MS = 22000;  // 总预算 22s（低于 Railway 35s 网关超时）
+
 function callVisionOCR(images) {
-  return callVisionOCRWithModels(VISION_MODEL_CANDIDATES, images, 0);
+  if (!VOLC_API_KEY) {
+    return Promise.reject(new Error('未配置 VOLC_API_KEY，视觉识别不可用'));
+  }
+  return callVisionOCRWithModels(VISION_MODEL_CANDIDATES, images, 0, Date.now());
 }
 
 // 按候选顺序调用视觉模型：命中即返回，全部失败则 reject（触发手动录入降级）
-function callVisionOCRWithModels(models, images, idx) {
+function callVisionOCRWithModels(models, images, idx, startedAt) {
   return new Promise((resolve, reject) => {
-    if (idx >= models.length) {
+    if (idx >= models.length || Date.now() - startedAt > VISION_OCR_DEADLINE_MS) {
       reject(new Error('当前账号未开通豆包视觉模型权限，已降级为手动录入通道'));
       return;
     }
@@ -168,7 +175,7 @@ function callVisionOCRWithModels(models, images, idx) {
         'Authorization': `Bearer ${VOLC_API_KEY}`,
         'Content-Length': Buffer.byteLength(body)
       },
-      timeout: 60000
+      timeout: VISION_OCR_TIMEOUT_MS
     };
 
     const req = https.request(options, (res) => {
@@ -183,11 +190,11 @@ function callVisionOCRWithModels(models, images, idx) {
             const errMsg = json.error ? (json.error.message || JSON.stringify(json.error)) : data.substring(0, 200);
             // 当前端点不可用（常见：账号未开通该模型权限），自动尝试下一个候选端点
             console.warn(`[vision] 端点 ${visionModel} 不可用，尝试下一个候选`);
-            resolve(callVisionOCRWithModels(models, images, idx + 1));
+            resolve(callVisionOCRWithModels(models, images, idx + 1, startedAt));
           }
         } catch (e) {
           console.warn(`[vision] 端点 ${visionModel} 响应解析失败，尝试下一个候选`);
-          resolve(callVisionOCRWithModels(models, images, idx + 1));
+          resolve(callVisionOCRWithModels(models, images, idx + 1, startedAt));
         }
       });
     });
@@ -195,11 +202,11 @@ function callVisionOCRWithModels(models, images, idx) {
     req.on('timeout', () => {
       req.destroy();
       console.warn(`[vision] 端点 ${visionModel} 超时，尝试下一个候选`);
-      resolve(callVisionOCRWithModels(models, images, idx + 1));
+      resolve(callVisionOCRWithModels(models, images, idx + 1, startedAt));
     });
     req.on('error', (err) => {
       console.warn(`[vision] 端点 ${visionModel} 请求失败(${err.message})，尝试下一个候选`);
-      resolve(callVisionOCRWithModels(models, images, idx + 1));
+      resolve(callVisionOCRWithModels(models, images, idx + 1, startedAt));
     });
     req.write(body);
     req.end();
@@ -535,38 +542,63 @@ async function localizeAndResize(imageUrl, targetW, targetH, fileStem) {
   return `/generated/${fileStem}.png`;
 }
 
+// ===== 套图生成异步任务（适配 Railway ~35s 网关超时：Seedream 三图需 2 分钟+，同步必被掐 502）=====
+const IMG_JOBS = new Map(); // jobId -> { status, progress, total, images, error, styleLabel, refImage }
+
+function runImageJob(jobId, style, product, imageBase64) {
+  const job = IMG_JOBS.get(jobId);
+  const st = GEN_STYLES[style] || GEN_STYLES.pixar3d;
+  const stem = `img-${Date.now()}`;
+  const images = [];
+  let i = 0;
+  const step = () => {
+    if (i >= GEN_SLOTS.length) {
+      job.status = 'done';
+      job.images = images;
+      job.styleLabel = st.label;
+      job.refImage = !!imageBase64;
+      console.log(`  [image-generate] 任务 ${jobId} 完成（${images.length}/${GEN_SLOTS.length}）`);
+      return;
+    }
+    const slot = GEN_SLOTS[i];
+    job.progress = i;
+    const prompt = [
+      `${st.prompt}。眼科门诊宣传海报，主题「${product.name}」`,
+      `海报主标题文字为「${product.name}」，中文文字必须书写准确、笔画清晰、自然融入版面，位置排布自然不生硬`,
+      slot.layout,
+      '画面中所有人物、文字、图形必须完整呈现在画幅之内，四周保留安全边距，任何元素不得被画面边缘裁切、不得贴边出血',
+      '适合美团/大众点评平台展示，构图完整，高清商业设计'
+    ].join('；');
+    console.log(`  [image-generate] 任务 ${jobId} 生成 ${slot.name}（${i + 1}/${GEN_SLOTS.length}）...`);
+    callSeedreamOnce({ prompt, imageBase64, size: slot.genSize })
+      .then(remoteUrl => localizeAndResize(remoteUrl, slot.targetW, slot.targetH, `${stem}-${i}`))
+      .then(localUrl => {
+        images.push({ name: slot.name, url: localUrl, width: slot.targetW, height: slot.targetH });
+        i++;
+        step();
+      })
+      .catch(err => {
+        console.error(`[image-generate] 任务 ${jobId} 失败于 ${slot.name}:`, err.message);
+        job.status = 'error';
+        job.error = err.message;
+      });
+  };
+  step();
+}
+
 app.post('/api/image-generate', async (req, res) => {
   try {
     const { style, product, imageBase64 } = req.body;
     const p = product || { name: '儿童青少年视力检查', price: '¥39.9' };
     const st = GEN_STYLES[style] || GEN_STYLES.pixar3d;
 
-    // 如果配置了 VOLC_API_KEY，调用 Seedream 真实生成
+    // 配置了 VOLC_API_KEY：走异步任务——立即返回 jobId，前端轮询状态接口取结果
     if (VOLC_API_KEY) {
-      try {
-        const stem = `img-${Date.now()}`;
-        // 串行生成三尺寸，避免并发限流
-        const images = [];
-        for (let i = 0; i < GEN_SLOTS.length; i++) {
-          const slot = GEN_SLOTS[i];
-          const prompt = [
-            `${st.prompt}。眼科门诊宣传海报，主题「${p.name}」`,
-            `海报主标题文字为「${p.name}」，中文文字必须书写准确、笔画清晰、自然融入版面，位置排布自然不生硬`,
-            slot.layout,
-            '画面中所有人物、文字、图形必须完整呈现在画幅之内，四周保留安全边距，任何元素不得被画面边缘裁切、不得贴边出血',
-            '适合美团/大众点评平台展示，构图完整，高清商业设计'
-          ].join('；');
-          console.log(`  [image-generate] 生成 ${slot.name}（${i + 1}/${GEN_SLOTS.length}）...`);
-          const remoteUrl = await callSeedreamOnce({ prompt, imageBase64, size: slot.genSize });
-          const localUrl = await localizeAndResize(remoteUrl, slot.targetW, slot.targetH, `${stem}-${i}`);
-          images.push({ name: slot.name, url: localUrl, width: slot.targetW, height: slot.targetH });
-        }
-
-        res.json({ images, styleLabel: st.label, refImage: !!imageBase64 });
-        return;
-      } catch (seedreamErr) {
-        console.error('[image-generate] Seedream API 调用失败，回退到模拟数据:', seedreamErr.message);
-      }
+      const jobId = 'job-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+      IMG_JOBS.set(jobId, { status: 'running', progress: 0, total: GEN_SLOTS.length, images: null, error: null, startedAt: Date.now() });
+      setTimeout(() => IMG_JOBS.delete(jobId), 10 * 60 * 1000); // 10分钟后清理，防内存泄漏
+      runImageJob(jobId, style, p, imageBase64);
+      return res.json({ async: true, jobId, styleLabel: st.label, refImage: !!imageBase64 });
     }
 
     // 未配置 API Key 时回退到模拟数据
@@ -625,6 +657,13 @@ app.post('/api/image-generate', async (req, res) => {
     console.error('image-generate error:', e);
     res.status(500).json({ error: '套图生成服务异常: ' + (e.message || '请稍后重试') });
   }
+});
+
+// ===== GET /api/image-generate-status（前端轮询异步任务进度）=====
+app.get('/api/image-generate-status', (req, res) => {
+  const job = IMG_JOBS.get(String(req.query.jobId || ''));
+  if (!job) return res.status(404).json({ error: '任务不存在或已过期' });
+  res.json(job);
 });
 
 // ===== POST /api/script-suggest =====

@@ -3197,6 +3197,30 @@ function clearImgRef(e) {
   document.getElementById('img-upload-zone').style.padding = '28px';
 }
 
+// 轮询异步套图任务（Railway 网关 ~35s 超时，真实生成需 2 分钟+，必须轮询）
+function pollImageJob(jobId) {
+  return new Promise(function(resolve, reject){
+    var failCount = 0;
+    var timer = setInterval(function(){
+      fetch(API_BASE + '/image-generate-status?jobId=' + encodeURIComponent(jobId))
+        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(j){
+          failCount = 0;
+          if (j.status === 'done') { clearInterval(timer); resolve(j); }
+          else if (j.status === 'error') { clearInterval(timer); reject(new Error(j.error || '生成失败')); }
+          else {
+            var el = document.querySelector('#genGrid .loading-text');
+            if (el && j.total) el.textContent = 'AI正在生成第 ' + Math.min(j.progress + 1, j.total) + ' / ' + j.total + ' 张，全程约2分钟...';
+          }
+        })
+        .catch(function(){
+          failCount++;
+          if (failCount > 10) { clearInterval(timer); reject(new Error('任务状态查询失败，请重试')); }
+        });
+    }, 3000);
+  });
+}
+
 async function generateImages() {
   var grid = document.getElementById('genGrid');
   showLoading(grid);
@@ -3209,6 +3233,11 @@ async function generateImages() {
       product: { name: product.name, price: product.price },
       imageBase64: imgUploadedRef
     });
+
+    // 异步任务模式：轮询直到完成
+    if (data.async && data.jobId) {
+      data = await pollImageJob(data.jobId);
+    }
 
     if (data.images && data.images.length) {
       grid.style.gridTemplateColumns = 'repeat(3,1fr)';
