@@ -22,6 +22,19 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'meituan-agent.html'));
 });
 
+// 健康诊断：报告运行进程的环境配置状态（不泄露密钥明文）
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    volcKey: VOLC_API_KEY ? 'set(' + VOLC_API_KEY.substring(0, 8) + '...)' : 'MISSING',
+    seedreamModel: SEEDREAM_MODEL,
+    node: process.version,
+    envKeys: Object.keys(process.env).filter(k => /VOLC|SEEDREAM|RAILWAY/i.test(k)),
+    pid: process.pid,
+    time: new Date().toISOString()
+  });
+});
+
 // ===== 门店基础数据 =====
 const CLINIC = {
   name: '临沂爱尔眼科光门诊(金水河畔店)',
