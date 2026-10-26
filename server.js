@@ -592,31 +592,44 @@ app.post('/api/image-generate', async (req, res) => {
     const p = product || { name: '儿童青少年视力检查', price: '¥39.9' };
     const st = GEN_STYLES[style] || GEN_STYLES.pixar3d;
 
-    // 配置了 VOLC_API_KEY：走异步任务——立即返回 jobId，前端轮询状态接口取结果
+    // 统一走异步任务：立即返回 jobId，前端轮询状态接口取结果（真实 Seedream 或本地模板兜底均在后台执行，
+    // 避免长耗时请求撞 Railway ~35s 网关超时）
+    const jobId = 'job-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    IMG_JOBS.set(jobId, { status: 'running', progress: 0, total: GEN_SLOTS.length, images: null, error: null, startedAt: Date.now() });
+    setTimeout(() => IMG_JOBS.delete(jobId), 10 * 60 * 1000); // 10分钟后清理，防内存泄漏
     if (VOLC_API_KEY) {
-      const jobId = 'job-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-      IMG_JOBS.set(jobId, { status: 'running', progress: 0, total: GEN_SLOTS.length, images: null, error: null, startedAt: Date.now() });
-      setTimeout(() => IMG_JOBS.delete(jobId), 10 * 60 * 1000); // 10分钟后清理，防内存泄漏
       runImageJob(jobId, style, p, imageBase64);
-      return res.json({ async: true, jobId, styleLabel: st.label, refImage: !!imageBase64 });
+    } else {
+      runMockImageJob(jobId, style, p, imageBase64);
     }
+    return res.json({ async: true, jobId, styleLabel: st.label, refImage: !!imageBase64, mock: !VOLC_API_KEY });
+  } catch (e) {
+    console.error('image-generate error:', e);
+    res.status(500).json({ error: '套图生成服务异常: ' + (e.message || '请稍后重试') });
+  }
+});
 
-    // 未配置 API Key 时回退到模拟数据
-    await delay(randInt(1200, 2200));
-
-    const images = [
+// 本地模板兜底任务：无 VOLC_API_KEY 时后台生成 mock 占位数据（走同一套异步轮询协议）
+function runMockImageJob(jobId, style, product, imageBase64) {
+  const job = IMG_JOBS.get(jobId);
+  const st = GEN_STYLES[style] || GEN_STYLES.pixar3d;
+  setTimeout(() => {
+    job.status = 'done';
+    job.styleLabel = st.label;
+    job.refImage = !!imageBase64;
+    job.images = [
       {
         name: '方图 900×900',
         width: 900,
         height: 900,
         bg: ['#1a3a5c', '#3b82f6'],
-        title: p.name,
-        subtitle: `仅${p.price} · ${st.label}`,
+        title: product.name,
+        subtitle: `仅${product.price} · ${st.label}`,
         accent: '#ffffff',
         elements: [
           { type: 'circle', x: 780, y: 140, r: 90, color: 'rgba(255,255,255,0.08)' },
           { type: 'circle', x: 110, y: 800, r: 100, color: 'rgba(255,255,255,0.05)' },
-          { type: 'priceTag', x: 50, y: 520, price: p.price },
+          { type: 'priceTag', x: 50, y: 520, price: product.price },
           { type: 'badge', x: 50, y: 620, text: '爱尔眼科' }
         ]
       },
@@ -625,13 +638,13 @@ app.post('/api/image-generate', async (req, res) => {
         width: 1200,
         height: 900,
         bg: ['#1a3a5c', '#3b82f6'],
-        title: p.name,
-        subtitle: `仅${p.price} · ${st.label}`,
+        title: product.name,
+        subtitle: `仅${product.price} · ${st.label}`,
         accent: '#ffffff',
         elements: [
           { type: 'circle', x: 1060, y: 150, r: 90, color: 'rgba(255,255,255,0.1)' },
           { type: 'circle', x: 120, y: 800, r: 90, color: 'rgba(255,255,255,0.06)' },
-          { type: 'priceTag', x: 50, y: 500, price: p.price },
+          { type: 'priceTag', x: 50, y: 500, price: product.price },
           { type: 'badge', x: 50, y: 600, text: '爱尔眼科' }
         ]
       },
@@ -640,24 +653,20 @@ app.post('/api/image-generate', async (req, res) => {
         width: 900,
         height: 1200,
         bg: ['#1a3a5c', '#3b82f6'],
-        title: p.name,
-        subtitle: `仅${p.price}起 · ${st.label}`,
+        title: product.name,
+        subtitle: `仅${product.price}起 · ${st.label}`,
         accent: '#ffffff',
         elements: [
           { type: 'circle', x: 760, y: 180, r: 80, color: 'rgba(255,255,255,0.1)' },
           { type: 'circle', x: 100, y: 1080, r: 90, color: 'rgba(255,255,255,0.06)' },
-          { type: 'priceTag', x: 50, y: 800, price: p.price },
+          { type: 'priceTag', x: 50, y: 800, price: product.price },
           { type: 'badge', x: 50, y: 900, text: '限时特惠' }
         ]
       }
     ];
-
-    res.json({ images, styleLabel: st.label, refImage: !!imageBase64 });
-  } catch (e) {
-    console.error('image-generate error:', e);
-    res.status(500).json({ error: '套图生成服务异常: ' + (e.message || '请稍后重试') });
-  }
-});
+    console.log(`  [image-generate] 任务 ${jobId} 本地模板兜底完成`);
+  }, 1200);
+}
 
 // ===== GET /api/image-generate-status（前端轮询异步任务进度）=====
 app.get('/api/image-generate-status', (req, res) => {
