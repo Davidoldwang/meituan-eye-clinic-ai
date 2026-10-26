@@ -1,0 +1,134 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#F2F6FD',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* A 标题块 */}
+    <Box style={{ position: 'absolute', top: 26, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 36, background: '#1B5FD9', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0B2A6B', lineHeight: 1.2 }}>评价与诊断：把差评当成经营线索</Text>
+            <Text style={{ fontSize: 12.5, color: '#5A6B8C', marginTop: 3, letterSpacing: 1 }}>
+                差评分类归因 → 分层回复建议 · 五维体检 → P0/P1 行动项
+            </Text>
+        </Box>
+    </Box>
+    <Image src="assets/logo_2026.png" style={{
+        position: 'absolute', top: 28, right: 64,
+        width: 112, height: 48, objectFit: 'contain', opacity: 0.55,
+    }} />
+
+    {/* B 内容区：左右两栏 */}
+    <Box style={{
+        position: 'absolute', top: 100, left: 56, right: 56, height: 540,
+        flexDirection: 'row', gap: 16,
+    }}>
+        {/* 左栏：评价管理 */}
+        <Box style={{ width: 566, flexDirection: 'column', gap: 10 }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Box style={{ background: '#1B5FD9', borderRadius: 4, padding: '3px 8px' }}>
+                    <Text style={{ fontSize: 10.5, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'Arial, sans-serif' }}>REQ-04</Text>
+                </Box>
+                <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#0B2A6B' }}>差评智能分析与回复</Text>
+            </Box>
+
+            <Box style={{
+                background: '#FFFFFF', borderRadius: 10, padding: 7,
+                boxShadow: '0 5px 20px rgba(11,42,107,0.11)',
+                border: '1px solid rgba(27,95,217,0.12)',
+            }}>
+                <Image src="assets/ui_review.png" style={{ width: '100%', height: 300, objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
+            </Box>
+
+            <Text style={{ fontSize: 12, color: '#5A6B8C', lineHeight: 1.7 }}>
+                贴一条差评、或者直接上传截图，系统自动判断它属于哪类问题、该用什么口径回，给出可直接使用的回复稿。
+            </Text>
+
+            <Box style={{ flexDirection: 'row', gap: 8, flex: 1 }}>
+                {[
+                    { t: '等待时间长' },
+                    { t: '服务态度' },
+                    { t: '效果不满意' },
+                    { t: '价格问题' },
+                ].map((x) => (
+                    <Box key={x.t} style={{
+                        flex: 1, background: '#FFFFFF',
+                        borderRadius: 7, paddingTop: 12, paddingBottom: 12,
+                        alignItems: 'center', justifyContent: 'center',
+                        borderTop: '3px solid #1B5FD9',
+                        boxShadow: '0 2px 10px rgba(11,42,107,0.05)',
+                    }}>
+                        <Text style={{ fontSize: 11.5, fontWeight: 'bold', color: '#0B2A6B', textAlign: 'center', lineHeight: 1.4 }}>{x.t}</Text>
+                    </Box>
+                ))}
+            </Box>
+        </Box>
+
+        {/* 右栏：五维诊断 */}
+        <Box style={{ flex: 1, flexDirection: 'column', gap: 10 }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Box style={{ background: '#FF8A3D', borderRadius: 4, padding: '3px 8px' }}>
+                    <Text style={{ fontSize: 10.5, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'Arial, sans-serif' }}>REQ-05</Text>
+                </Box>
+                <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#0B2A6B' }}>五维运营诊断</Text>
+            </Box>
+
+            <Box style={{
+                background: '#FFFFFF', borderRadius: 10, padding: 16,
+                boxShadow: '0 4px 16px rgba(11,42,107,0.07)',
+                flex: 1, flexDirection: 'column', gap: 9,
+            }}>
+                {[
+                    { t: '店铺装修', d: '头图、相册、环境视频完整度' },
+                    { t: '团购项目', d: '引流款价格、详情节、有效期设置' },
+                    { t: '评价管理', d: '差评回复率、好评引导、标签完善' },
+                    { t: '推广投放', d: '关键词覆盖、定向人群、投放时段' },
+                    { t: '活动策划', d: '预热节奏、老带新机制、满减门槛' },
+                ].map((r, i) => (
+                    <Box key={r.t} style={{
+                        flex: 1,
+                        flexDirection: 'row', alignItems: 'center', gap: 11,
+                        borderBottom: i < 4 ? '1px solid #EDF2FA' : 'none',
+                        paddingBottom: 6,
+                    }}>
+                        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#35C8F0', fontFamily: 'Arial, sans-serif', width: 20 }}>
+                            {'0' + (i + 1)}
+                        </Text>
+                        <Box style={{ flex: 1 }}>
+                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#0B2A6B', lineHeight: 1.3 }}>{r.t}</Text>
+                            <Text style={{ fontSize: 10.5, color: '#7A8AAA', lineHeight: 1.4 }}>{r.d}</Text>
+                        </Box>
+                    </Box>
+                ))}
+            </Box>
+
+            <Box style={{ flexDirection: 'row', gap: 9 }}>
+                <Box style={{
+                    flex: 1, background: 'rgba(255,138,61,0.10)', borderRadius: 8,
+                    padding: 12, borderLeft: '3px solid #FF8A3D',
+                }}>
+                    <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#D96B15', marginBottom: 4 }}>P0 · 立刻做</Text>
+                    <Text style={{ fontSize: 10.5, color: '#7A5A3A', lineHeight: 1.55 }}>差评逐条回复<br />增设低价引流项目</Text>
+                </Box>
+                <Box style={{
+                    flex: 1, background: 'rgba(27,95,217,0.07)', borderRadius: 8,
+                    padding: 12, borderLeft: '3px solid #1B5FD9',
+                }}>
+                    <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#1B5FD9', marginBottom: 4 }}>P1 · 本周做</Text>
+                    <Text style={{ fontSize: 10.5, color: '#4A5A7A', lineHeight: 1.55 }}>补充项目品类覆盖<br />扩展搜索关键词</Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 14,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 12.5, color: '#8494B4' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 12.5, color: '#8494B4', fontFamily: 'Arial, sans-serif' }}>09 / 15</Text>
+    </Box>
+</Slide>

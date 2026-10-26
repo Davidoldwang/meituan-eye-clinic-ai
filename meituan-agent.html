@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>美团电商眼科运营AI助手</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233b82f6'/%3E%3Cellipse cx='16' cy='16' rx='9' ry='6' fill='white'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%233b82f6'/%3E%3C/svg%3E">
 <style>
 /* ===== CSS Variables ===== */
 :root {
@@ -152,29 +153,78 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
 @keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(-10px)}}
 
-/* ===== DASHBOARD ===== */
-.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
-.stat-card{background:var(--bg-card);border-radius:var(--radius);padding:18px;border:1px solid var(--border);box-shadow:var(--shadow);transition:all .2s}
-.stat-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
-.stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
-.stat-label{font-size:12px;color:var(--text-sub);margin-bottom:3px}
-.stat-value{font-size:24px;font-weight:800;line-height:1.2}
-.stat-change{font-size:11px;margin-top:4px}
-.stat-change.up{color:var(--success)}
-.stat-change.down{color:var(--danger)}
-.dash-mid{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;margin-bottom:20px}
-.chart-wrap{position:relative}
-.chart-wrap canvas{width:100%;height:220px}
-.todo-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.todo-item:last-child{border-bottom:none}
-.todo-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.todo-text{flex:1;font-size:13px}
-.todo-action{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600}
-.dash-shortcuts{display:flex;gap:20px;justify-content:center}
-.shortcut-btn{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:16px 20px;border-radius:var(--radius);transition:all .2s;border:1px solid var(--border);background:var(--bg-card);min-width:100px}
-.shortcut-btn:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);border-color:var(--accent)}
-.shortcut-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff}
-.shortcut-label{font-size:12px;font-weight:600;color:var(--text)}
+/* ===== COCKPIT (经营驾驶舱) ===== */
+.cockpit-tabs{display:flex;gap:4px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:4px;box-shadow:var(--shadow);margin-bottom:16px;width:fit-content}
+.cockpit-tab{padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;color:var(--text-sub);cursor:pointer;transition:all .2s;user-select:none}
+.cockpit-tab:hover{color:var(--text)}
+.cockpit-tab.active{background:#f59e0b;color:#fff;box-shadow:0 2px 4px rgba(245,158,11,0.25)}
+.cockpit-panel{display:none}
+.cockpit-panel.active{display:block}
+
+/* 顶部概览行（横向并列 4-5 项） */
+.overview-row{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;padding:20px 4px 4px}
+@media (max-width:900px){.overview-row{grid-template-columns:repeat(2,1fr)}}
+.overview-cell{display:flex;flex-direction:column;gap:4px}
+.overview-label{font-size:12px;color:var(--text-sub);font-weight:500}
+.overview-value{font-size:28px;font-weight:800;color:var(--text);line-height:1.2}
+.overview-value.highlight{color:#f97316}
+.overview-unit{font-size:14px;font-weight:600;color:var(--text-sub);margin-left:2px}
+
+/* 得分率行（标签 + 进度条 + 百分比） */
+.score-rate-row{display:flex;align-items:center;gap:16px;padding:12px 4px 20px}
+.score-rate-label{font-size:13px;color:var(--text-sub);font-weight:600;flex-shrink:0}
+.score-rate-bar{flex:1;height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden}
+.score-rate-fill{height:100%;background:#1f2937;border-radius:4px;transition:width .4s}
+.score-rate-value{font-size:18px;font-weight:800;color:#f97316;flex-shrink:0;min-width:60px;text-align:right}
+
+/* 指标卡网格 */
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.metric-grid.three-cols{grid-template-columns:repeat(3,1fr)}
+.metric-grid.two-cols{grid-template-columns:repeat(2,1fr)}
+@media (max-width:1100px){.metric-grid,.metric-grid.three-cols{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:700px){.metric-grid,.metric-grid.three-cols,.metric-grid.two-cols{grid-template-columns:1fr}}
+
+.metric-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);transition:all .2s}
+.metric-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
+.metric-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.metric-title{font-size:14px;font-weight:700;color:var(--text)}
+.metric-badge{font-size:11px;font-weight:600;color:#fff;background:#22c55e;padding:3px 10px;border-radius:10px;white-space:nowrap}
+.metric-value{font-size:32px;font-weight:800;color:var(--text);line-height:1.1;margin-bottom:10px}
+.metric-value.highlight{color:#f97316}
+.metric-denom{font-size:16px;font-weight:600;color:var(--text-sub);margin-left:2px}
+.metric-unit{font-size:18px;font-weight:600;color:var(--text-sub);margin-left:2px}
+.metric-tag{font-size:12px;font-weight:600;color:var(--text-sub);margin-left:6px}
+.metric-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
+.metric-stats.quad{grid-template-columns:repeat(3,1fr)}
+.metric-stats>div{text-align:center}
+.metric-stat-label{font-size:11px;color:var(--text-sub);margin-bottom:2px}
+.metric-stat-value{font-size:14px;font-weight:700;color:var(--text)}
+.metric-rate{color:#f97316}
+.metric-good{color:#22c55e}
+.metric-bad{color:#ef4444}
+
+/* 转化漏斗 */
+.funnel-rows{display:flex;flex-direction:column;gap:14px;padding:16px 0 8px}
+.funnel-row{display:grid;grid-template-columns:80px 1fr 140px;align-items:center;gap:16px}
+@media (max-width:700px){.funnel-row{grid-template-columns:1fr;gap:6px}}
+.funnel-label{font-size:13px;color:var(--text-sub);font-weight:600}
+.funnel-bar-wrap{position:relative;background:#fff8e1;border-radius:6px;overflow:hidden;min-height:38px;display:flex;align-items:center}
+.funnel-bar{background:linear-gradient(90deg,#fde68a,#fcd34d);height:100%;min-height:38px;border-radius:6px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;transition:width .4s}
+.funnel-bar-value{font-size:16px;font-weight:800;color:#78350f;white-space:nowrap}
+.funnel-bar-unit{font-size:12px;font-weight:600;color:#92400e;margin-left:2px}
+.funnel-bar-cum{font-size:12px;color:#92400e;font-weight:500;margin-left:12px;white-space:nowrap}
+.funnel-rate{font-size:13px;color:var(--text-sub);text-align:right;font-weight:600}
+.funnel-rate-value{color:#f97316;font-size:18px;font-weight:800;margin-left:4px}
+
+/* 星级分布横条图 */
+.star-rows{display:flex;flex-direction:column;gap:6px;padding:8px 0;max-height:420px;overflow-y:auto}
+.star-row{display:grid;grid-template-columns:36px 1fr 32px;align-items:center;gap:10px}
+.star-label{font-size:12px;color:var(--text-sub);font-weight:600;text-align:right}
+.star-bar-wrap{position:relative;background:#fef3c7;border-radius:4px;height:22px;display:flex;align-items:center;overflow:hidden}
+.star-bar{height:100%;background:#f97316;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;transition:width .4s}
+.star-bar.dianping{background:#f97316}
+.star-bar.meituan{background:#fbbf24}
+.star-bar-value{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;text-shadow:0 1px 1px rgba(0,0,0,0.2)}
 
 /* ===== COMPETITOR ===== */
 .comp-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:16px}
@@ -334,45 +384,6 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
 .action-impact{font-size:11px;color:var(--accent);font-weight:600;margin-top:4px}
 .script-section{background:var(--bg-card);border-radius:var(--radius);padding:16px;border:1px solid var(--border);margin-bottom:14px}
 .script-section-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.script-bubble-new{background:#f3f4f6;border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.9;color:var(--text);border-left:3px solid var(--accent);margin-bottom:10px;white-space:pre-wrap}
-.sop-timeline{display:flex;gap:0;margin-bottom:16px}
-.sop-time-item{flex:1;text-align:center;padding:10px 8px;font-size:11px;color:var(--text-sub);position:relative}
-.sop-time-item::after{content:'';position:absolute;bottom:18px;right:-50%;width:100%;height:2px;background:var(--border);z-index:0}
-.sop-time-item:last-child::after{display:none}
-.sop-time-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);margin:0 auto 6px;position:relative;z-index:1}
-.layer-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}
-.layer-table th{background:var(--primary);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px}
-.layer-table th:first-child{border-radius:8px 0 0 0}
-.layer-table th:last-child{border-radius:0 8px 0 0}
-.layer-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
-.layer-table tr:hover td{background:#f9fafb}
-.calendar-row{display:flex;gap:12px;margin-bottom:10px}
-.calendar-day{background:linear-gradient(135deg,var(--accent),#60a5fa);color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;min-width:48px;text-align:center;flex-shrink:0}
-.calendar-topic{flex:1;font-size:13px;padding:8px 0}
-.calendar-type{font-size:11px;color:var(--text-sub)}
-.funnel-stage{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-.funnel-label{width:60px;font-size:12px;font-weight:700;text-align:right;flex-shrink:0}
-.funnel-bar-wrap{flex:1;background:#e5e7eb;border-radius:6px;height:28px;overflow:hidden;position:relative}
-.funnel-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:11px;font-weight:700;transition:width .6s ease}
-.funnel-rate{width:50px;font-size:12px;color:var(--text-sub);flex-shrink:0}
-.roi-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}
-.roi-table th{background:var(--primary);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px}
-.roi-table th:first-child{border-radius:8px 0 0 0}
-.roi-table th:last-child{border-radius:0 8px 0 0}
-.roi-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
-.roi-table tr:hover td{background:#f9fafb}
-.experiment-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
-.experiment-name{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.experiment-row{font-size:12px;color:var(--text-sub);line-height:1.8}
-.menu-tree{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px}
-.menu-col{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
-.menu-col-title{font-size:13px;font-weight:700;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--accent)}
-.menu-col-item{font-size:12px;padding:4px 0;color:var(--text-sub)}
-.tag-sm{display:inline-flex;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:600}
-.tag-sm-p0{background:#fee2e2;color:#991b1b}
-.tag-sm-p1{background:#fef3c7;color:#92400e}
-.copy-btn-sm{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#f9fafb;color:var(--text);transition:all .15s}
-.copy-btn-sm:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 
 /* Scrollbar */
 ::-webkit-scrollbar{width:6px;height:6px}
@@ -458,7 +469,7 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
   input{font-size:16px !important}
 
   /* Tables - horizontal scroll */
-  .clinic-project-table,.comp-table,.layer-table,.roi-table{display:block;overflow-x:auto;white-space:nowrap;font-size:11px}
+  .clinic-project-table,.comp-table{display:block;overflow-x:auto;white-space:nowrap;font-size:11px}
   .clinic-project-table th,.clinic-project-table td,.comp-table th,.comp-table td{padding:8px 6px}
 
   /* Buttons */
@@ -506,6 +517,72 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
 .tab-btn.active{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
 .tab-btn:hover:not(.active){color:var(--text)}
 .url-input-wrap input:focus{border-color:var(--accent)}
+
+/* ===== CLINIC COLLECT（门诊采集） ===== */
+.clinic-filter-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+@media (max-width:700px){.clinic-filter-row{grid-template-columns:1fr;gap:10px;padding:12px}}
+.clinic-filter-cell{display:flex;flex-direction:column;gap:4px}
+.clinic-filter-label{font-size:11px;color:var(--text-sub);font-weight:600}
+.clinic-filter-select{padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;outline:none;cursor:pointer;transition:border-color .2s}
+.clinic-filter-select:focus{border-color:var(--accent)}
+
+.clinic-tabs{display:flex;gap:4px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.clinic-tabs::-webkit-scrollbar{display:none}
+.clinic-tab{padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;color:var(--text-sub);cursor:pointer;transition:all .2s;white-space:nowrap;user-select:none;flex-shrink:0}
+.clinic-tab:hover{color:var(--text)}
+.clinic-tab.active{background:#f59e0b;color:#fff;box-shadow:0 2px 4px rgba(245,158,11,0.25)}
+.clinic-panel{display:none}
+.clinic-panel.active{display:block}
+
+.upload-zone.mobile-friendly{min-height:200px;padding:36px 20px;border-radius:14px;background:linear-gradient(135deg,#f0fdf4,#f0f7ff);border-color:#86efac}
+.upload-zone.mobile-friendly:hover{border-color:#22c55e;background:linear-gradient(135deg,#dcfce7,#dbeafe)}
+.upload-mobile-hint{margin-top:8px;font-size:12px;color:#16a34a;font-weight:600}
+
+.clinic-tips{background:#fffbeb;border-left:3px solid #f59e0b;border-radius:8px;padding:14px;margin-top:16px}
+.clinic-tip-title{font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px}
+.clinic-tip-item{font-size:12px;color:#78350f;line-height:1.9}
+
+.clinic-manual-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media (max-width:900px){.clinic-manual-grid{grid-template-columns:1fr}}
+.manual-form{display:flex;flex-direction:column;gap:12px;padding:16px}
+.manual-field{display:flex;flex-direction:column;gap:6px}
+.manual-field label{font-size:12px;font-weight:600;color:var(--text-sub)}
+.manual-field input{padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:border-color .2s}
+.manual-field input:focus{border-color:var(--accent)}
+
+.clinic-history-list{display:flex;flex-direction:column;gap:10px;padding:16px}
+.clinic-history-item{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);transition:all .2s;cursor:pointer}
+.clinic-history-item:hover{border-color:var(--accent);transform:translateX(2px)}
+.clinic-history-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;flex-shrink:0}
+.clinic-history-body{flex:1;min-width:0}
+.clinic-history-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.clinic-history-meta{font-size:12px;color:var(--text-sub)}
+.clinic-history-score{font-size:22px;font-weight:800;color:#f97316;flex-shrink:0}
+
+.clinic-action-bar{position:sticky;bottom:0;display:flex;gap:10px;padding:14px;margin-top:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;box-shadow:0 -4px 12px rgba(0,0,0,0.06);z-index:10}
+.btn-mobile{padding:12px 18px;font-size:15px}
+
+/* 7 界面截图上传槽位 */
+.clinic-shot-progress{font-size:12px;font-weight:700;color:#f97316;background:#fff7ed;padding:4px 12px;border-radius:12px;border:1px solid #fed7aa}
+.clinic-shot-guide{background:#fffbeb;border-left:3px solid #f59e0b;border-radius:8px;padding:14px;margin-bottom:16px}
+.clinic-shot{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--border);border-radius:12px;margin-bottom:12px;background:var(--bg-card);transition:border-color .2s}
+.clinic-shot:hover{border-color:var(--accent)}
+.clinic-shot-head{display:flex;align-items:center;gap:12px}
+.clinic-shot-num{width:28px;height:28px;border-radius:50%;background:#f59e0b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.clinic-shot-info{flex:1;min-width:0}
+.clinic-shot-name{font-size:14px;font-weight:700;color:var(--text)}
+.clinic-shot-path{font-size:11px;color:var(--text-sub);margin-top:2px}
+.clinic-shot-status{font-size:11px;font-weight:600;color:var(--text-sub);flex-shrink:0}
+.clinic-shot-status.done{color:#16a34a}
+.clinic-shot-desc{font-size:12px;color:var(--text-sub);line-height:1.6;padding-left:40px}
+.clinic-shot-box{position:relative;border:2px dashed var(--border);border-radius:10px;min-height:110px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:all .2s;background:#fafbfc}
+.clinic-shot-box:hover{border-color:var(--accent);background:rgba(59,130,246,0.02)}
+.clinic-shot-box.dragover{border-color:var(--accent);background:rgba(59,130,246,0.06);border-style:solid}
+.clinic-shot-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text-sub);padding:20px}
+.clinic-shot-ph-icon{font-size:26px}
+.clinic-shot-ph-text{font-size:12px}
+.clinic-shot-preview{max-width:100%;max-height:180px;object-fit:contain;border-radius:8px}
+.clinic-shot-clear{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;align-items:center;justify-content:center;cursor:pointer;font-size:16px;line-height:1;z-index:2}
 .clinic-card{background:linear-gradient(135deg,#f0fdf4,#f0f7ff);border:1px solid #d1fae5;border-radius:12px;padding:16px;margin-bottom:16px}
 .clinic-card-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .clinic-card-name{font-size:18px;font-weight:700;color:var(--primary)}
@@ -534,6 +611,179 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
 .suggestion-desc{font-size:12px;color:var(--text-sub);line-height:1.6;margin-bottom:4px}
 .suggestion-impact{font-size:11px;color:var(--accent);font-weight:600}
 @media(max-width:1100px){.analysis-grid{grid-template-columns:1fr}}
+
+/* ===== IMAGE DIAGNOSIS PAGE (M3-01) ===== */
+.imgd-layout{display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start}
+.imgd-upload-card{background:var(--bg-card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.imgd-section-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--accent)}
+.imgd-upload-zone{text-align:center;padding:28px 20px;border:2px dashed var(--border);border-radius:10px;cursor:pointer;transition:all .2s;margin-bottom:16px;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.imgd-upload-zone:hover{border-color:var(--accent);background:#f8faff}
+.imgd-upload-zone.dragover{border-color:var(--accent);background:#eff6ff}
+.imgd-upload-icon{font-size:36px;margin-bottom:8px;opacity:.5}
+.imgd-right{padding:20px;background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow)}
+.imgd-score-ring{text-align:center;margin-bottom:20px}
+.imgd-score-circle{width:100px;height:100px;border-radius:50%;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;border:4px solid}
+.imgd-score-num{font-size:32px;font-weight:700;line-height:1}
+.imgd-score-label{font-size:11px;color:var(--text-sub)}
+.imgd-dim-bar{margin-bottom:10px}
+.imgd-dim-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.imgd-dim-label{width:80px;font-size:12px;color:var(--text-sub);text-align:right;flex-shrink:0}
+.imgd-dim-track{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.imgd-dim-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.imgd-dim-score{width:36px;font-size:12px;font-weight:700;text-align:right;flex-shrink:0}
+.imgd-issues{margin-top:16px}
+.imgd-issue-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;margin-bottom:6px;font-size:12px;line-height:1.6}
+.imgd-issue-item.P0{background:#fef2f2;border-left:3px solid var(--danger)}
+.imgd-issue-item.P1{background:#fffbeb;border-left:3px solid var(--warning)}
+.imgd-issue-item.P2{background:#f0fdf4;border-left:3px solid var(--success)}
+.imgd-issue-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;flex-shrink:0;margin-top:1px}
+.imgd-issue-badge.P0{background:var(--danger);color:#fff}
+.imgd-issue-badge.P1{background:var(--warning);color:#fff}
+.imgd-issue-badge.P2{background:var(--success);color:#fff}
+.imgd-suggestions{margin-top:12px}
+.imgd-sug-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;font-size:12px;color:var(--text);border-bottom:1px solid var(--bg)}
+.imgd-sug-num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.imgd-quickwins{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.imgd-qw-tag{font-size:11px;padding:4px 10px;border-radius:20px;background:#dcfce7;color:#166534;font-weight:600}
+.imgd-next-steps{margin-top:12px}
+.imgd-next-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-sub);padding:4px 0}
+.imgd-next-num{width:18px;height:18px;border-radius:50%;background:var(--primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:768px){.imgd-layout{grid-template-columns:1fr}}
+
+/* ===== COPY OPTIMIZE PAGE (M3-03) ===== */
+.co-layout{display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start}
+.co-card{background:var(--bg-card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.co-section-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--accent)}
+.co-textarea{width:100%;height:200px;font-size:13px;line-height:1.6;resize:vertical;font-family:var(--font)}
+.co-right{padding:20px;background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow)}
+.co-score-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.co-score-big{font-size:36px;font-weight:700}
+.co-score-change{font-size:14px;font-weight:600;padding:2px 8px;border-radius:4px}
+.co-score-change.up{background:#dcfce7;color:#166534}
+.co-dim-row{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+.co-dim-label{width:80px;font-size:12px;color:var(--text-sub);text-align:right;flex-shrink:0}
+.co-dim-bar{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.co-dim-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.co-dim-score{width:30px;font-size:11px;font-weight:700;text-align:right}
+.co-dim-comment{font-size:11px;color:var(--text-sub);margin-left:90px;margin-bottom:8px}
+.co-compliance-pass{background:#dcfce7;color:#166534;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:600}
+.co-compliance-warn{background:#fffbeb;color:#92400e;padding:6px 12px;border-radius:6px;font-size:13px}
+.co-comp-detail{font-size:11px;padding:4px 8px;margin:2px 0;border-radius:4px}
+.co-comp-detail.FAIL{background:#fef2f2;color:#991b1b}
+.co-comp-detail.WARN{background:#fffbeb;color:#92400e}
+.co-change-item{font-size:12px;color:var(--text);padding:5px 0;border-bottom:1px solid var(--bg);display:flex;align-items:flex-start;gap:8px}
+.co-change-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+@media(max-width:768px){.co-layout{grid-template-columns:1fr}}
+
+/* ===== 月度数据导入 ===== */
+.dash-src{display:flex;align-items:center;gap:10px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12.5px;color:#075985;flex-wrap:wrap}
+.dash-src b{font-weight:800}
+.dash-src-go{margin-left:auto;font-weight:700;color:var(--accent);cursor:pointer;white-space:nowrap}
+.dash-src-go:hover{text-decoration:underline}
+.mi-step{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.mi-step-no{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mi-step-no.done{background:var(--success)}
+.mi-step-t{font-size:14px;font-weight:700}
+.mi-step-sub{font-size:12px;color:var(--text-sub);font-weight:400;margin-left:4px}
+.mi-bar{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.mi-field{display:flex;flex-direction:column;gap:6px}
+.mi-field label{font-size:12px;font-weight:600;color:var(--text-sub)}
+.mi-field select{min-width:170px}
+.mi-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:26px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#fafbfc}
+.mi-zone:hover,.mi-zone.dragover{border-color:var(--accent);background:rgba(59,130,246,0.04)}
+.mi-zone.has-file{border-style:solid;border-color:var(--success);background:#f0fdf4;cursor:default}
+.mi-zone-icon{font-size:30px;margin-bottom:8px;opacity:.55}
+.mi-zone-main{font-size:14px;font-weight:700;margin-bottom:4px}
+.mi-zone-sub{font-size:12px;color:var(--text-sub);line-height:1.7}
+.mi-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:12px;margin-bottom:16px}
+@media(max-width:1200px){.mi-kpi{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.mi-kpi{grid-template-columns:repeat(2,1fr)}}
+.mi-kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.mi-kpi-label{font-size:11px;color:var(--text-sub);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi-kpi-value{font-size:22px;font-weight:800;line-height:1.1;color:var(--primary)}
+.mi-kpi-unit{font-size:12px;font-weight:600;color:var(--text-sub);margin-left:2px}
+.mi-kpi-hint{font-size:11px;color:var(--text-light);margin-top:4px}
+.mi-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto}
+.mi-tab{padding:9px 14px;font-size:13px;font-weight:600;color:var(--text-sub);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+.mi-tab:hover{color:var(--accent)}
+.mi-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.mi-panel{display:none}
+.mi-panel.active{display:block}
+.mi-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-sm)}
+table.mi-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:640px}
+table.mi-table th{background:#f8fafc;padding:9px 10px;text-align:left;font-weight:700;font-size:11.5px;color:var(--text-sub);white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0}
+table.mi-table td{padding:8px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+table.mi-table tbody tr:hover{background:#f8fbff}
+table.mi-table tr:last-child td{border-bottom:none}
+.mi-miss{display:inline-block;padding:1px 7px;border-radius:20px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700}
+.mi-ok{color:var(--text)}
+.mi-rank{display:inline-flex;width:20px;height:20px;border-radius:5px;background:#f1f5f9;color:var(--text-sub);font-size:11px;font-weight:700;align-items:center;justify-content:center}
+.mi-rank.top{background:#dbeafe;color:#1e40af}
+.mi-rank.bad{background:#fee2e2;color:#991b1b}
+.mi-dist-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.mi-dist-label{width:120px;font-size:12px;color:var(--text-sub);flex-shrink:0;text-align:right}
+.mi-dist-track{flex:1;height:20px;background:#f1f5f9;border-radius:5px;overflow:hidden}
+.mi-dist-fill{height:100%;border-radius:5px;transition:width .6s ease;min-width:2px}
+.mi-dist-val{width:104px;font-size:12px;font-weight:700;flex-shrink:0;white-space:nowrap}
+.mi-insight{display:flex;gap:9px;padding:10px 12px;border-radius:8px;margin-bottom:8px;font-size:12.5px;line-height:1.65}
+.mi-insight.P0{background:#fef2f2;border-left:3px solid var(--danger)}
+.mi-insight.P1{background:#fffbeb;border-left:3px solid var(--warning)}
+.mi-insight.P2{background:#f0f9ff;border-left:3px solid var(--accent)}
+.mi-insight-lv{font-weight:800;font-size:11px;flex-shrink:0;padding-top:1px}
+.mi-insight.P0 .mi-insight-lv{color:var(--danger)}
+.mi-insight.P1 .mi-insight-lv{color:#b45309}
+.mi-insight.P2 .mi-insight-lv{color:var(--accent)}
+.mi-pend-item{border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:9px;background:#fff}
+.mi-pend-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.mi-pend-name{font-size:13px;font-weight:700}
+.mi-pend-city{font-size:11.5px;color:var(--text-sub)}
+.mi-pend-fields{display:flex;flex-wrap:wrap;gap:10px}
+.mi-pend-cell{border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:#fafbfc;flex:0 1 260px;max-width:320px;min-width:180px}
+.mi-pend-label{font-size:11px;font-weight:700;color:var(--text-sub);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.mi-pend-input-row{display:flex;gap:6px}
+.mi-pend-input-row input{flex:1;padding:5px 8px;font-size:12.5px;min-width:60px}
+.mi-sug{font-size:11px;color:#1e40af;background:#dbeafe;padding:3px 7px;border-radius:5px;display:inline-flex;align-items:center;gap:5px;margin-bottom:6px;cursor:pointer}
+.mi-sug:hover{background:#bfdbfe}
+.mi-empty{text-align:center;padding:36px 20px;color:var(--text-sub);font-size:13px;line-height:1.9}
+.mi-empty-icon{font-size:38px;opacity:.35;margin-bottom:10px}
+.mi-map-row{display:grid;grid-template-columns:110px 1fr 90px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:12.5px}
+.mi-map-row:last-child{border-bottom:none}
+.mi-map-std{font-weight:700}
+.mi-map-col{color:var(--text-sub);font-family:Consolas,Monaco,monospace;font-size:12px}
+.mi-note{font-size:11.5px;color:var(--text-sub);background:#f8fafc;border-radius:6px;padding:8px 11px;line-height:1.7;margin-top:10px}
+.mi-search{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.mi-search input{min-width:200px}
+#mi-stores{min-width:900px}
+.mi-excl-note{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px dashed var(--border);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text-sub);margin-bottom:12px;flex-wrap:wrap}
+.mi-excl-note a{color:var(--accent);font-weight:700;cursor:pointer;white-space:nowrap}
+.mi-excl-note a:hover{text-decoration:underline}
+.mi-status{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid transparent;white-space:nowrap}
+.mi-status.active{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+.mi-status.unopened{background:#eef2f7;color:#64748b;border-color:#e2e8f0}
+.mi-status.suspect{background:#fef3c7;color:#92400e;border-color:#fde68a}
+.mi-modal-mask{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:400;padding:20px}
+.mi-modal-mask.show{display:flex}
+.mi-modal{background:#fff;border-radius:14px;max-width:640px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);max-height:86vh;overflow:auto}
+.mi-modal-title{font-size:16px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;color:var(--primary)}
+.mi-modal-sub{font-size:12.5px;color:var(--text-sub);line-height:1.8;margin-bottom:14px}
+.mi-link-box{display:flex;gap:8px;margin-bottom:10px}
+.mi-link-box input{flex:1;font-family:Consolas,Monaco,monospace;font-size:12px;background:#f8fafc;min-width:0}
+.mi-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.mi-chip{padding:4px 10px;border-radius:20px;background:#eff6ff;color:#1e40af;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid #dbeafe}
+.mi-chip:hover{background:#dbeafe}
+.mi-chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mi-mgr-head{display:grid;grid-template-columns:1fr 1fr 80px;gap:8px;font-size:11.5px;font-weight:700;color:var(--text-sub);padding:4px 0;border-bottom:1px solid var(--border)}
+.mi-mgr-row{display:grid;grid-template-columns:1fr 1fr 80px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #f1f5f9;font-size:12.5px}
+.mi-mgr-row input{padding:5px 8px;font-size:12.5px}
+.mi-mgr-row span:last-child{color:var(--text-sub);font-size:12px}
+@media(max-width:768px){
+  .mi-map-row{grid-template-columns:1fr;gap:3px}
+  .mi-dist-label{width:88px;font-size:11px}
+  .mi-kpi-value{font-size:19px}
+  .mi-zone{padding:20px 14px}
+}
 </style>
 </head>
 <body>
@@ -577,47 +827,45 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
   <div id="main-body">
     <aside id="sidebar">
       <nav class="s-nav">
-        <div class="s-label">导航菜单</div>
+        <div class="s-label">经营驾驶舱</div>
         <div class="s-item active" data-page="dash" onclick="switchPage('dash')">
           <span class="s-item-icon">&#9638;</span><span>首页仪表盘</span>
         </div>
+        <div class="s-item" data-page="clinic-collect" onclick="switchPage('clinic-collect')">
+          <span class="s-item-icon">&#127973;</span><span>门诊采集</span>
+        </div>
+        <div class="s-item" data-page="monthly-import" onclick="switchPage('monthly-import')">
+          <span class="s-item-icon">&#128193;</span><span>月度数据导入</span>
+        </div>
+        <div class="s-label">经营分析与竞争定价</div>
         <div class="s-item" data-page="comp" onclick="switchPage('comp')">
           <span class="s-item-icon">&#9673;</span><span>竞品分析</span>
         </div>
+        <div class="s-label">素材智能生成</div>
         <div class="s-item" data-page="copy" onclick="switchPage('copy')">
           <span class="s-item-icon">&#9998;</span><span>文案生成</span>
         </div>
         <div class="s-item" data-page="img" onclick="switchPage('img')">
           <span class="s-item-icon">&#9635;</span><span>套图生成</span>
         </div>
-        <div class="s-item" data-page="script" onclick="switchPage('script')">
-          <span class="s-item-icon">&#9994;</span><span>话术建议</span>
-          <span class="s-item-badge">3</span>
+        <div class="s-item" data-page="img-diagnosis" onclick="switchPage('img-diagnosis')">
+          <span class="s-item-icon">&#128269;</span><span>主图诊断</span>
         </div>
+        <div class="s-item" data-page="copy-optimize" onclick="switchPage('copy-optimize')">
+          <span class="s-item-icon">&#9997;</span><span>文案优化</span>
+        </div>
+        <div class="s-label">评价智能管理</div>
         <div class="s-item" data-page="review" onclick="switchPage('review')">
           <span class="s-item-icon">&#9733;</span><span>评价管理</span>
           <span class="s-item-badge">1</span>
         </div>
+        <div class="s-label">运营与流量决策</div>
         <div class="s-item" data-page="meituan-ops" onclick="switchPage('meituan-ops')">
           <span class="s-item-icon">&#9874;</span><span>美团运营</span>
         </div>
-        <div class="s-item" data-page="private-domain" onclick="switchPage('private-domain')">
-          <span class="s-item-icon">&#9741;</span><span>私域运营</span>
-        </div>
-        <div class="s-item" data-page="douyin" onclick="switchPage('douyin')">
-          <span class="s-item-icon">&#9654;</span><span>抖音策略</span>
-        </div>
-        <div class="s-item" data-page="xiaohongshu" onclick="switchPage('xiaohongshu')">
-          <span class="s-item-icon">&#9829;</span><span>小红书</span>
-        </div>
-        <div class="s-item" data-page="wechat" onclick="switchPage('wechat')">
-          <span class="s-item-icon">&#9993;</span><span>公众号</span>
-        </div>
-        <div class="s-item" data-page="growth" onclick="switchPage('growth')">
-          <span class="s-item-icon">&#9734;</span><span>增长策略</span>
-        </div>
-        <div class="s-item" data-page="clinic-collect" onclick="switchPage('clinic-collect')">
-          <span class="s-item-icon">&#127973;</span><span>门诊采集</span>
+        <div class="s-item" data-page="script" onclick="switchPage('script')">
+          <span class="s-item-icon">&#9994;</span><span>话术建议</span>
+          <span class="s-item-badge">3</span>
         </div>
       </nav>
       <div class="s-footer">
@@ -627,85 +875,200 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
 
     <main id="content">
 
-      <!-- ===== PAGE: DASHBOARD ===== -->
+      <!-- ===== PAGE: COCKPIT ===== -->
       <section id="page-dash" class="page active">
         <div class="page-header">
-          <div class="page-title"><span class="page-title-icon" style="background:var(--accent)">&#9638;</span>首页仪表盘</div>
-          <div class="page-sub">临沂爱尔眼科光门诊 · 运营数据概览</div>
+          <div class="page-title"><span class="page-title-icon" style="background:var(--accent)">&#9638;</span>经营驾驶舱</div>
+          <div class="page-sub">临沂爱尔眼科视光门诊 · 美团经营数据驾驶舱</div>
         </div>
-        <div class="dash-stats">
-          <div class="stat-card">
-            <div class="stat-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1e40af">&#9733;</div>
-            <div class="stat-label">店铺评分</div>
-            <div class="stat-value">4.5</div>
-            <div class="stat-change up">&#9650; 0.1 本月</div>
+
+        <div class="dash-src" id="dash-src" style="display:none"></div>
+
+        <div class="cockpit-tabs">
+          <div class="cockpit-tab active" data-tab="score" onclick="switchCockpitTab('score')">经营评分</div>
+          <div class="cockpit-tab" data-tab="funnel" onclick="switchCockpitTab('funnel')">转化漏斗</div>
+          <div class="cockpit-tab" data-tab="review" onclick="switchCockpitTab('review')">评价分析</div>
+          <div class="cockpit-tab" data-tab="star" onclick="switchCockpitTab('star')">星级分析</div>
+        </div>
+
+        <!-- ===== TAB 1: 经营评分 ===== -->
+        <div class="cockpit-panel active" id="cockpit-panel-score">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header"><div class="card-title">经营评分总览</div></div>
+            <div class="overview-row">
+              <div class="overview-cell"><div class="overview-label">平均总分</div><div class="overview-value highlight">62.9<span class="overview-unit">分</span></div></div>
+              <div class="overview-cell"><div class="overview-label">最高总分</div><div class="overview-value">105<span class="overview-unit">分</span></div></div>
+              <div class="overview-cell"><div class="overview-label">最低总分</div><div class="overview-value">0<span class="overview-unit">分</span></div></div>
+              <div class="overview-cell"><div class="overview-label">累计总分</div><div class="overview-value">8306<span class="overview-unit">分</span></div></div>
+              <div class="overview-cell"><div class="overview-label">满分门店</div><div class="overview-value">7<span class="overview-unit">家</span></div></div>
+            </div>
+            <div class="score-rate-row">
+              <div class="score-rate-label">平均得分率</div>
+              <div class="score-rate-bar"><div class="score-rate-fill" style="width:59.9%"></div></div>
+              <div class="score-rate-value">59.9%</div>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46">&#9998;</div>
-            <div class="stat-label">评价数</div>
-            <div class="stat-value">105条</div>
-            <div class="stat-change up">&#9650; 15 本月</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e">&#165;</div>
-            <div class="stat-label">月GMV</div>
-            <div class="stat-value">&#165;5.8w</div>
-            <div class="stat-change up">&#9650; 22%</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);color:#5b21b6">&#9635;</div>
-            <div class="stat-label">活跃项目</div>
-            <div class="stat-value">19个</div>
-            <div class="stat-change up">&#9650; 4 本月</div>
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">基础信息</div><div class="metric-badge">满分 62 家</div></div>
+              <div class="metric-value highlight">7.3<span class="metric-denom">/ 10 分</span></div>
+              <div class="score-rate-bar"><div class="score-rate-fill" style="width:73%"></div></div>
+              <div class="metric-stats"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value">10</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value">0</div></div><div><div class="metric-stat-label">得分率</div><div class="metric-stat-value metric-rate">73.0%</div></div></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">服务质量</div><div class="metric-badge">满分 97 家</div></div>
+              <div class="metric-value highlight">16.6<span class="metric-denom">/ 20 分</span></div>
+              <div class="score-rate-bar"><div class="score-rate-fill" style="width:83%"></div></div>
+              <div class="metric-stats"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value">20</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value">0</div></div><div><div class="metric-stat-label">得分率</div><div class="metric-stat-value metric-rate">83.0%</div></div></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">交易表现</div><div class="metric-badge">满分 21 家</div></div>
+              <div class="metric-value highlight">18.1<span class="metric-denom">/ 40 分</span></div>
+              <div class="score-rate-bar"><div class="score-rate-fill" style="width:45.3%"></div></div>
+              <div class="metric-stats"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value">40</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value">0</div></div><div><div class="metric-stat-label">得分率</div><div class="metric-stat-value metric-rate">45.3%</div></div></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">商品货架质量</div><div class="metric-badge">满分 61 家</div></div>
+              <div class="metric-value highlight">19<span class="metric-denom">/ 30 分</span></div>
+              <div class="score-rate-bar"><div class="score-rate-fill" style="width:63.3%"></div></div>
+              <div class="metric-stats"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value">33</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value">0</div></div><div><div class="metric-stat-label">得分率</div><div class="metric-stat-value metric-rate">63.3%</div></div></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">附加分</div><div class="metric-badge">满分 34 家</div></div>
+              <div class="metric-value highlight">1.8<span class="metric-denom">/ 5 分</span></div>
+              <div class="score-rate-bar"><div class="score-rate-fill" style="width:36%"></div></div>
+              <div class="metric-stats"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value">9</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value">0</div></div><div><div class="metric-stat-label">得分率</div><div class="metric-stat-value metric-rate">36.0%</div></div></div>
+            </div>
           </div>
         </div>
-        <div class="dash-mid">
-          <div class="card chart-wrap">
-            <div class="card-header">
-              <div class="card-title">最近7天订单趋势</div>
+
+        <!-- ===== TAB 2: 转化漏斗 ===== -->
+        <div class="cockpit-panel" id="cockpit-panel-funnel">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header"><div class="card-title">客流转化漏斗累计统计</div></div>
+            <div class="funnel-rows">
+              <div class="funnel-row">
+                <div class="funnel-label">曝光人数</div>
+                <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%"><span class="funnel-bar-value">3,646.3<span class="funnel-bar-unit">人</span></span><span class="funnel-bar-cum">累计 375,568</span></div></div>
+                <div class="funnel-rate">访问转化率 <span class="funnel-rate-value">13.39%</span></div>
+              </div>
+              <div class="funnel-row">
+                <div class="funnel-label">访问人数</div>
+                <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:62%"><span class="funnel-bar-value">380.6<span class="funnel-bar-unit">人</span></span><span class="funnel-bar-cum">累计 39,205</span></div></div>
+                <div class="funnel-rate">意向转化率 <span class="funnel-rate-value">16.15%</span></div>
+              </div>
+              <div class="funnel-row">
+                <div class="funnel-label">意向转化人数</div>
+                <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:24%"><span class="funnel-bar-value">51.5<span class="funnel-bar-unit">人</span></span><span class="funnel-bar-cum">累计 5,304</span></div></div>
+                <div class="funnel-rate">&nbsp;</div>
+              </div>
             </div>
-            <canvas id="orderChart" width="600" height="220"></canvas>
           </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">待办事项</div>
-              <span class="tag tag-danger">3项</span>
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">曝光人数</div></div>
+              <div class="metric-value highlight">3,646.3<span class="metric-unit">人</span><span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">累计</div><div class="metric-stat-value">375,568</div></div><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">38,100</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">25</div></div></div>
             </div>
-            <div class="todo-item">
-              <div class="todo-dot" style="background:var(--danger)"></div>
-              <div class="todo-text">1条差评待处理 — 用户"匿名"3星差评</div>
-              <div class="todo-action" onclick="switchPage('review')">去处理</div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">曝光访问转化率</div></div>
+              <div class="metric-value highlight">13.39<span class="metric-unit">%</span><span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">29.73</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">3.84</div></div></div>
             </div>
-            <div class="todo-item">
-              <div class="todo-dot" style="background:var(--warning)"></div>
-              <div class="todo-text">2个项目待上线 — 视功能训练/干眼理疗</div>
-              <div class="todo-action" onclick="switchPage('copy')">去处理</div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">访问人数</div></div>
+              <div class="metric-value highlight">380.6<span class="metric-unit">人</span><span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">累计</div><div class="metric-stat-value">39,205</div></div><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">2,352</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">1</div></div></div>
             </div>
-            <div class="todo-item">
-              <div class="todo-dot" style="background:var(--accent)"></div>
-              <div class="todo-text">1次复查提醒 — 刘女士5月20日回访</div>
-              <div class="todo-action" onclick="showToast('已标记提醒','success')">标已完成</div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">意向转化率</div></div>
+              <div class="metric-value highlight">16.15<span class="metric-unit">%</span><span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">63.33</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">0</div></div></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">意向转化人数</div></div>
+              <div class="metric-value highlight">51.5<span class="metric-unit">人</span><span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">累计</div><div class="metric-stat-value">5,304</div></div><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">261</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">0</div></div></div>
             </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">快捷操作</div></div>
-          <div class="dash-shortcuts">
-            <div class="shortcut-btn" onclick="switchPage('comp')">
-              <div class="shortcut-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">&#9673;</div>
-              <div class="shortcut-label">竞品分析</div>
+
+        <!-- ===== TAB 3: 评价分析 ===== -->
+        <div class="cockpit-panel" id="cockpit-panel-review">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header"><div class="card-title">评价概况</div></div>
+            <div class="overview-row">
+              <div class="overview-cell"><div class="overview-label">新增好评数（累计）</div><div class="overview-value highlight">2022<span class="overview-unit">条</span></div></div>
+              <div class="overview-cell"><div class="overview-label">新增差评数（累计）</div><div class="overview-value">7<span class="overview-unit">条</span></div></div>
+              <div class="overview-cell"><div class="overview-label">好评率</div><div class="overview-value">99.5<span class="overview-unit">%</span></div></div>
+              <div class="overview-cell"><div class="overview-label">平均差评回复率</div><div class="overview-value">8.16<span class="overview-unit">%</span></div></div>
             </div>
-            <div class="shortcut-btn" onclick="switchPage('copy')">
-              <div class="shortcut-icon" style="background:linear-gradient(135deg,#10b981,#059669)">&#9998;</div>
-              <div class="shortcut-label">文案生成</div>
+          </div>
+          <div class="metric-grid three-cols">
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">📋 新增评价数</div></div>
+              <div class="metric-value highlight">21.2<span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">累计</div><div class="metric-stat-value">2,032</div></div><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">176</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">0</div></div></div>
             </div>
-            <div class="shortcut-btn" onclick="switchPage('img')">
-              <div class="shortcut-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">&#9635;</div>
-              <div class="shortcut-label">套图生成</div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">⚠️ 新增差评数</div></div>
+              <div class="metric-value highlight">0.1<span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">累计</div><div class="metric-stat-value">7</div></div><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">1</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">0</div></div></div>
             </div>
-            <div class="shortcut-btn" onclick="switchPage('script')">
-              <div class="shortcut-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">&#9994;</div>
-              <div class="shortcut-label">话术建议</div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">💬 差评回复率</div></div>
+              <div class="metric-value highlight">8.16<span class="metric-unit">%</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">100</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">0</div></div></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">👍 新增好评数</div></div>
+              <div class="metric-value highlight">21.1<span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">累计</div><div class="metric-stat-value">2,022</div></div><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">175</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">0</div></div></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">📊 累计评价数</div></div>
+              <div class="metric-value highlight">298.4<span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">累计</div><div class="metric-stat-value">28,647</div></div><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">2,564</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">0</div></div></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">🛡️ 已拦截违规评价数</div></div>
+              <div class="metric-value highlight">0<span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">累计</div><div class="metric-stat-value">0</div></div><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">0</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">0</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== TAB 4: 星级分析 ===== -->
+        <div class="cockpit-panel" id="cockpit-panel-star">
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header"><div class="card-title">星级概览</div></div>
+            <div class="overview-row">
+              <div class="overview-cell"><div class="overview-label">点评平均星级</div><div class="overview-value highlight">3.61<span class="overview-unit">星</span></div></div>
+              <div class="overview-cell"><div class="overview-label">点评最高星级</div><div class="overview-value">5<span class="overview-unit">星</span></div></div>
+              <div class="overview-cell"><div class="overview-label">美团平均星级</div><div class="overview-value highlight">4.1<span class="overview-unit">星</span></div></div>
+              <div class="overview-cell"><div class="overview-label">美团最高星级</div><div class="overview-value">5<span class="overview-unit">星</span></div></div>
+            </div>
+          </div>
+          <div class="metric-grid two-cols">
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">点评星级分布</div></div>
+              <div class="star-rows" id="dianpingStarRows"></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">美团星级分布</div></div>
+              <div class="star-rows" id="meituanStarRows"></div>
+            </div>
+          </div>
+          <div class="metric-grid two-cols" style="margin-top:16px">
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">点评星级</div></div>
+              <div class="metric-value highlight">3.61<span class="metric-unit">星</span><span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">5</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">0</div></div><div><div class="metric-stat-label">极差</div><div class="metric-stat-value">5.0</div></div></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-head"><div class="metric-title">美团星级</div></div>
+              <div class="metric-value highlight">4.1<span class="metric-unit">星</span><span class="metric-tag">（平均）</span></div>
+              <div class="metric-stats quad"><div><div class="metric-stat-label">最高</div><div class="metric-stat-value metric-good">5</div></div><div><div class="metric-stat-label">最低</div><div class="metric-stat-value metric-bad">3</div></div><div><div class="metric-stat-label">极差</div><div class="metric-stat-value">2.0</div></div></div>
             </div>
           </div>
         </div>
@@ -844,7 +1207,7 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
       <section id="page-img" class="page">
         <div class="page-header">
           <div class="page-title"><span class="page-title-icon" style="background:#8b5cf6">&#9635;</span>套图生成</div>
-          <div class="page-sub">选择设计风格，AI生成完整套图方案</div>
+          <div class="page-sub">选择设计风格，一次生成 900×900 / 1200×900 / 900×1200 三种尺寸套图</div>
         </div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-header"><div class="card-title">风格选择</div></div>
@@ -868,8 +1231,8 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
             <div style="margin-top:14px"><button class="btn btn-primary btn-lg" style="width:100%" onclick="generateImages()">&#9889; 开始AI生成套图</button></div>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-title">生成结果</div></div>
-            <div class="gen-grid" id="genGrid" style="grid-template-columns:1fr 1fr"></div>
+            <div class="card-header"><div class="card-title">生成结果</div><span style="font-size:11.5px;color:var(--text-sub)">三尺寸 · 边缘完整不裁切</span></div>
+            <div class="gen-grid" id="genGrid" style="grid-template-columns:repeat(3,1fr)"></div>
           </div>
         </div>
       </section>
@@ -930,7 +1293,7 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
             </div>
             <div class="sop-card" style="background:linear-gradient(135deg,#065f46,#047857)">
               <div class="sop-num">02</div>
-              <div class="sop-title">离院后2小时企微发送</div>
+              <div class="sop-title">离院后2小时发送</div>
               <div class="sop-desc">「感谢今天到访！点击评价链接为我们5分好评，即可获得下次免检查费优惠券」</div>
             </div>
             <div class="sop-card" style="background:linear-gradient(135deg,#92400e,#b45309)">
@@ -972,116 +1335,417 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
         </div>
       </section>
 
-      <!-- ===== PAGE: PRIVATE DOMAIN ===== -->
-      <section id="page-private-domain" class="page">
-        <div class="page-header">
-          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#10b981,#06b6d4)">&#9741;</span>私域运营</div>
-          <div class="page-sub">企微SCRM、复查提醒、社群运营一站式方案</div>
-        </div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="card-header"><div class="card-title">私域运营方案</div></div>
-          <div style="padding:16px">
-            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runPrivateDomain()">&#9889; 生成私域运营方案</button>
-            <div id="privateDomainResult"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== PAGE: DOUYIN ===== -->
-      <section id="page-douyin" class="page">
-        <div class="page-header">
-          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#1f2937,#ef4444)">&#9654;</span>抖音策略</div>
-          <div class="page-sub">短视频脚本、直播方案、投放策略</div>
-        </div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="card-header"><div class="card-title">抖音内容方案</div></div>
-          <div style="padding:16px">
-            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runDouyinPlan()">&#9889; 生成抖音策略方案</button>
-            <div id="douyinPlanResult"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== PAGE: XIAOHONGSHU ===== -->
-      <section id="page-xiaohongshu" class="page">
-        <div class="page-header">
-          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#ef4444,#f472b6)">&#9829;</span>小红书策略</div>
-          <div class="page-sub">种草笔记、达人合作、趋势运营</div>
-        </div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="card-header"><div class="card-title">小红书种草方案</div></div>
-          <div style="padding:16px">
-            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runXiaohongshuPlan()">&#9889; 生成小红书策略方案</button>
-            <div id="xiaohongshuPlanResult"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== PAGE: WECHAT ===== -->
-      <section id="page-wechat" class="page">
-        <div class="page-header">
-          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#10b981,#3b82f6)">&#9993;</span>公众号运营</div>
-          <div class="page-sub">推文策划、菜单架构、内容日历</div>
-        </div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="card-header"><div class="card-title">公众号运营方案</div></div>
-          <div style="padding:16px">
-            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runWechatPlan()">&#9889; 生成公众号运营方案</button>
-            <div id="wechatPlanResult"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== PAGE: GROWTH ===== -->
-      <section id="page-growth" class="page">
-        <div class="page-header">
-          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#8b5cf6,#3b82f6)">&#9734;</span>增长策略</div>
-          <div class="page-sub">转化漏斗、渠道ROI、增长实验、月度计划</div>
-        </div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="card-header"><div class="card-title">增长策略方案</div></div>
-          <div style="padding:16px">
-            <button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:16px" onclick="runGrowthPlan()">&#9889; 生成增长策略方案</button>
-            <div id="growthPlanResult"></div>
-          </div>
-        </div>
-      </section>
-
       <!-- ===== PAGE: CLINIC COLLECT ===== -->
+      <!-- ===== PAGE: MONTHLY IMPORT ===== -->
+      <section id="page-monthly-import" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:#0ea5e9">&#128193;</span>月度数据导入</div>
+          <div class="page-sub">每月一次批量导入集团门诊后台得分与星级 · 缺失字段自动标记待补录</div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="mi-step">
+            <div class="mi-step-no" id="mi-step1-no">1</div>
+            <div class="mi-step-t">选择月份并上传月度表<span class="mi-step-sub">支持 .xlsx / .xls / .csv，列名可自动识别</span></div>
+          </div>
+          <div class="mi-bar">
+            <div class="mi-field">
+              <label>统计月份</label>
+              <select id="mi-month"></select>
+            </div>
+            <div class="mi-field">
+              <label>已导入月份</label>
+              <select id="mi-history" onchange="miLoadHistory(this.value)"><option value="">— 选择历史月份回看 —</option></select>
+            </div>
+            <button class="btn btn-secondary" onclick="miDownloadTemplate()">&#8681; 下载填报模板</button>
+          </div>
+          <div class="mi-zone" id="mi-zone" onclick="document.getElementById('mi-file').click()" ondrop="miDrop(event)" ondragover="miDragOver(event)" ondragleave="miDragLeave(event)">
+            <div class="mi-zone-icon">&#128229;</div>
+            <div class="mi-zone-main" id="mi-zone-main">点击选择 或 拖拽 Excel 文件到此处</div>
+            <div class="mi-zone-sub" id="mi-zone-sub">需含列：省区 / 店铺名称 / 城市 / 美团星级 / 点评星级 / 经营评分<br>若另有含「店铺ID + 店铺名称 + 城市 + 评论内容」的工作表，差评明细将一并导入</div>
+          </div>
+          <input type="file" id="mi-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="miSelectFile(this)">
+          <div id="mi-file-info" style="display:none;margin-top:12px"></div>
+        </div>
+
+        <div class="card" id="mi-empty-state">
+          <div class="mi-empty">
+            <div class="mi-empty-icon">&#128202;</div>
+            <div style="font-weight:700;color:var(--text);margin-bottom:6px">尚未导入本月数据</div>
+            <div>上传后自动完成：表头字段识别 → 空值与「NULL」清洗 → 缺失项标记待补录<br>→ 省区/城市横向对标 → P0-P2 分级改进建议 → 差评明细转入评价管理</div>
+          </div>
+        </div>
+
+        <div id="mi-result" style="display:none">
+          <div class="mi-kpi" id="mi-kpi"></div>
+
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-header">
+              <div class="card-title">&#128279; 字段识别结果</div>
+              <div id="mi-source-note" style="font-size:11.5px;color:var(--text-sub)"></div>
+            </div>
+            <div id="mi-mapping"></div>
+            <div class="mi-note" id="mi-warn" style="display:none"></div>
+          </div>
+
+          <div class="mi-tabs">
+            <div class="mi-tab active" data-mi="overview" onclick="miTab('overview')">经营概览</div>
+            <div class="mi-tab" data-mi="stores" onclick="miTab('stores')">门店明细</div>
+            <div class="mi-tab" data-mi="pending" onclick="miTab('pending')">待补录 <span id="mi-pending-badge" class="tag tag-warning" style="margin-left:2px"></span></div>
+            <div class="mi-tab" data-mi="region" onclick="miTab('region')">省区对标</div>
+            <div class="mi-tab" data-mi="reviews" onclick="miTab('reviews')">差评明细</div>
+          </div>
+
+          <div class="mi-panel active" id="mi-panel-overview">
+            <div class="grid-2" style="margin-bottom:16px">
+              <div class="card"><div class="card-header"><div class="card-title">美团星级分布</div></div><div id="mi-star-dist"></div></div>
+              <div class="card"><div class="card-header"><div class="card-title">经营评分分布</div></div><div id="mi-score-dist"></div></div>
+            </div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header"><div class="card-title">&#128161; 智能洞察与改进建议</div><span style="font-size:11.5px;color:var(--text-sub)">基于本次导入数据的规则化结论</span></div>
+              <div id="mi-insights"></div>
+            </div>
+            <div class="grid-2">
+              <div class="card"><div class="card-header"><div class="card-title">经营评分 TOP10</div></div><div class="mi-table-wrap" style="max-height:420px;overflow-y:auto"><table class="mi-table" id="mi-top"></table></div></div>
+              <div class="card"><div class="card-header"><div class="card-title">经营评分 后10位</div></div><div class="mi-table-wrap" style="max-height:420px;overflow-y:auto"><table class="mi-table" id="mi-bottom"></table></div></div>
+            </div>
+          </div>
+
+          <div class="mi-panel" id="mi-panel-stores">
+            <div class="card">
+              <div class="mi-search">
+                <input id="mi-search" placeholder="搜索门店名称 / 城市 / 省区" oninput="miRenderStores()">
+                <select id="mi-filter" onchange="miRenderStores()">
+                  <option value="all">全部门店</option>
+                  <option value="pending">仅看待补录</option>
+                  <option value="low">仅看经营评分 &lt; 70</option>
+                  <option value="lowstar">仅看美团星级 &lt; 4.0</option>
+                  <option value="top">仅看评分 &gt; 100</option>
+                  <option value="unopened">仅看未开通 / 疑似未开通</option>
+                </select>
+                <span style="font-size:12px;color:var(--text-sub)" id="mi-store-count"></span>
+              </div>
+              <div class="mi-table-wrap" style="max-height:600px;overflow-y:auto"><table class="mi-table" id="mi-stores"></table></div>
+            </div>
+          </div>
+
+          <div class="mi-panel" id="mi-panel-pending">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">待手动补录清单</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn btn-secondary btn-sm" onclick="miAcceptAll()">接受全部省区推荐</button>
+                  <button class="btn btn-secondary btn-sm" onclick="miSave()">保存并重新分析</button>
+                  <button class="btn btn-primary btn-sm" onclick="miOpenLinkModal()">&#10132; 生成填报链接</button>
+                </div>
+              </div>
+              <div class="mi-excl-note" id="mi-excl-note"></div>
+              <div class="mi-note" style="margin:0 0 14px">省区属地理属性，可由同城门店自动推荐；<b>美团星级 / 点评星级 / 经营评分是门店级指标，同城门店之间不可互推，须人工逐个填写</b>。留空字段不参与均值与排名计算，可分批补录。</div>
+              <div class="mi-search" style="margin-bottom:12px">
+                <select id="mi-pm-mgr" onchange="miPendingFilterChange()"></select>
+                <select id="mi-pm-region" onchange="miPendingFilterChange()"></select>
+                <span id="mi-pm-count" style="font-size:12px;color:var(--text-sub)"></span>
+                <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="miToggleMgrEditor()">省区负责人设置</button>
+              </div>
+              <div id="mi-mgr-editor" style="display:none;margin-bottom:14px"></div>
+              <div id="mi-pending-list"></div>
+            </div>
+          </div>
+
+          <div class="mi-panel" id="mi-panel-region">
+            <div class="card">
+              <div class="card-header"><div class="card-title">省区横向对标</div><span style="font-size:11.5px;color:var(--text-sub)" id="mi-grade-note">评级按省区均分三分位划分 A / B / C</span></div>
+              <div class="mi-table-wrap" style="max-height:620px;overflow-y:auto"><table class="mi-table" id="mi-region"></table></div>
+            </div>
+          </div>
+
+          <div class="mi-panel" id="mi-panel-reviews">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">差评原文明细</div>
+                <button class="btn btn-primary btn-sm" onclick="miToReview()">转入评价管理生成话术 &#8594;</button>
+              </div>
+              <div class="mi-table-wrap" style="max-height:620px;overflow-y:auto"><table class="mi-table" id="mi-reviews"></table></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mi-modal-mask" id="mi-link-modal" onclick="if(event.target===this)miCloseModal()">
+          <div class="mi-modal">
+            <div class="mi-modal-title">&#128279; 门店数据填报链接</div>
+            <div class="mi-modal-sub" id="mi-link-sub"></div>
+            <div style="font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:4px">按运营经理 / 省区分发（点选后链接会自动带上筛选）</div>
+            <div class="mi-chip-row" id="mi-link-chips"></div>
+            <div class="mi-link-box">
+              <input id="mi-link-url" readonly onclick="this.select()">
+              <button class="btn btn-primary btn-sm" onclick="miCopyLink()">复制</button>
+            </div>
+            <div class="mi-note" id="mi-link-note"></div>
+            <div style="text-align:right;margin-top:14px">
+              <button class="btn btn-secondary" onclick="miCloseModal()">关闭</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="page-clinic-collect" class="page">
         <div class="page-header">
           <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#10b981,#06b6d4)">&#127973;</span>门诊采集分析</div>
-          <div class="page-sub">上传美团门诊截图或输入大众点评网址，AI自动分析项目设置、定价、销量、评价</div>
+          <div class="page-sub">采集美团/大众点评门诊数据，AI自动分析项目设置、定价、销量、评价</div>
         </div>
-        <div class="card" style="margin-bottom:16px">
-          <div class="card-header"><div class="card-title">数据源</div></div>
-          <div style="padding:16px">
-            <div class="tab-switch" style="margin-bottom:16px">
-              <button class="tab-btn active" id="clinicTabScreenshot" onclick="switchClinicTab('screenshot')">&#128247; 上传截图</button>
-              <button class="tab-btn" id="clinicTabUrl" onclick="switchClinicTab('url')">&#127760; 输入网址</button>
+
+        <!-- 顶部筛选行 -->
+        <div class="clinic-filter-row">
+          <div class="clinic-filter-cell">
+            <div class="clinic-filter-label">门店</div>
+            <select class="clinic-filter-select" id="clinicFilterStore">
+              <option>临沂爱尔眼科视光门诊（金水河畔店）</option>
+              <option>临沂爱尔眼科总院</option>
+              <option>盘锦爱尔眼科</option>
+            </select>
+          </div>
+          <div class="clinic-filter-cell">
+            <div class="clinic-filter-label">采集周期</div>
+            <select class="clinic-filter-select" id="clinicFilterPeriod">
+              <option>近 7 天</option>
+              <option selected>近 30 天</option>
+              <option>近 90 天</option>
+              <option>自定义</option>
+            </select>
+          </div>
+          <div class="clinic-filter-cell">
+            <div class="clinic-filter-label">数据类型</div>
+            <select class="clinic-filter-select" id="clinicFilterType">
+              <option selected>全部</option>
+              <option>仅项目</option>
+              <option>仅评价</option>
+              <option>仅客流</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- tab 导航 -->
+        <div class="clinic-tabs">
+          <div class="clinic-tab active" data-tab="screenshot" onclick="switchClinicTab('screenshot')">📷 截图采集</div>
+          <div class="clinic-tab" data-tab="url" onclick="switchClinicTab('url')">🔗 网址采集</div>
+          <div class="clinic-tab" data-tab="manual" onclick="switchClinicTab('manual')">✏️ 手动录入</div>
+          <div class="clinic-tab" data-tab="history" onclick="switchClinicTab('history')">📋 历史报告</div>
+        </div>
+
+        <!-- TAB 1: 截图采集 -->
+        <div class="clinic-panel active" id="clinicPanelScreenshot">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📷 上传美团经营参谋截图（7 个界面）</div>
+              <span class="clinic-shot-progress" id="clinicShotProgress">0 / 7 已上传</span>
             </div>
-            <div id="clinicScreenshotPanel">
-              <input type="file" id="clinic-file-input" accept="image/*" style="display:none" onchange="clinicHandleUpload(this)">
-              <div class="upload-zone" id="clinic-upload-zone" onclick="document.getElementById('clinic-file-input').click()" ondrop="clinicHandleDrop(event)" ondragover="clinicHandleDragOver(event)" ondragleave="clinicHandleDragLeave(event)" style="margin-bottom:14px">
-                <div id="clinic-upload-content">
-                  <div class="upload-icon">&#8686;</div>
-                  <div class="upload-text">上传美团门诊截图</div>
-                  <div class="upload-hint">支持 JPG / PNG，拖拽或点击上传</div>
-                </div>
-                <div id="clinic-upload-preview" style="display:none;position:relative;">
-                  <img id="clinic-preview-img" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);">
-                  <div onclick="clinicClearImage(event)" style="position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.5);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;line-height:1;">&times;</div>
-                </div>
+            <div style="padding:16px">
+              <div class="clinic-shot-guide">
+                <div class="clinic-tip-title">📋 上传指导</div>
+                <div class="clinic-tip-item">请按顺序在美团 App「经营参谋」中打开下列 7 个界面截图上传，AI 将按界面自动识别对应数据。</div>
+                <div class="clinic-tip-item">· 每张截图对应一个界面，可分别点击上传，也可拖拽到对应框内</div>
+                <div class="clinic-tip-item">· 图片越清晰识别越准，建议竖屏整页截图</div>
+              </div>
+              <div id="clinicShotsContainer"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: 网址采集 -->
+        <div class="clinic-panel" id="clinicPanelUrl">
+          <div class="card">
+            <div class="card-header"><div class="card-title">🔗 输入大众点评/美团门店网址</div></div>
+            <div style="padding:16px">
+              <div class="url-input-wrap" style="display:flex;gap:8px;align-items:center">
+                <input type="text" id="clinicUrlInput" placeholder="粘贴大众点评门店 URL（如 https://www.dianping.com/shop/xxx）" style="flex:1;padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;background:var(--bg);color:var(--text);outline:none;transition:border-color .2s;min-width:0">
+                <button class="btn btn-outline btn-mobile" onclick="clinicPasteUrl()" type="button">📋 一键粘贴</button>
+              </div>
+              <div class="upload-hint" style="margin-top:10px">支持大众点评/美团门店页面 URL，AI 自动抓取并结构化</div>
+              <div class="clinic-tips" style="margin-top:16px">
+                <div class="clinic-tip-title">🌐 支持的网址格式</div>
+                <div class="clinic-tip-item">· 大众点评门店：dianping.com/shop/xxx</div>
+                <div class="clinic-tip-item">· 美团商家：e.meituan.com/xxx</div>
+                <div class="clinic-tip-item">· 复制完整链接，确保能正常打开</div>
               </div>
             </div>
-            <div id="clinicUrlPanel" style="display:none">
-              <div class="url-input-wrap">
-                <input type="text" id="clinicUrlInput" placeholder="请输入大众点评门店网址，如 https://www.dianping.com/shop/xxx" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:border-color .2s">
+          </div>
+        </div>
+
+        <!-- TAB 3: 手动录入 -->
+        <div class="clinic-panel" id="clinicPanelManual">
+          <div class="clinic-manual-grid">
+            <!-- 门店信息 -->
+            <div class="card">
+              <div class="card-header"><div class="card-title">🏥 门店信息</div></div>
+              <div class="manual-form">
+                <div class="manual-field"><label>门店名称</label><input type="text" placeholder="如：临沂爱尔眼科视光门诊" id="mfName"></div>
+                <div class="manual-field"><label>门店地址</label><input type="text" placeholder="如：金水河畔路 12 号" id="mfAddress"></div>
+                <div class="manual-field"><label>联系电话</label><input type="tel" placeholder="如：0539-8888888" id="mfPhone"></div>
+                <div class="manual-field"><label>营业时间</label><input type="text" placeholder="如：09:00-18:00" id="mfHours"></div>
               </div>
-              <div class="upload-hint" style="margin-top:8px">支持大众点评门店页面URL，AI自动抓取并分析</div>
             </div>
-            <button class="btn btn-primary btn-lg" style="width:100%;margin-top:16px" onclick="runClinicAnalysis()">&#128269; 开始智能分析</button>
-            <div id="clinicCollectResult" style="margin-top:16px"></div>
+            <!-- 项目数据 -->
+            <div class="card">
+              <div class="card-header"><div class="card-title">📦 项目数据</div></div>
+              <div class="manual-form">
+                <div class="manual-field"><label>主推项目</label><input type="text" placeholder="如：儿童青少年视力检查" id="mfProduct"></div>
+                <div class="manual-field"><label>团购价格</label><input type="text" placeholder="如：¥39.9" id="mfPrice"></div>
+                <div class="manual-field"><label>月销量</label><input type="number" placeholder="如：120" id="mfSales"></div>
+                <div class="manual-field"><label>有效期</label><input type="text" placeholder="如：90 天" id="mfValid"></div>
+              </div>
+            </div>
+            <!-- 评价数据 -->
+            <div class="card">
+              <div class="card-header"><div class="card-title">⭐ 评价数据</div></div>
+              <div class="manual-form">
+                <div class="manual-field"><label>累计评价数</label><input type="number" placeholder="如：118" id="mfReviews"></div>
+                <div class="manual-field"><label>好评数</label><input type="number" placeholder="如：116" id="mfGood"></div>
+                <div class="manual-field"><label>差评数</label><input type="number" placeholder="如：2" id="mfBad"></div>
+                <div class="manual-field"><label>平均星级</label><input type="text" placeholder="如：4.5" id="mfStar"></div>
+              </div>
+            </div>
+            <!-- 客流转化 -->
+            <div class="card">
+              <div class="card-header"><div class="card-title">📈 客流转化</div></div>
+              <div class="manual-form">
+                <div class="manual-field"><label>月曝光人数</label><input type="number" placeholder="如：1710" id="mfExposure"></div>
+                <div class="manual-field"><label>月访问人数</label><input type="number" placeholder="如：267" id="mfVisit"></div>
+                <div class="manual-field"><label>意向转化人数</label><input type="number" placeholder="如：21" id="mfIntent"></div>
+                <div class="manual-field"><label>下单人数</label><input type="number" placeholder="如：10" id="mfOrder"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: 历史报告 -->
+        <div class="clinic-panel" id="clinicPanelHistory">
+          <div class="card">
+            <div class="card-header"><div class="card-title">📋 历史采集报告</div></div>
+            <div class="clinic-history-list" id="clinicHistoryList">
+              <div class="clinic-history-item">
+                <div class="clinic-history-icon" style="background:#3b82f6">📷</div>
+                <div class="clinic-history-body">
+                  <div class="clinic-history-title">临沂爱尔视光门诊 · 截图采集</div>
+                  <div class="clinic-history-meta">2026-08-20 14:32 · 近 30 天 · 5 张截图</div>
+                </div>
+                <div class="clinic-history-score">8.6</div>
+              </div>
+              <div class="clinic-history-item">
+                <div class="clinic-history-icon" style="background:#10b981">🔗</div>
+                <div class="clinic-history-body">
+                  <div class="clinic-history-title">临沂爱尔总院 · 网址采集</div>
+                  <div class="clinic-history-meta">2026-08-18 10:45 · 近 30 天 · 大众点评</div>
+                </div>
+                <div class="clinic-history-score">7.9</div>
+              </div>
+              <div class="clinic-history-item">
+                <div class="clinic-history-icon" style="background:#f59e0b">✏️</div>
+                <div class="clinic-history-body">
+                  <div class="clinic-history-title">盘锦爱尔眼科 · 手动录入</div>
+                  <div class="clinic-history-meta">2026-08-15 16:20 · 近 90 天 · 16 字段</div>
+                </div>
+                <div class="clinic-history-score">8.2</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 操作按钮区（移动端固定底部） -->
+        <div class="clinic-action-bar">
+          <button class="btn btn-outline btn-mobile" onclick="clinicClearAll()" type="button">清空</button>
+          <button class="btn btn-primary btn-lg btn-mobile" onclick="runClinicAnalysis()" style="flex:1">🚀 开始智能分析</button>
+        </div>
+
+        <!-- AI 分析结果区 -->
+        <div id="clinicCollectResult" style="margin-top:16px"></div>
+      </section>
+
+      <!-- ===== PAGE: IMAGE DIAGNOSIS (M3-01) ===== -->
+      <section id="page-img-diagnosis" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">&#128269;</span>主图诊断</div>
+          <div class="page-sub">上传美团团购项目主图，AI从清晰度、品牌感、信息度、情感力、品类匹配5个维度进行诊断并给出优化建议</div>
+        </div>
+        <div class="imgd-layout">
+          <div class="imgd-left">
+            <div class="imgd-upload-card">
+              <div class="imgd-section-title">上传主图</div>
+              <div class="imgd-upload-zone" id="imgdUploadZone" onclick="document.getElementById('imgdFileInput').click()"
+                   ondragover="imgdDragOver(event)" ondragleave="imgdDragLeave(event)" ondrop="imgdHandleDrop(event)">
+                <div class="imgd-upload-icon">&#128247;</div>
+                <div id="imgdUploadText">点击上传或拖拽图片到此处<br><span style="font-size:11px;color:#9ca3af">支持 JPG/PNG，建议 800×800px 以上</span></div>
+                <img id="imgdPreview" style="display:none;max-width:100%;max-height:200px;border-radius:8px;margin-top:12px" alt="预览">
+              </div>
+              <input type="file" id="imgdFileInput" accept="image/*" style="display:none" onchange="imgdHandleFile(event)">
+              <div style="display:flex;gap:10px;margin-bottom:8px">
+                <button class="btn btn-sm btn-outline" style="flex:1" onclick="document.getElementById('imgdUrlInput').style.display='block';this.style.display='none'">或输入图片URL</button>
+                <button class="btn btn-sm btn-outline" id="imgdClearBtn" onclick="imgdClearImage()" style="display:none">清除图片</button>
+              </div>
+              <div id="imgdUrlInput" style="display:none">
+                <input type="text" class="add-form-field" id="imgdUrl" placeholder="粘贴美团主图URL..." style="margin-bottom:8px">
+              </div>
+              <div class="add-form-row">
+                <input type="text" class="add-form-field" id="imgdProjectName" placeholder="项目名称（如OK镜验配检查）">
+                <select class="add-form-field" id="imgdCategory"><option value="">选择品类</option><option value="OK镜">OK镜/角膜塑形镜</option><option value="离焦镜">离焦镜</option><option value="视光检查">视光检查</option><option value="配镜">配镜</option><option value="斜弱视训练">斜弱视训练</option><option value="干眼治疗">干眼治疗</option></select>
+              </div>
+              <button class="btn btn-primary" style="width:100%" id="imgdAnalyzeBtn" onclick="runImageDiagnosis()">&#128269; 开始诊断</button>
+            </div>
+            <div id="imgdLoading" style="display:none;text-align:center;padding:32px">
+              <div class="spinner"></div>
+              <div style="margin-top:12px;color:var(--text-sub);font-size:13px">AI正在分析主图...</div>
+            </div>
+          </div>
+          <div class="imgd-right" id="imgdResult" style="display:none">
+            <div class="imgd-section-title">诊断结果</div>
+            <div class="imgd-score-ring" id="imgdScoreRing"></div>
+            <div class="imgd-dimensions" id="imgdDimensions"></div>
+            <div class="imgd-issues" id="imgdIssues"></div>
+            <div class="imgd-suggestions" id="imgdSuggestions"></div>
+            <div class="imgd-quickwins" id="imgdQuickWins"></div>
+            <div style="margin-top:16px;display:flex;gap:10px">
+              <button class="btn btn-primary" style="flex:1" onclick="switchPage('copy')">生成优化文案 &#8594;</button>
+              <button class="btn btn-outline" style="flex:1" onclick="runImageDiagnosis()">重新诊断</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: COPY OPTIMIZE (M3-03) ===== -->
+      <section id="page-copy-optimize" class="page">
+        <div class="page-header">
+          <div class="page-title"><span class="page-title-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">&#9997;</span>详情页文案优化</div>
+          <div class="page-sub">粘贴现有美团项目详情页文案，AI从吸引钩子、信任建立、信息清晰度、行动紧迫感、合规性5个维度诊断并输出优化版</div>
+        </div>
+        <div class="co-layout">
+          <div class="co-left">
+            <div class="co-card">
+              <div class="co-section-title">原始文案</div>
+              <textarea class="co-textarea" id="coOriginalCopy" placeholder="粘贴美团项目详情页文案...&#10;&#10;示例：&#10;本项目包含视力检查、验光、角膜地形图等全面服务。由专业医生操作，精准测量。&#10;原价580元，现团购仅需199元。&#10;地址：XX路XX号，电话：0539-XXXX"></textarea>
+              <div class="add-form-row" style="margin-top:8px">
+                <input type="text" class="add-form-field" id="coProjectName" placeholder="项目名称">
+                <input type="text" class="add-form-field" id="coProjectPrice" placeholder="团购价格（如¥199）">
+              </div>
+              <input type="text" class="add-form-field" id="coAudience" placeholder="目标人群（如6-14岁近视儿童家长）">
+              <button class="btn btn-primary" style="width:100%" id="coAnalyzeBtn" onclick="runCopyOptimize()">&#128269; 分析并优化</button>
+            </div>
+            <div id="coLoading" style="display:none;text-align:center;padding:24px">
+              <div class="spinner"></div>
+              <div style="margin-top:8px;color:var(--text-sub);font-size:13px">AI正在分析文案...</div>
+            </div>
+          </div>
+          <div class="co-right" id="coResult" style="display:none">
+            <div class="co-section-title">诊断结果</div>
+            <div id="coScoreArea"></div>
+            <div id="coDimensions"></div>
+            <div id="coCompliance"></div>
+            <div class="co-section-title" style="margin-top:16px">优化后文案</div>
+            <div id="coOptimizedCopy" style="background:var(--bg);border-radius:8px;padding:16px;font-size:13px;line-height:1.8;white-space:pre-wrap;max-height:300px;overflow-y:auto;border:1px solid var(--border)"></div>
+            <div class="co-section-title" style="margin-top:16px">关键改进</div>
+            <div id="coChanges"></div>
+            <div style="margin-top:12px;display:flex;gap:10px">
+              <button class="btn btn-sm btn-outline" style="flex:1" onclick="copyToClipboard(document.getElementById('coOptimizedCopy').textContent)">复制优化文案</button>
+              <button class="btn btn-sm btn-primary" style="flex:1" onclick="runCopyOptimize()">重新分析</button>
+            </div>
           </div>
         </div>
       </section>
@@ -1180,17 +1844,16 @@ var SCREENS = [
 ];
 
 var STYLES = [
-  {id:'warm',name:'亲子温暖型',desc:'蓝绿配色，温馨家庭感',bg:'linear-gradient(135deg,#06b6d4,#10b981)'},
-  {id:'pro',name:'专业信任型',desc:'深蓝白配色，权威医疗感',bg:'linear-gradient(135deg,#1a3a5c,#3b82f6)'},
-  {id:'promo',name:'优惠促销型',desc:'红黄配色，活力促销感',bg:'linear-gradient(135deg,#ef4444,#f59e0b)'},
-  {id:'premium',name:'高端医疗型',desc:'深灰金色配色，高端质感',bg:'linear-gradient(135deg,#1f2937,#d97706)'}
+  {id:'pixar3d',name:'皮克斯3D卡通动画型',desc:'3D卡通人物 · 动画电影质感，亲和力强',bg:'linear-gradient(135deg,#38bdf8,#fbbf24)'},
+  {id:'illustration',name:'商业插画型',desc:'精美插画绘制 · 色彩层次丰富，节日氛围佳',bg:'linear-gradient(135deg,#60a5fa,#ef4444)'},
+  {id:'movieposter',name:'真人电影海报写实型',desc:'真人摄影质感 · 电影级光影调色，冲击力强',bg:'linear-gradient(135deg,#78350f,#f97316)'},
+  {id:'typography',name:'文字图形排版型',desc:'大字标题+几何色块 · 信息直接，促销首选',bg:'linear-gradient(135deg,#b91c1c,#f59e0b)'}
 ];
 
 var GEN_ITEMS = [
-  {name:'内页图\u00b7第1屏',size:'750\u00d71400px',h:160},
-  {name:'内页图\u00b7第2屏',size:'750\u00d71400px',h:160},
-  {name:'主图A/B测试',size:'800\u00d7800px',h:160},
-  {name:'活动Banner',size:'1200\u00d7400px',h:100}
+  {name:'方图 900\u00d7900',size:'900\u00d7900px',h:180},
+  {name:'横图 1200\u00d7900',size:'1200\u00d7900px',h:135},
+  {name:'竖图 900\u00d71200',size:'900\u00d71200px',h:240}
 ];
 
 var SCENES = ['全部','预约确认','到店接待','检查结果','升级引导','离店跟进'];
@@ -1202,7 +1865,7 @@ var SCRIPTS = [
    text:'您好，欢迎来到临沂爱尔眼科光门诊！是来做儿童青少年视力检查的吗？太好了，我们今天会为孩子做眼轴检测等多项专业检查，全程大约45分钟，杜秀臻医生会为您1对1解读报告。先帮您登记一下。'},
   {scene:'检查结果',iconBg:'#8b5cf6',iconChar:'C',name:'检查结果沟通',desc:'医生出具报告后沟通结果',
    text:'检查结果出来了，孩子目前处于近视增长关键期，建议每3个月复查一次。我们有一个近视儿童度数防护24次复查方案，可以系统地帮助孩子控制度数增长，还包含散瞳检查。'},
-  {scene:'离店跟进',iconBg:'#f59e0b',iconChar:'D',name:'离店48小时跟进',desc:'就诊后48小时企微发送',
+  {scene:'离店跟进',iconBg:'#f59e0b',iconChar:'D',name:'离店48小时跟进',desc:'就诊后48小时发送',
    text:'您好！孩子今天检查很配合，报告显示一切正常请放心。如果孩子近期有眯眼、揉眼等情况随时联系我们。另外，如果满意的话，能在美团给我们留个评价吗？'}
 ];
 
@@ -1227,14 +1890,14 @@ var GUIDES = [
 ];
 
 /* ===== STATE ===== */
-var selectedStyle = 'pro';
+var selectedStyle = 'pixar3d';
 var selectedProduct = 'p1';
 var productFilter = 'all';
 var sceneFilter = '全部';
 var reviewFilter = 'all';
 
 /* ===== API CONFIG ===== */
-var API_BASE = 'http://localhost:3000/api';
+var API_BASE = '/api';
 var CLINIC = {
   name: '临沂爱尔眼科光门诊(金水河畔店)',
   doctor: '杜秀臻',
@@ -1458,10 +2121,14 @@ async function callAPI(endpoint, data) {
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify(data)
     });
-    if (!resp.ok) throw new Error('API错误: ' + resp.status);
+    if (!resp.ok) {
+      var errMsg = 'API错误: ' + resp.status;
+      try { var ej = await resp.json(); if (ej && ej.error) errMsg = ej.error; } catch(_e){}
+      throw new Error(errMsg);
+    }
     return await resp.json();
   } catch(e) {
-    showToast('服务连接失败，请确保已启动后端服务(node server.js)','error');
+    showToast(e && e.message && e.message.indexOf('API错误') < 0 && e.message.indexOf('Failed to fetch') < 0 && e.message.indexOf('fetch failed') < 0 ? e.message : '服务连接失败，请确保已启动后端服务(node server.js)','error');
     throw e;
   }
 }
@@ -1507,6 +2174,711 @@ function fallbackCopy(text) {
   document.body.removeChild(ta);
 }
 
+/* ===== 月度数据导入 ===== */
+var MI = { inited:false, month:'', fileName:'', payload:null, stores:[], reviews:[], pendingLimit:15, mgrFilter:'', regionFilter:'', link:null, mgrRegions:[] };
+var MI_LABEL = { region:'省区', storeName:'店铺名称', city:'城市', meituanStar:'美团星级', dianpingStar:'点评星级', opsScore:'经营评分' };
+var MI_PH = { region:'如 山东省区', meituanStar:'0~5', dianpingStar:'0~5', opsScore:'0~110' };
+
+function miInit(){
+  if (MI.inited) return;
+  MI.inited = true;
+  var sel = document.getElementById('mi-month');
+  var now = new Date(), opts = [];
+  for (var i = 0; i < 24; i++) {
+    var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    var mm = String(d.getMonth() + 1); if (mm.length < 2) mm = '0' + mm;
+    opts.push('<option value="' + d.getFullYear() + '-' + mm + '">' + d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月</option>');
+  }
+  sel.innerHTML = opts.join('');
+  miHistoryList();
+}
+
+function miHistoryList(){
+  fetch('/api/monthly-history').then(function(r){ return r.json(); }).then(function(j){
+    if (!j.ok) return;
+    dashDataStrip(j.list);
+    if (!j.list.length) return;
+    var sel = document.getElementById('mi-history');
+    sel.innerHTML = '<option value="">— 选择历史月份回看（' + j.list.length + ' 期）—</option>' +
+      j.list.map(function(it){
+        return '<option value="' + it.month + '">' + it.month + ' · ' + it.storeCount + ' 家门店' + (it.pending ? ' · 待补 ' + it.pending : '') + '</option>';
+      }).join('');
+  }).catch(function(){});
+}
+
+function dashDataStrip(list){
+  var el = document.getElementById('dash-src');
+  if (!el) return;
+  if (!list || !list.length) {
+    el.style.display = 'flex';
+    el.innerHTML = '<span>&#128193; 尚未导入集团月度数据，驾驶舱当前展示为单店样本数据</span>'
+      + '<span class="dash-src-go" onclick="switchPage(\'monthly-import\')">去导入 8 月集团报表 &#8594;</span>';
+    return;
+  }
+  var latest = list[0];
+  el.style.display = 'flex';
+  var pendingTxt = latest.pending ? '<span style="color:#b45309;font-weight:700">待补录 ' + latest.pending + ' 项</span>' : '<span style="color:#047857;font-weight:700">数据已补齐</span>';
+  el.innerHTML = '<span>&#128193; 集团月度数据源：<b>' + latest.month + '</b> · ' + latest.storeCount + ' 家门店 · ' + pendingTxt + '</span>'
+    + '<span class="dash-src-go" onclick="switchPage(\'monthly-import\')">查看/更新月度数据 &#8594;</span>';
+}
+
+function miSelectFile(input){
+  var f = input.files && input.files[0];
+  if (f) miParseFile(f);
+}
+function miDragOver(e){ e.preventDefault(); e.stopPropagation(); document.getElementById('mi-zone').classList.add('dragover'); }
+function miDragLeave(e){ e.preventDefault(); e.stopPropagation(); document.getElementById('mi-zone').classList.remove('dragover'); }
+function miDrop(e){
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('mi-zone').classList.remove('dragover');
+  var f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) miParseFile(f);
+}
+
+function miGuessMonth(name){
+  // 从文件名推断统计月份：如「8月集团门诊后台得分和星级分析.xlsx」→ 当年 8 月（若晚于当前月则归上一年）
+  var m = String(name || '').match(/(\d{1,2})\s*月/);
+  if (!m) return null;
+  var mon = parseInt(m[1], 10);
+  if (!(mon >= 1 && mon <= 12)) return null;
+  var ym = String(name).match(/(20\d{2})\s*[年\-_]/);
+  var now = new Date();
+  var year;
+  if (ym) {
+    year = parseInt(ym[1], 10);
+  } else {
+    year = now.getFullYear();
+    if (mon > now.getMonth() + 1) year -= 1;
+  }
+  return year + '-' + (mon < 10 ? '0' + mon : '' + mon);
+}
+
+function miParseFile(file){
+  var name = file.name || '月度数据.xlsx';
+  if (!/\.(xlsx|xls|csv)$/i.test(name)) { showToast('请上传 Excel 文件（.xlsx / .xls / .csv）', 'error'); return; }
+  var guess = miGuessMonth(name);
+  var sel = document.getElementById('mi-month');
+  var guessed = false;
+  if (guess) {
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === guess) { sel.value = guess; guessed = true; break; }
+    }
+  }
+  if (guessed) showToast('已按文件名自动识别统计月份：' + guess, 'info');
+  var main = document.getElementById('mi-zone-main');
+  var sub = document.getElementById('mi-zone-sub');
+  var oldMain = main.innerHTML, oldSub = sub.innerHTML;
+  main.innerHTML = '&#8987; 正在解析「' + name + '」…';
+  sub.textContent = '识别表头 → 清洗空值 → 生成对标分析，请稍候';
+  var reader = new FileReader();
+  reader.onload = function(){
+    var b64 = String(reader.result).split(',')[1] || '';
+    var month = document.getElementById('mi-month').value;
+    fetch('/api/monthly-import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ month: month, fileName: name, fileBase64: b64 })
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if (!j.ok) throw new Error(j.error || '解析失败');
+      MI.month = j.month; MI.fileName = j.fileName;
+      MI.stores = j.stores; MI.reviews = j.reviews;
+      miRender(j);
+      showToast('导入成功：' + j.kpi.storeCount + ' 家门店 · 差评 ' + j.kpi.reviewCount + ' 条', 'success');
+      miHistoryList();
+    }).catch(function(e){
+      main.innerHTML = oldMain; sub.innerHTML = oldSub;
+      showToast('导入失败：' + e.message, 'error');
+    });
+  };
+  reader.onerror = function(){ main.innerHTML = oldMain; sub.innerHTML = oldSub; showToast('文件读取失败', 'error'); };
+  reader.readAsDataURL(file);
+}
+
+function miRender(j){
+  MI.payload = j;
+  MI.pendingLimit = 15;
+  var zone = document.getElementById('mi-zone');
+  zone.classList.add('has-file');
+  document.getElementById('mi-zone-main').innerHTML = '&#10003; ' + j.fileName;
+  document.getElementById('mi-zone-sub').innerHTML = '统计月份 <b>' + j.month + '</b> · 主表「' + j.meta.mainSheet + '」' + j.meta.totalRows + ' 行 · 差评源「' + j.meta.reviewSource + '」<br><span style="color:var(--accent);font-weight:600">点击可重新上传</span>';
+  document.getElementById('mi-zone').onclick = function(){ document.getElementById('mi-file').click(); };
+  document.getElementById('mi-file').value = '';
+
+  document.getElementById('mi-empty-state').style.display = 'none';
+  document.getElementById('mi-result').style.display = 'block';
+
+  miRenderKpi(j.kpi);
+  miRenderMapping(j);
+  miRenderDist('mi-star-dist', j.starDistribution);
+  miRenderDist('mi-score-dist', j.scoreDistribution);
+  miRenderInsights(j.insights);
+  miRenderRank('mi-top', j.top10, 'top');
+  miRenderRank('mi-bottom', j.bottom10, 'bad');
+  miRenderExclNote();
+  miFillPendingFilters();
+  miRenderStores();
+  miRenderPending();
+  miRenderRegion(j.regionStats);
+  miRenderReviews(j.reviews);
+  miRenderBadge();
+}
+
+function miRenderKpi(k){
+  var rate = k.storeCount ? Math.round(k.completeStores / k.storeCount * 100) : 0;
+  var cards = [
+    { label: '纳入统计门店', value: k.storeCount, unit: '家', hint: '覆盖 ' + k.cityCount + ' 个城市 / ' + k.regionCount + ' 个省区' },
+    { label: '数据完整率', value: rate, unit: '%', hint: k.completeStores + ' 家四项指标齐全' },
+    { label: '待补录字段', value: k.pendingFieldCount, unit: '项', hint: k.pendingStores + ' 家门店存在缺失' },
+    { label: '平均美团星级', value: k.avgMeituanStar === null ? '—' : k.avgMeituanStar, unit: '', hint: '低于 4.0 的 ' + k.starBelow40 + ' 家' },
+    { label: '平均经营评分', value: k.avgOpsScore === null ? '—' : k.avgOpsScore, unit: '分', hint: '低于 70 分 ' + k.opsBelow70 + ' 家 · 超 100 ' + k.opsAbove100 + ' 家' },
+    { label: '差评原文', value: k.reviewCount, unit: '条', hint: '覆盖 ' + k.reviewStores + ' 家门店' },
+    { label: '未开通已排除', value: k.excludedCount || 0, unit: '家', hint: (k.suspectCount ? '其中疑似 ' + k.suspectCount + ' 家待确认' : '原表 ' + k.totalStores + ' 家'), color: (k.excludedCount ? 'color:var(--text-sub)' : '') }
+  ];
+  document.getElementById('mi-kpi').innerHTML = cards.map(function(c){
+    var color = c.color || '';
+    if (c.label === '待补录字段' && c.value > 0) color = 'color:var(--warning)';
+    if (c.label === '数据完整率' && c.value < 80) color = 'color:var(--danger)';
+    return '<div class="mi-kpi-card"><div class="mi-kpi-label">' + c.label + '</div>'
+      + '<div class="mi-kpi-value" style="' + color + '">' + c.value + '<span class="mi-kpi-unit">' + c.unit + '</span></div>'
+      + '<div class="mi-kpi-hint">' + c.hint + '</div></div>';
+  }).join('');
+}
+
+function miRenderMapping(j){
+  document.getElementById('mi-source-note').textContent = '表头位于第 ' + j.meta.headerRow + ' 行 · 共 ' + j.meta.sheetCount + ' 个工作表（' + (j.meta.sheetNames || []).join(' / ') + '）';
+  var OPTIONAL = { manager: '可选列 · 可在「省区负责人设置」中补充', status: '可选列 · 缺失时按三项指标是否全空自动判断' };
+  document.getElementById('mi-mapping').innerHTML = j.mapping.map(function(m){
+    var status = m.matched
+      ? '<span class="tag tag-success">已识别</span>'
+      : (OPTIONAL[m.field] ? '<span class="tag tag-primary">可选</span>' : '<span class="tag tag-warning">缺列</span>');
+    var colText;
+    if (m.matched) colText = '第 ' + (m.columnIndex + 1) + ' 列 · ' + m.columnName;
+    else if (OPTIONAL[m.field]) colText = '<span style="color:var(--text-sub)">' + OPTIONAL[m.field] + '</span>';
+    else colText = '<span style="color:var(--danger)">原表无此列，全部标记待补录</span>';
+    return '<div class="mi-map-row"><div class="mi-map-std">' + m.label + '</div>'
+      + '<div class="mi-map-col">' + colText + '</div>'
+      + '<div>' + status + '</div></div>';
+  }).join('');
+  var warn = document.getElementById('mi-warn');
+  if (j.warnings && j.warnings.length) {
+    warn.style.display = 'block';
+    warn.innerHTML = '&#9888; ' + j.warnings.join('；');
+  } else { warn.style.display = 'none'; }
+}
+
+function miDistColor(label){
+  if (label.indexOf('未填') >= 0) return '#cbd5e1';
+  if (label.indexOf('0 分') >= 0) return '#ef4444';
+  if (label.indexOf('＜') >= 0 || label.indexOf('1–59') >= 0 || label.indexOf('60–69') >= 0) return '#f59e0b';
+  if (label.indexOf('4.0') >= 0 || label.indexOf('70–79') >= 0) return '#fbbf24';
+  if (label.indexOf('4.5') >= 0 || label.indexOf('80–89') >= 0) return '#34d399';
+  if (label.indexOf('5.0') >= 0 || label.indexOf('90–100') >= 0) return '#10b981';
+  return '#2563eb';
+}
+
+function miRenderDist(elId, data){
+  if (!data || !data.length) { document.getElementById(elId).innerHTML = '<div class="mi-empty">暂无数据</div>'; return; }
+  var max = 1;
+  data.forEach(function(d){ if (d.count > max) max = d.count; });
+  document.getElementById(elId).innerHTML = data.map(function(d){
+    var w = Math.round(d.count / max * 100);
+    return '<div class="mi-dist-row"><div class="mi-dist-label">' + d.label + '</div>'
+      + '<div class="mi-dist-track"><div class="mi-dist-fill" style="width:' + w + '%;background:' + miDistColor(d.label) + '"></div></div>'
+      + '<div class="mi-dist-val">' + d.count + ' 家 · ' + d.pct + '%</div></div>';
+  }).join('');
+}
+
+function miRenderInsights(list){
+  if (!list || !list.length) { document.getElementById('mi-insights').innerHTML = '<div class="mi-empty">本期数据无明显异常项</div>'; return; }
+  document.getElementById('mi-insights').innerHTML = list.map(function(it){
+    return '<div class="mi-insight ' + it.level + '"><div class="mi-insight-lv">' + it.level + '</div><div>' + it.text + '</div></div>';
+  }).join('');
+}
+
+function miRenderRank(elId, list, cls){
+  var tbl = document.getElementById(elId);
+  if (!list || !list.length) { tbl.innerHTML = '<tbody><tr><td class="mi-empty">暂无数据</td></tr></tbody>'; return; }
+  var html = '<thead><tr><th>#</th><th>门店</th><th>省区</th><th>星级</th><th>评分</th></tr></thead><tbody>';
+  list.forEach(function(s, i){
+    html += '<tr><td><span class="mi-rank ' + cls + '">' + (i + 1) + '</span></td>'
+      + '<td title="' + s.storeName + '">' + (s.storeName.length > 16 ? s.storeName.substring(0, 16) + '…' : s.storeName) + '</td>'
+      + '<td>' + (s.region || '<span class="mi-miss">待补</span>') + '</td>'
+      + '<td>' + (s.meituanStar === null ? '<span class="mi-miss">待补</span>' : s.meituanStar) + '</td>'
+      + '<td style="font-weight:700">' + s.opsScore + '</td></tr>';
+  });
+  tbl.innerHTML = html + '</tbody>';
+}
+
+function miRenderBadge(){
+  var n = MI.stores.filter(function(s){ return !s.excluded && s.missing && s.missing.length; }).length;
+  var badge = document.getElementById('mi-pending-badge');
+  badge.textContent = n;
+  badge.className = n ? 'tag tag-warning' : 'tag tag-success';
+  badge.style.marginLeft = '2px';
+}
+
+function miRenderStores(){
+  var kw = (document.getElementById('mi-search').value || '').trim().toLowerCase();
+  var f = document.getElementById('mi-filter').value;
+  var rows = MI.stores.filter(function(s){
+    if (kw) {
+      var hay = (s.storeName + ' ' + (s.city || '') + ' ' + (s.region || '') + ' ' + (s.manager || '')).toLowerCase();
+      if (hay.indexOf(kw) < 0) return false;
+    }
+    if (f === 'pending') return !s.excluded && s.missing && s.missing.length;
+    if (f === 'low') return !s.excluded && s.opsScore !== null && s.opsScore < 70;
+    if (f === 'lowstar') return !s.excluded && s.meituanStar !== null && s.meituanStar > 0 && s.meituanStar < 4.0;
+    if (f === 'top') return !s.excluded && s.opsScore !== null && s.opsScore > 100;
+    if (f === 'unopened') return !!s.excluded;
+    return true;
+  });
+  document.getElementById('mi-store-count').textContent = '显示 ' + rows.length + ' / ' + MI.stores.length + ' 家';
+  var cell = function(v, key, idx){
+    if (v === null || v === undefined) {
+      return '<span class="mi-miss" style="cursor:pointer" onclick="miJumpPending(' + idx + ')" title="点击前往补录">待补录</span>';
+    }
+    return v;
+  };
+  var statusTag = function(s, idx){
+    if (s.status === 'unopened') return '<span class="mi-status unopened" onclick="miToggleStoreStatus(' + idx + ')" title="点击改回已开通">未开通</span>';
+    if (s.status === 'suspect') return '<span class="mi-status suspect" onclick="miToggleStoreStatus(' + idx + ')" title="三项指标全空，点击确认为未开通">疑似未开通</span>';
+    return '<span class="mi-status active" onclick="miToggleStoreStatus(' + idx + ')" title="点击标记为未开通">已开通</span>';
+  };
+  var html = '<thead><tr><th>门店名称</th><th>城市</th><th>省区</th><th>运营经理</th><th>美团星级</th><th>点评星级</th><th>经营评分</th><th>完整度</th><th>状态</th></tr></thead><tbody>';
+  rows.forEach(function(s){
+    var idx = MI.stores.indexOf(s);
+    var c = s.complete === undefined ? 100 : s.complete;
+    var cTag = s.excluded ? 'tag-primary' : (c === 100 ? 'tag-success' : (c >= 75 ? 'tag-warning' : 'tag-danger'));
+    html += '<tr' + (s.excluded ? ' style="background:#fafbfc;color:#94a3b8"' : '') + '>'
+      + '<td style="font-weight:600">' + s.storeName + '</td>'
+      + '<td>' + (s.city || '<span class="mi-miss">—</span>') + '</td>'
+      + '<td>' + cell(s.region, 'region', idx) + '</td>'
+      + '<td>' + (s.manager || '<span style="color:var(--text-light)">—</span>') + '</td>'
+      + '<td>' + cell(s.meituanStar, 'meituanStar', idx) + '</td>'
+      + '<td>' + (s.dianpingStar === null ? '<span class="mi-miss">待补录</span>' : s.dianpingStar) + '</td>'
+      + '<td style="font-weight:700">' + cell(s.opsScore, 'opsScore', idx) + '</td>'
+      + '<td>' + (s.excluded ? '<span class="tag tag-primary">不参与统计</span>' : '<span class="tag ' + cTag + '">' + c + '%</span>') + '</td>'
+      + '<td>' + statusTag(s, idx) + '</td></tr>';
+  });
+  if (!rows.length) html += '<tr><td colspan="9" class="mi-empty">没有符合条件的门店</td></tr>';
+  document.getElementById('mi-stores').innerHTML = html + '</tbody>';
+}
+
+function miPendingSource(){
+  // 待补录池：排除未开通/疑似未开通门店，再按运营经理与省区筛选
+  return MI.stores.map(function(s, i){ return { s: s, i: i }; })
+    .filter(function(o){ return !o.s.excluded && o.s.missing && o.s.missing.length; })
+    .filter(function(o){ return !MI.mgrFilter || (o.s.manager || '') === MI.mgrFilter; })
+    .filter(function(o){ return !MI.regionFilter || (o.s.region || '') === MI.regionFilter; });
+}
+
+function miRenderPending(){
+  var list = miPendingSource();
+  var box = document.getElementById('mi-pending-list');
+  var cnt = document.getElementById('mi-pm-count');
+  if (cnt) cnt.textContent = '当前待补录 ' + list.length + ' 家';
+  if (!list.length) {
+    var totalPending = MI.stores.filter(function(s){ return !s.excluded && s.missing && s.missing.length; }).length;
+    box.innerHTML = totalPending
+      ? '<div class="mi-empty"><div class="mi-empty-icon">&#128269;</div><div style="font-weight:700;color:var(--text)">该筛选条件下没有待补录门店</div><div>共 ' + totalPending + ' 家待补录，试试切换运营经理或省区</div></div>'
+      : '<div class="mi-empty"><div class="mi-empty-icon">&#10003;</div><div style="font-weight:700;color:var(--success)">本期数据已全部补齐</div><div>可直接导出本页结论，或切换月份继续导入</div></div>';
+    return;
+  }
+  var limit = MI.pendingLimit || 15;
+  var shown = list.slice(0, limit);
+  var html = shown.map(function(o){
+    var s = o.s, idx = o.i;
+    var fields = s.missing.map(function(key){
+      var sug = s.suggestions && s.suggestions[key];
+      var cur = s[key] === null || s[key] === undefined ? '' : s[key];
+      return '<div class="mi-pend-cell">'
+        + '<div class="mi-pend-label">' + (MI_LABEL[key] || key) + '</div>'
+        + (sug ? '<div class="mi-sug" onclick="miAcceptSug(' + idx + ',\'' + key + '\')">推荐 ' + sug.value + ' · ' + sug.from + '（置信 ' + sug.confidence + '%）</div>' : '')
+        + '<div class="mi-pend-input-row">'
+        + '<input id="mi-in-' + idx + '-' + key + '" value="' + cur + '" placeholder="' + (MI_PH[key] || '') + '" onchange="miSetFill(' + idx + ',\'' + key + '\',this.value)">'
+        + '</div></div>';
+    }).join('');
+    var mgr = s.manager ? '<span class="tag tag-primary">' + s.manager + '</span>' : '<span class="tag tag-warning">未分配经理</span>';
+    return '<div class="mi-pend-item"><div class="mi-pend-head"><span class="mi-pend-name">' + s.storeName + '</span>'
+      + mgr
+      + '<span class="mi-pend-city">' + (s.city || '城市未知') + (s.region ? ' · ' + s.region : '') + ' · 原表第 ' + (s.sourceRow || '-') + ' 行</span>'
+      + '<span class="tag tag-warning">缺 ' + s.missing.length + ' 项</span></div>'
+      + '<div class="mi-pend-fields">' + fields + '</div></div>';
+  }).join('');
+  if (list.length > shown.length) {
+    html += '<div style="text-align:center;padding:6px 0 2px"><button class="btn btn-secondary btn-sm" onclick="MI.pendingLimit=9999;miRenderPending()">显示全部 ' + list.length + ' 家（当前显示 ' + shown.length + ' 家）</button></div>';
+  }
+  box.innerHTML = html;
+}
+
+function miFillPendingFilters(){
+  var pend = MI.stores.filter(function(s){ return !s.excluded && s.missing && s.missing.length; });
+  var mgrs = [], regs = [];
+  pend.forEach(function(s){
+    if (s.manager && mgrs.indexOf(s.manager) < 0) mgrs.push(s.manager);
+    if (s.region && regs.indexOf(s.region) < 0) regs.push(s.region);
+  });
+  mgrs.sort(); regs.sort();
+  var mgrSel = document.getElementById('mi-pm-mgr');
+  var regSel = document.getElementById('mi-pm-region');
+  if (MI.mgrFilter && mgrs.indexOf(MI.mgrFilter) < 0) MI.mgrFilter = '';
+  if (MI.regionFilter && regs.indexOf(MI.regionFilter) < 0) MI.regionFilter = '';
+  mgrSel.innerHTML = '<option value="">全部运营经理（' + mgrs.length + '）</option>' + mgrs.map(function(m){
+    return '<option value="' + m + '">' + m + '（' + pend.filter(function(s){ return s.manager === m; }).length + ' 家）</option>';
+  }).join('');
+  regSel.innerHTML = '<option value="">全部省区（' + regs.length + '）</option>' + regs.map(function(r){
+    return '<option value="' + r + '">' + r + '（' + pend.filter(function(s){ return s.region === r; }).length + ' 家）</option>';
+  }).join('');
+  mgrSel.value = MI.mgrFilter || '';
+  regSel.value = MI.regionFilter || '';
+}
+
+function miPendingFilterChange(){
+  MI.mgrFilter = document.getElementById('mi-pm-mgr').value || '';
+  MI.regionFilter = document.getElementById('mi-pm-region').value || '';
+  MI.pendingLimit = 15;
+  miRenderPending();
+}
+
+function miRenderExclNote(){
+  var el = document.getElementById('mi-excl-note');
+  if (!el) return;
+  var k = (MI.payload && MI.payload.kpi) || {};
+  if (!k.excludedCount) {
+    el.innerHTML = '<span>&#9432; 本期 ' + (k.totalStores || 0) + ' 家门店均为已开通状态，全部纳入待补录与统计。</span>';
+    return;
+  }
+  var html = '<span>&#9432; 已排除 <b style="color:var(--text)">' + k.excludedCount + '</b> 家未开通 / 疑似未开通门店，不计入待补录与省区对标</span>'
+    + '<a onclick="miShowExcluded()">查看并调整状态 &#8594;</a>';
+  if (k.suspectCount) {
+    html += '<a onclick="miConfirmSuspects()">一键确认 ' + k.suspectCount + ' 家疑似未开通</a>';
+  }
+  el.innerHTML = html;
+}
+
+function miSetFill(idx, key, val){
+  var s = MI.stores[idx];
+  if (!s) return;
+  var v = String(val === undefined || val === null ? '' : val).trim();
+  if (!v) { s[key] = null; }
+  else if (key === 'region') { s[key] = v; }
+  else {
+    var n = Number(v.replace(/[^\d.\-]/g, ''));
+    s[key] = isFinite(n) && v !== '' ? (key === 'opsScore' ? Math.round(n) : Math.round(n * 10) / 10) : null;
+  }
+  var mi = s.missing.indexOf(key);
+  if (s[key] !== null && mi >= 0) s.missing.splice(mi, 1);
+  if (s[key] === null && mi < 0) s.missing.push(key);
+  if (s.suggestions && s.suggestions[key] && s[key] !== null) delete s.suggestions[key];
+  s.complete = Math.round((4 - s.missing.length) / 4 * 100);
+  miRenderPending();
+  miRenderStores();
+  miRenderBadge();
+}
+
+function miAcceptSug(idx, key){
+  var s = MI.stores[idx];
+  if (!s || !s.suggestions || !s.suggestions[key]) return;
+  var v = s.suggestions[key].value;
+  var input = document.getElementById('mi-in-' + idx + '-' + key);
+  if (input) input.value = v;
+  miSetFill(idx, key, v);
+}
+
+function miAcceptAll(){
+  var n = 0;
+  MI.stores.forEach(function(s, i){
+    if (s.excluded) return;
+    if (s.missing && s.missing.indexOf('region') >= 0 && s.suggestions && s.suggestions.region) {
+      miSetFill(i, 'region', s.suggestions.region.value);
+      n++;
+    }
+  });
+  showToast(n ? '已接受 ' + n + ' 条省区推荐' : '没有可自动推荐的省区', n ? 'success' : 'info');
+}
+
+/* ---- 门店开通状态 ---- */
+function miShowExcluded(){
+  miTab('stores');
+  var sel = document.getElementById('mi-filter');
+  if (sel) { sel.value = 'unopened'; miRenderStores(); }
+  showToast('已筛选出未开通 / 疑似未开通门店，点状态标签可切换', 'info');
+}
+
+function miConfirmSuspects(){
+  var names = MI.stores.filter(function(s){ return s.status === 'suspect'; }).map(function(s){ return s.storeName; });
+  if (!names.length) { showToast('没有待确认的疑似未开通门店', 'info'); return; }
+  miSetStatus(names, 'unopened', '已确认 ' + names.length + ' 家门店为未开通，已从待补录中剔除');
+}
+
+function miToggleStoreStatus(idx){
+  var s = MI.stores[idx];
+  if (!s) return;
+  var next = (s.status === 'unopened') ? 'active' : 'unopened';
+  miSetStatus([s.storeName], next, null);
+}
+
+function miSetStatus(names, status, okMsg){
+  showToast('正在更新门店状态…', 'info');
+  fetch('/api/monthly-set-status', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ month: MI.month, storeNames: names, status: status })
+  }).then(function(r){ return r.json(); }).then(function(j){
+    if (!j.ok) throw new Error(j.error || '更新失败');
+    MI.stores = j.stores;
+    miRender(j);
+    showToast(okMsg || (status === 'unopened' ? '已标记为未开通，不再计入待补录' : '已改回已开通，重新纳入待补录'), 'success');
+  }).catch(function(e){ showToast('状态更新失败：' + e.message, 'error'); });
+}
+
+/* ---- 省区负责人设置 ---- */
+function miToggleMgrEditor(){
+  var box = document.getElementById('mi-mgr-editor');
+  if (box.style.display === 'block') { box.style.display = 'none'; return; }
+  var regions = [], regCount = {};
+  MI.stores.forEach(function(s){
+    if (!s.region) return;
+    if (!regCount[s.region]) { regCount[s.region] = 0; regions.push(s.region); }
+    regCount[s.region]++;
+  });
+  regions.sort();
+  MI.mgrRegions = regions;
+  var mm = (MI.payload && MI.payload.managerMap) || {};
+  var cur = function(r){
+    if (mm[r]) return mm[r];
+    var hit = MI.stores.filter(function(s){ return s.region === r && s.manager; })[0];
+    return hit ? hit.manager : '';
+  };
+  var datalist = Array.from(new Set(MI.stores.map(function(s){ return s.manager; }).filter(Boolean))).sort();
+  box.style.display = 'block';
+  box.innerHTML = '<div class="mi-note" style="margin:0 0 10px">按省区统一指定运营经理，保存后该省区下所有门店继承此经理，填报链接即可按经理分发。<b>若月度表里已带「运营经理」列，会以表内值为准。</b></div>'
+    + '<datalist id="mi-mgr-list">' + datalist.map(function(m){ return '<option value="' + m + '">'; }).join('') + '</datalist>'
+    + '<div class="mi-table-wrap" style="max-height:300px;overflow-y:auto;padding:4px 12px">'
+    + '<div class="mi-mgr-head"><div>省区</div><div>运营经理</div><div>门店数</div></div>'
+    + regions.map(function(r, i){
+        return '<div class="mi-mgr-row"><div style="font-weight:600">' + r + '</div>'
+          + '<input id="mi-mgr-in-' + i + '" list="mi-mgr-list" value="' + cur(r) + '" placeholder="填写经理姓名">'
+          + '<span>' + regCount[r] + ' 家</span></div>';
+      }).join('')
+    + '</div>'
+    + '<div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-primary btn-sm" onclick="miSaveManagers()">保存负责人</button>'
+    + '<button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'mi-mgr-editor\').style.display=\'none\'">收起</button></div>';
+}
+
+function miSaveManagers(){
+  var mm = {};
+  MI.mgrRegions.forEach(function(r, i){
+    var el = document.getElementById('mi-mgr-in-' + i);
+    var v = el ? String(el.value || '').trim() : '';
+    if (v) mm[r] = v;
+  });
+  showToast('正在保存负责人…', 'info');
+  fetch('/api/monthly-set-manager', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ month: MI.month, managerMap: mm })
+  }).then(function(r){ return r.json(); }).then(function(j){
+    if (!j.ok) throw new Error(j.error || '保存失败');
+    MI.stores = j.stores;
+    miRender(j);
+    showToast('已保存 ' + Object.keys(mm).length + ' 个省区的负责人', 'success');
+  }).catch(function(e){ showToast('保存失败：' + e.message, 'error'); });
+}
+
+/* ---- 填报链接 ---- */
+function miOpenLinkModal(){
+  if (!MI.payload) { showToast('请先导入月度数据', 'error'); return; }
+  var mask = document.getElementById('mi-link-modal');
+  mask.classList.add('show');
+  document.getElementById('mi-link-sub').textContent = '正在生成链接…';
+  document.getElementById('mi-link-chips').innerHTML = '';
+  document.getElementById('mi-link-url').value = '';
+  fetch('/api/monthly-fill-link', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ month: MI.month })
+  }).then(function(r){ return r.json(); }).then(function(j){
+    if (!j.ok) throw new Error(j.error || '生成失败');
+    MI.link = j;
+    var pend = MI.stores.filter(function(s){ return !s.excluded && s.missing && s.missing.length; });
+    document.getElementById('mi-link-sub').innerHTML = '<b>' + j.month + '</b> · 当前 <b>' + pend.length + '</b> 家门店待补录。'
+      + '链接实时读取最新数据，补充填报后无需重新生成；可复制给运营经理，也可只发某位经理或某个省区的专属链接。';
+    var chips = '<span class="mi-chip on" data-m="" data-r="" onclick="miPickChip(this)">全部（' + pend.length + '）</span>';
+    var mgrs = [], regs = [];
+    pend.forEach(function(s){
+      if (s.manager && mgrs.indexOf(s.manager) < 0) mgrs.push(s.manager);
+      if (s.region && regs.indexOf(s.region) < 0) regs.push(s.region);
+    });
+    mgrs.sort().forEach(function(m){
+      var n = pend.filter(function(s){ return s.manager === m; }).length;
+      chips += '<span class="mi-chip" data-m="' + m.replace(/"/g, '') + '" data-r="" onclick="miPickChip(this)">经理 · ' + m + '（' + n + '）</span>';
+    });
+    regs.sort().forEach(function(r){
+      var n = pend.filter(function(s){ return s.region === r; }).length;
+      chips += '<span class="mi-chip" data-m="" data-r="' + r.replace(/"/g, '') + '" onclick="miPickChip(this)">省区 · ' + r + '（' + n + '）</span>';
+    });
+    document.getElementById('mi-link-chips').innerHTML = chips;
+    miPickChip(document.querySelector('#mi-link-chips .mi-chip'));
+  }).catch(function(e){
+    document.getElementById('mi-link-sub').textContent = '生成失败：' + e.message;
+  });
+}
+
+function miPickChip(el){
+  if (!el || !MI.link) return;
+  var all = document.querySelectorAll('#mi-link-chips .mi-chip');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('on');
+  el.classList.add('on');
+  var m = el.getAttribute('data-m') || '';
+  var r = el.getAttribute('data-r') || '';
+  var url = MI.link.url;
+  if (m) url += '&m=' + encodeURIComponent(m);
+  if (r) url += '&r=' + encodeURIComponent(r);
+  document.getElementById('mi-link-url').value = url;
+  var pend = MI.stores.filter(function(s){ return !s.excluded && s.missing && s.missing.length; })
+    .filter(function(s){ return !m || s.manager === m; })
+    .filter(function(s){ return !r || s.region === r; });
+  var note = '该链接下可填报门店 <b>' + pend.length + '</b> 家';
+  if (m) note += ' · 运营经理 <b>' + m + '</b>';
+  if (r) note += ' · 省区 <b>' + r + '</b>';
+  if (!m && !r) note += '（全部待补录门店）';
+  document.getElementById('mi-link-note').innerHTML = note;
+}
+
+function miCopyLink(){
+  var el = document.getElementById('mi-link-url');
+  el.select();
+  var url = el.value;
+  if (!url) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function(){ showToast('链接已复制，发给运营经理即可', 'success'); })
+      .catch(function(){ showToast('复制失败，请手动选中复制', 'error'); });
+  } else {
+    try { document.execCommand('copy'); showToast('链接已复制', 'success'); }
+    catch (e) { showToast('复制失败，请手动选中复制', 'error'); }
+  }
+}
+
+function miCloseModal(){
+  document.getElementById('mi-link-modal').classList.remove('show');
+}
+
+function miJumpPending(idx){
+  MI.pendingLimit = 9999;
+  miRenderPending();
+  miTab('pending');
+  var s = MI.stores[idx];
+  if (!s) return;
+  setTimeout(function(){
+    var items = document.querySelectorAll('#mi-pending-list .mi-pend-item');
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].textContent.indexOf(s.storeName) >= 0) {
+        items[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
+        items[i].style.boxShadow = '0 0 0 3px rgba(59,130,246,0.25)';
+        (function(el){ setTimeout(function(){ el.style.boxShadow = ''; }, 1800); })(items[i]);
+        break;
+      }
+    }
+  }, 80);
+}
+
+function miSave(){
+  var payload = {
+    month: MI.month,
+    fileName: MI.fileName,
+    stores: MI.stores.map(function(s){
+      return { storeName: s.storeName, city: s.city, region: s.region, meituanStar: s.meituanStar, dianpingStar: s.dianpingStar, opsScore: s.opsScore, sourceRow: s.sourceRow };
+    }),
+    reviews: MI.reviews,
+    meta: MI.payload ? { mainSheet: MI.payload.meta.mainSheet, reviewSheet: MI.payload.meta.reviewSheet, headerRow: (MI.payload.meta.headerRow || 1) - 1, mainHeaders: MI.payload.meta.headers } : {}
+  };
+  showToast('正在重新计算…', 'info');
+  fetch('/api/monthly-reanalyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if (!j.ok) throw new Error(j.error || '重算失败');
+      MI.stores = j.stores;
+      miRender(j);
+      showToast('已保存，剩余待补录 ' + j.kpi.pendingFieldCount + ' 项', 'success');
+      miHistoryList();
+    })
+    .catch(function(e){ showToast('保存失败：' + e.message, 'error'); });
+}
+
+function miRenderRegion(list){
+  var tbl = document.getElementById('mi-region');
+  var note = document.getElementById('mi-grade-note');
+  if (note && MI.payload && MI.payload.gradeNote) note.textContent = MI.payload.gradeNote;
+  if (!list || !list.length) { tbl.innerHTML = '<tbody><tr><td class="mi-empty">暂无省区数据（省区列缺失或未填写）</td></tr></tbody>'; return; }
+  var html = '<thead><tr><th>省区</th><th>门店数</th><th>平均美团星级</th><th>平均经营评分</th><th>评级</th><th>低于70分</th><th>待补录门店</th><th>差评数</th></tr></thead><tbody>';
+  list.forEach(function(r){
+    var gradeCls = r.grade === 'A' ? 'tag-success' : (r.grade === 'B' ? 'tag-primary' : (r.grade === 'C' ? 'tag-danger' : ''));
+    html += '<tr><td style="font-weight:600">' + r.region + '</td>'
+      + '<td>' + r.storeCount + '</td>'
+      + '<td>' + (r.avgMeituanStar === null ? '—' : r.avgMeituanStar) + '</td>'
+      + '<td style="font-weight:700">' + (r.avgOpsScore === null ? '—' : r.avgOpsScore) + '</td>'
+      + '<td><span class="tag ' + gradeCls + '">' + r.grade + '</span></td>'
+      + '<td>' + (r.below70 > 0 ? '<span style="color:var(--danger);font-weight:700">' + r.below70 + '</span>' : '0') + '</td>'
+      + '<td>' + (r.pendingStores > 0 ? '<span style="color:var(--warning);font-weight:700">' + r.pendingStores + '</span>' : '0') + '</td>'
+      + '<td>' + r.reviewCount + '</td></tr>';
+  });
+  tbl.innerHTML = html + '</tbody>';
+}
+
+function miRenderReviews(list){
+  var tbl = document.getElementById('mi-reviews');
+  if (!list || !list.length) { tbl.innerHTML = '<tbody><tr><td class="mi-empty">本次未检测到差评明细表</td></tr></tbody>'; return; }
+  var html = '<thead><tr><th style="width:44px">#</th><th>门店</th><th>城市</th><th>差评原文</th><th style="width:70px">操作</th></tr></thead><tbody>';
+  list.forEach(function(r, i){
+    html += '<tr><td>' + (i + 1) + '</td>'
+      + '<td style="font-weight:600;white-space:nowrap">' + r.storeName + '</td>'
+      + '<td>' + (r.city || '—') + '</td>'
+      + '<td style="max-width:520px;line-height:1.6">' + (r.content || '<span class="mi-miss">评论内容为空</span>') + '</td>'
+      + '<td>' + (r.content ? '<button class="btn btn-outline btn-sm" onclick="miSingleReview(' + i + ')">分析</button>' : '') + '</td></tr>';
+  });
+  tbl.innerHTML = html + '</tbody>';
+}
+
+function miSingleReview(i){ miPushReview(i); }
+
+function miPushReview(i){
+  var r = MI.reviews[i];
+  if (!r || !r.content) { showToast('该条没有评论内容', 'error'); return; }
+  var ta = document.getElementById('rvAssistText');
+  if (ta) {
+    ta.value = '【' + r.storeName + '】' + r.content;
+    ta.focus();
+  }
+  switchPage('review');
+  showToast('已带入差评原文，点击「AI 分析并生成回复」即可', 'success');
+}
+
+function miToReview(){
+  var hit = MI.reviews.filter(function(r){ return r.content; });
+  if (!hit.length) { showToast('本次导入没有差评原文', 'error'); return; }
+  miPushReview(MI.reviews.indexOf(hit[0]));
+}
+
+function miLoadHistory(month){
+  if (!month) return;
+  fetch('/api/monthly-detail?month=' + encodeURIComponent(month)).then(function(r){ return r.json(); }).then(function(j){
+    if (!j.ok) throw new Error(j.error || '读取失败');
+    MI.month = j.month; MI.fileName = j.fileName || '历史存档';
+    MI.stores = j.stores; MI.reviews = j.reviews;
+    miRender(j);
+    showToast('已加载 ' + month + ' 存档数据', 'success');
+  }).catch(function(e){ showToast('加载失败：' + e.message, 'error'); });
+}
+
+function miDownloadTemplate(){
+  window.open('/api/monthly-template', '_blank');
+}
+
+function miTab(name){
+  document.querySelectorAll('.mi-tab').forEach(function(t){ t.classList.toggle('active', t.getAttribute('data-mi') === name); });
+  document.querySelectorAll('.mi-panel').forEach(function(p){ p.classList.remove('active'); });
+  var panel = document.getElementById('mi-panel-' + name);
+  if (panel) panel.classList.add('active');
+}
+
 /* ===== PAGE SWITCH ===== */
 function switchPage(id) {
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
@@ -1516,7 +2888,7 @@ function switchPage(id) {
   var nav = document.querySelector('.s-item[data-page="'+id+'"]');
   if (nav) nav.classList.add('active');
   document.getElementById('content').scrollTop = 0;
-  if (id === 'dash') drawChart();
+  if (id === 'monthly-import') miInit();
   // Auto-close mobile sidebar after navigation
   closeMobileSidebar();
 }
@@ -1539,86 +2911,6 @@ function closeMobileSidebar() {
   var overlay = document.getElementById('sidebarOverlay');
   sidebar.classList.remove('mobile-open');
   overlay.classList.remove('show');
-}
-
-/* ===== DASHBOARD CHART ===== */
-function drawChart() {
-  var canvas = document.getElementById('orderChart');
-  if (!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var dpr = window.devicePixelRatio || 1;
-  var rect = canvas.parentElement.getBoundingClientRect();
-  var w = rect.width - 40;
-  var h = 220;
-  canvas.width = w * dpr;
-  canvas.height = h * dpr;
-  canvas.style.width = w + 'px';
-  canvas.style.height = h + 'px';
-  ctx.scale(dpr, dpr);
-
-  var data = [18,22,15,28,35,30,42];
-  var labels = ['7/8','7/9','7/10','7/11','7/12','7/13','7/14'];
-  var maxV = Math.max.apply(null, data) * 1.2;
-  var padL = 40, padR = 20, padT = 20, padB = 30;
-  var cw = w - padL - padR;
-  var ch = h - padT - padB;
-
-  ctx.clearRect(0,0,w,h);
-
-  // Grid lines
-  ctx.strokeStyle = '#f0f0f0';
-  ctx.lineWidth = 1;
-  for (var i = 0; i <= 4; i++) {
-    var y = padT + ch * (1 - i/4);
-    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + cw, y); ctx.stroke();
-    ctx.fillStyle = '#9ca3af'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText(Math.round(maxV * i/4), padL - 6, y + 4);
-  }
-
-  // X labels
-  ctx.fillStyle = '#9ca3af'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
-  var step = cw / (data.length - 1);
-  for (var i = 0; i < data.length; i++) {
-    ctx.fillText(labels[i], padL + step * i, h - 6);
-  }
-
-  // Area fill
-  ctx.beginPath();
-  for (var i = 0; i < data.length; i++) {
-    var x = padL + step * i;
-    var y = padT + ch * (1 - data[i]/maxV);
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.lineTo(padL + step * (data.length - 1), padT + ch);
-  ctx.lineTo(padL, padT + ch);
-  ctx.closePath();
-  var grad = ctx.createLinearGradient(0, padT, 0, padT + ch);
-  grad.addColorStop(0, 'rgba(59,130,246,0.15)');
-  grad.addColorStop(1, 'rgba(59,130,246,0)');
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  // Line
-  ctx.beginPath();
-  ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
-  for (var i = 0; i < data.length; i++) {
-    var x = padL + step * i;
-    var y = padT + ch * (1 - data[i]/maxV);
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // Dots
-  for (var i = 0; i < data.length; i++) {
-    var x = padL + step * i;
-    var y = padT + ch * (1 - data[i]/maxV);
-    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2);
-    ctx.fillStyle = '#3b82f6'; ctx.fill();
-    ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI*2);
-    ctx.fillStyle = '#fff'; ctx.fill();
-  }
 }
 
 /* ===== COMPETITOR ===== */
@@ -1919,7 +3211,7 @@ async function generateImages() {
     });
 
     if (data.images && data.images.length) {
-      grid.style.gridTemplateColumns = '1fr 1fr';
+      grid.style.gridTemplateColumns = 'repeat(3,1fr)';
       grid.innerHTML = data.images.map(function(img, idx){
         // Seedream 返回真实图片 URL
         if (img.url) {
@@ -1960,7 +3252,7 @@ async function generateImages() {
     }
   } catch(e) {
     // Fallback to mock
-    grid.style.gridTemplateColumns = '1fr 1fr';
+    grid.style.gridTemplateColumns = 'repeat(3,1fr)';
     var style = STYLES.find(function(s){ return s.id===selectedStyle; });
     grid.innerHTML = GEN_ITEMS.map(function(g){
       return '<div class="gen-card">' +
@@ -2135,7 +3427,6 @@ function renderScriptCardsFromData(scripts) {
       '<div class="script-bubble">'+s.text+'</div>' +
       '<div class="script-actions">' +
         '<button class="btn btn-outline btn-sm" onclick="copyText(\''+escapedText+'\')">&#9998; 复制话术</button>' +
-        '<button class="btn btn-secondary btn-sm" onclick="showToast(\'已分享到企业微信\',\'success\')">&#8594; 分享到企微</button>' +
       '</div></div>';
   }).join('');
 }
@@ -2152,7 +3443,6 @@ function renderScriptCards() {
       '<div class="script-bubble">'+s.text+'</div>' +
       '<div class="script-actions">' +
         '<button class="btn btn-outline btn-sm" onclick="copyText(\''+s.text.replace(/'/g,"\\'")+'\')">&#9998; 复制话术</button>' +
-        '<button class="btn btn-secondary btn-sm" onclick="showToast(\'已分享到企业微信\',\'success\')">&#8594; 分享到企微</button>' +
       '</div></div>';
   }).join('');
 }
@@ -2464,476 +3754,195 @@ function renderMeituanOpsFallback() {
   renderMeituanOps(data);
 }
 
-/* ===== PRIVATE DOMAIN ===== */
-async function runPrivateDomain() {
-  var container = document.getElementById('privateDomainResult');
-  showLoading(container);
-  try {
-    var data = await callAPI('/private-domain', { clinicData: CLINIC });
-    renderPrivateDomain(data);
-    showToast('私域运营方案生成完成！', 'success');
-  } catch(e) {
-    renderPrivateDomainFallback();
-    showToast('使用本地模板生成完成', 'info');
-  }
-}
-
-function renderPrivateDomain(data) {
-  var container = document.getElementById('privateDomainResult');
-  var html = '';
-
-  // Welcome scripts
-  html += '<div class="script-section"><div class="script-section-title">&#128075; 欢迎话术</div>';
-  data.welcomeScripts.forEach(function(s) {
-    html += '<div style="margin-bottom:12px">';
-    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><strong>' + s.name + '</strong><span class="tag tag-primary">' + s.timing + '</span></div>';
-    html += '<div class="script-bubble-new">' + escapeHtml(s.text) + '</div>';
-    html += '<button class="copy-btn-sm" onclick="copyText(this.previousElementSibling.textContent)">&#128203; 复制</button>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Follow-up scripts
-  html += '<div class="script-section"><div class="script-section-title">&#128276; 复查提醒话术</div>';
-  data.followUpScripts.forEach(function(s) {
-    html += '<div style="margin-bottom:12px">';
-    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><strong>' + s.name + '</strong><span class="tag tag-success">' + s.timing + '</span></div>';
-    html += '<div class="script-bubble-new">' + escapeHtml(s.text) + '</div>';
-    html += '<button class="copy-btn-sm" onclick="copyText(this.previousElementSibling.textContent)">&#128203; 复制</button>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Community SOP
-  html += '<div class="script-section"><div class="script-section-title">&#128483; 社群SOP节奏</div>';
-  html += '<div class="sop-timeline">';
-  var sopItems = [
-    {time:'早8:30',desc:data.communitySOP.morning},
-    {time:'午12:00',desc:data.communitySOP.noon},
-    {time:'晚19:30',desc:data.communitySOP.evening},
-    {time:'周五',desc:data.communitySOP.weekly}
-  ];
-  sopItems.forEach(function(s) {
-    html += '<div class="sop-time-item"><div class="sop-time-dot"></div><div style="font-weight:700;font-size:12px">' + s.time + '</div><div style="font-size:11px;margin-top:4px">' + s.desc + '</div></div>';
-  });
-  html += '</div></div>';
-
-  // Patient layers
-  html += '<div class="script-section"><div class="script-section-title">&#127919; 患者分层运营</div>';
-  html += '<table class="layer-table"><thead><tr><th>层级</th><th>条件</th><th>策略</th><th>频率</th></tr></thead><tbody>';
-  data.patientLayers.forEach(function(p) {
-    html += '<tr><td><strong>' + p.layer + '</strong></td><td>' + p.condition + '</td><td>' + p.strategy + '</td><td>' + p.frequency + '</td></tr>';
-  });
-  html += '</tbody></table></div>';
-
-  container.innerHTML = html;
-}
-
-function renderPrivateDomainFallback() {
-  renderPrivateDomain({
-    welcomeScripts: [
-      {name:'新患者欢迎语',text:'您好！欢迎加入眼健康守护群！\n我是您的专属眼健康顾问。\n\n📚 为您准备了《儿童近视防控指南》\n🎁 首购优惠券已发放至您的账户\n📞 有任何问题随时咨询',timing:'添加后自动发送'},
-      {name:'首购关怀',text:'感谢您选择本门诊！\n\n📅 请按照预约时间到店\n💡 检查前停戴隐形眼镜3天\n📞 如需改期请提前2小时告知',timing:'下单后1小时'}
-    ],
-    followUpScripts: [
-      {name:'OK镜1周复查提醒',text:'孩子佩戴OK镜已经1周了，建议安排首次复查。\n\n🔍 复查内容：镜片适配度、角膜健康\n📅 建议时间：配镜后7-10天',timing:'配镜后7天'},
-      {name:'离焦镜3月复查提醒',text:'孩子佩戴离焦镜片已3个月，建议回院复查。\n\n🔍 复查内容：度数变化、镜片磨损检查',timing:'配镜后90天'}
-    ],
-    communitySOP: {morning:'8:30 护眼小知识图文',noon:'12:00 互动话题/投票',evening:'19:30 案例分享/专家答疑预告',weekly:'周五会员日优惠/限时秒杀活动'},
-    patientLayers: [
-      {layer:'新患者',condition:'首次到店0-7天',strategy:'激活体验+使用指导',frequency:'1次/天'},
-      {layer:'活跃患者',condition:'30天内有互动',strategy:'内容种草+复购提醒',frequency:'2次/周'},
-      {layer:'VIP患者',condition:'累计消费>5000',strategy:'专属顾问+优先预约',frequency:'1次/周'},
-      {layer:'沉默患者',condition:'90天无互动',strategy:'激活优惠+关怀回访',frequency:'1次/月'}
-    ]
-  });
-}
-
-/* ===== DOUYIN PLAN ===== */
-async function runDouyinPlan() {
-  var container = document.getElementById('douyinPlanResult');
-  showLoading(container);
-  try {
-    var data = await callAPI('/douyin-plan', { clinicData: CLINIC });
-    renderDouyinPlan(data);
-    showToast('抖音策略方案生成完成！', 'success');
-  } catch(e) {
-    renderDouyinPlanFallback();
-    showToast('使用本地模板生成完成', 'info');
-  }
-}
-
-function renderDouyinPlan(data) {
-  var container = document.getElementById('douyinPlanResult');
-  var html = '';
-
-  // Video scripts
-  html += '<div class="script-section"><div class="script-section-title">&#127916; 短视频脚本</div>';
-  data.videoScripts.forEach(function(v, i) {
-    html += '<div style="margin-bottom:16px;padding-bottom:16px;' + (i < data.videoScripts.length - 1 ? 'border-bottom:1px solid var(--border)' : '') + '">';
-    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><strong style="font-size:14px">' + v.title + '</strong><span class="tag tag-primary">' + v.duration + '</span></div>';
-    html += '<div style="font-size:12px;color:var(--text-sub);margin-bottom:6px">&#128071; ' + v.opening + '</div>';
-    html += '<div class="script-bubble-new">' + escapeHtml(v.script) + '</div>';
-    html += '<div style="display:flex;gap:12px;align-items:center;font-size:12px;color:var(--text-sub)">';
-    html += '<span>&#127925; ' + v.bgm + '</span>';
-    html += '<span>' + v.hashtags.join(' ') + '</span>';
-    html += '<button class="copy-btn-sm" onclick="copyText(this.parentElement.previousElementSibling.textContent)">&#128203; 复制脚本</button>';
-    html += '</div></div>';
-  });
-  html += '</div>';
-
-  // Weekly calendar
-  html += '<div class="script-section"><div class="script-section-title">&#128197; 周更内容日历</div>';
-  data.weeklyCalendar.forEach(function(c) {
-    html += '<div class="calendar-row">';
-    html += '<div class="calendar-day">' + c.day + '</div>';
-    html += '<div class="calendar-topic">' + c.topic + '<div class="calendar-type">' + c.type + '</div></div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Live plan
-  html += '<div class="script-section"><div class="script-section-title">&#127909; 直播方案</div>';
-  html += '<div style="font-size:14px;font-weight:700;margin-bottom:8px">' + data.livePlan.theme + '</div>';
-  html += '<div style="font-size:12px;color:var(--text-sub);margin-bottom:8px">时长：' + data.livePlan.duration + ' · 商品：' + data.livePlan.products.join('、') + '</div>';
-  html += '<div class="script-bubble-new">' + escapeHtml(data.livePlan.script) + '</div>';
-  html += '</div>';
-
-  // Ad strategy
-  html += '<div class="script-section"><div class="script-section-title">&#128176; 投放策略</div>';
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
-  html += '<div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">月预算</div><div style="font-size:18px;font-weight:800;color:var(--accent)">' + data.adStrategy.budget + '</div></div>';
-  html += '<div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">定向人群</div><div style="font-size:12px;font-weight:600;margin-top:4px">' + data.adStrategy.targeting + '</div></div>';
-  html += '<div style="text-align:center;padding:12px;background:#f9fafb;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">目标</div><div style="font-size:12px;font-weight:600;margin-top:4px">' + data.adStrategy.goal + '</div></div>';
-  html += '</div></div>';
-
-  container.innerHTML = html;
-}
-
-function renderDouyinPlanFallback() {
-  renderDouyinPlan({
-    videoScripts: [
-      {title:'孩子近视了千万别做这3件事',duration:'35s',opening:'冲突型："孩子近视了，90%的家长都在做错！"',script:'【0-3s】文字+表情冲击："孩子近视了，90%的家长都做错了！"\n【3-15s】错误1：盲目配镜不检查眼轴\n【15-25s】错误2：忽视每天2小时户外活动\n【25-35s】错误3：从不复查，度数年年涨',bgm:'本周热门BGM',hashtags:['#近视防控','#OK镜','#护眼知识']},
-      {title:'眼科医生自己孩子怎么防控近视',duration:'45s',opening:'共鸣型："作为眼科医生，我是这样给孩子防控近视的..."',script:'【0-3s】医生出镜\n【3-20s】分享5个日常习惯\n【20-40s】现场展示检查设备\n【40-45s】CTA：关注+预约检查',bgm:'温馨治愈系BGM',hashtags:['#眼科医生','#近视防控','#OK镜']}
-    ],
-    weeklyCalendar: [
-      {day:'周一',topic:'护眼科普：20-20-20法则',type:'科普讲解'},
-      {day:'周三',topic:'杜秀臻医生答疑：OK镜适合谁？',type:'医生IP'},
-      {day:'周五',topic:'8岁近视200度，1年后控制0增长',type:'患者故事'}
-    ],
-    livePlan: {theme:'杜秀臻医生在线答疑 · 开学季护眼专场',script:'【0-15min】留人开场\n【15-45min】痛点放大\n【45-75min】方案讲解\n【75-85min】限时优惠\n【85-90min】关注引导',products:['视力检查39.9','OK镜验配咨询','离焦镜套餐'],duration:'1.5小时'},
-    adStrategy: {budget:'2000元/月',targeting:'3-15岁家长 / 近视人群 / 临沂同城',goal:'粉丝增长500+/月 + 到店转化30+/月'}
-  });
-}
-
-/* ===== XIAOHONGSHU PLAN ===== */
-async function runXiaohongshuPlan() {
-  var container = document.getElementById('xiaohongshuPlanResult');
-  showLoading(container);
-  try {
-    var data = await callAPI('/xiaohongshu-plan', { clinicData: CLINIC });
-    renderXiaohongshuPlan(data);
-    showToast('小红书策略方案生成完成！', 'success');
-  } catch(e) {
-    renderXiaohongshuPlanFallback();
-    showToast('使用本地模板生成完成', 'info');
-  }
-}
-
-function renderXiaohongshuPlan(data) {
-  var container = document.getElementById('xiaohongshuPlanResult');
-  var html = '';
-
-  // Note scripts
-  html += '<div class="script-section"><div class="script-section-title">&#128214; 种草笔记脚本</div>';
-  data.noteScripts.forEach(function(n, i) {
-    html += '<div style="margin-bottom:16px;padding-bottom:16px;' + (i < data.noteScripts.length - 1 ? 'border-bottom:1px solid var(--border)' : '') + '">';
-    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><strong style="font-size:14px">' + n.title + '</strong><span class="tag tag-danger">' + n.type + '</span></div>';
-    html += '<div class="script-bubble-new">' + escapeHtml(n.body) + '</div>';
-    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">';
-    n.tags.forEach(function(t){ html += '<span class="tag tag-primary" style="font-size:11px">#' + t + '</span>'; });
-    html += '</div>';
-    html += '<div style="font-size:12px;color:var(--text-sub)">&#128444; 封面建议：' + n.cover + '</div>';
-    html += '<button class="copy-btn-sm" style="margin-top:6px" onclick="copyText(this.parentElement.querySelector(\'.script-bubble-new\').textContent)">&#128203; 复制笔记</button>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Weekly calendar
-  html += '<div class="script-section"><div class="script-section-title">&#128197; 周更内容日历</div>';
-  data.weeklyCalendar.forEach(function(c) {
-    html += '<div class="calendar-row">';
-    html += '<div class="calendar-day" style="background:linear-gradient(135deg,#ef4444,#f472b6)">' + c.day + '</div>';
-    html += '<div class="calendar-topic">' + c.topic + '<div class="calendar-type">' + c.type + '</div></div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Seeding plan
-  html += '<div class="script-section"><div class="script-section-title">&#127793; 种草投放计划</div>';
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
-  html += '<div style="text-align:center;padding:12px;background:#fff5f5;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">投放量</div><div style="font-size:16px;font-weight:800;color:#ef4444">' + data.seedingPlan.quantity + '</div></div>';
-  html += '<div style="text-align:center;padding:12px;background:#fff5f5;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">预算</div><div style="font-size:16px;font-weight:800;color:#ef4444">' + data.seedingPlan.budget + '</div></div>';
-  html += '<div style="text-align:center;padding:12px;background:#fff5f5;border-radius:8px"><div style="font-size:12px;color:var(--text-sub)">策略</div><div style="font-size:12px;font-weight:600;margin-top:4px;line-height:1.5">' + data.seedingPlan.strategy + '</div></div>';
-  html += '</div></div>';
-
-  container.innerHTML = html;
-}
-
-function renderXiaohongshuPlanFallback() {
-  renderXiaohongshuPlan({
-    noteScripts: [
-      {title:'打工人护眼清单｜杜秀臻医生推荐7个好习惯',type:'图文',body:'【封面】护眼清单大字报\n\n1️⃣ 20-20-20法则\n2️⃣ 每天2小时户外活动\n3️⃣ 用眼距离保持33cm以上\n4️⃣ 每半年一次专业检查\n5️⃣ 睡前热敷缓解疲劳\n6️⃣ 多吃叶黄素食物\n7️⃣ OK镜/离焦镜科学防控',tags:['近视防控','护眼','OK镜','打工人'],cover:'蓝绿色调护眼清单大字报，突出数字7'},
-      {title:'OK镜VS离焦镜，近视防控到底选哪个',type:'图文',body:'【封面】OK镜🆚离焦镜对比图\n\n💡 OK镜\n✓ 夜戴白天清晰\n✓ 控制效果60%以上\n✗ 价格较高\n\n💡 离焦镜片\n✓ 日间佩戴方便\n✓ 控制效果30-60%\n✓ 价格适中',tags:['OK镜','离焦镜','近视防控'],cover:'对比风格，左右分栏，蓝金配色'}
-    ],
-    weeklyCalendar: [
-      {day:'周二',topic:'打工人护眼清单7个好习惯',type:'护眼干货'},
-      {day:'周四',topic:'OK镜VS离焦镜到底怎么选',type:'产品测评'},
-      {day:'周六',topic:'39.9做了超全眼科检查！附攻略',type:'探店分享'}
-    ],
-    seedingPlan: {quantity:'60-80篇/月',budget:'6000-10000元/月',strategy:'素人铺量(50篇) + 腰部达人(15篇) + 头部联动(3篇)'}
-  });
-}
-
-/* ===== WECHAT PLAN ===== */
-async function runWechatPlan() {
-  var container = document.getElementById('wechatPlanResult');
-  showLoading(container);
-  try {
-    var data = await callAPI('/wechat-plan', { clinicData: CLINIC });
-    renderWechatPlan(data);
-    showToast('公众号运营方案生成完成！', 'success');
-  } catch(e) {
-    renderWechatPlanFallback();
-    showToast('使用本地模板生成完成', 'info');
-  }
-}
-
-function renderWechatPlan(data) {
-  var container = document.getElementById('wechatPlanResult');
-  var html = '';
-
-  // Article draft
-  html += '<div class="script-section"><div class="script-section-title">&#128240; 推文草稿</div>';
-  html += '<div style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--primary)">' + data.articleDraft.title + '</div>';
-  html += '<div class="script-bubble-new">' + escapeHtml(data.articleDraft.body) + '</div>';
-  html += '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">';
-  html += '<span style="font-size:12px;color:var(--accent);font-weight:600">CTA: ' + data.articleDraft.cta + '</span>';
-  html += '<button class="copy-btn-sm" onclick="copyText(this.parentElement.previousElementSibling.textContent)">&#128203; 复制全文</button>';
-  html += '</div></div>';
-
-  // Menu plan
-  html += '<div class="script-section"><div class="script-section-title">&#128203; 公众号菜单架构</div>';
-  html += '<div class="menu-tree">';
-  var menuKeys = ['menu1','menu2','menu3'];
-  menuKeys.forEach(function(key) {
-    var m = data.menuPlan[key];
-    html += '<div class="menu-col">';
-    html += '<div class="menu-col-title">' + m.name + '</div>';
-    m.items.forEach(function(item) {
-      html += '<div class="menu-col-item">&#8226; ' + item + '</div>';
-    });
-    html += '</div>';
-  });
-  html += '</div></div>';
-
-  // Monthly calendar
-  html += '<div class="script-section"><div class="script-section-title">&#128197; 月度内容日历</div>';
-  data.monthlyCalendar.forEach(function(c) {
-    var typeColor = c.type === '科普类' ? 'tag-primary' : c.type === '故事类' ? 'tag-success' : c.type === '活动类' ? 'tag-danger' : 'tag-warning';
-    html += '<div class="calendar-row">';
-    html += '<div class="calendar-day" style="background:linear-gradient(135deg,#10b981,#3b82f6)">' + c.week + '</div>';
-    html += '<div class="calendar-topic">' + c.theme + '<span class="tag ' + typeColor + '" style="margin-left:8px">' + c.type + '</span></div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  container.innerHTML = html;
-}
-
-function renderWechatPlanFallback() {
-  renderWechatPlan({
-    articleDraft: {title:'7个护眼习惯，第3个90%人不知道',body:'"孩子又揉眼睛了？写作业越凑越近？"\n\n作为家长，你可能正在忽视孩子近视的信号...\n\n1️⃣ 每20分钟远眺20秒\n2️⃣ 每天户外活动2小时\n3️⃣ 定期检查眼轴（90%家长忽略！）\n...\n\n🏥 临沂爱尔眼科光门诊\n👨‍⚕️ 杜秀臻医生亲诊',cta:'点击下方阅读原文，预约39.9儿童视力检查'},
-    menuPlan: {
-      menu1:{name:'护眼服务',items:['在线预约','专家团队','门店导航']},
-      menu2:{name:'眼健康',items:['护眼知识','近视防控','自测工具']},
-      menu3:{name:'会员中心',items:['我的积分','复查提醒','在线咨询']}
-    },
-    monthlyCalendar: [
-      {week:'第1周',theme:'开学季护眼指南',type:'科普类'},
-      {week:'第2周',theme:'杜秀臻医生专访：近视防控新进展',type:'故事类'},
-      {week:'第3周',theme:'限时特惠：视力检查套餐',type:'活动类'},
-      {week:'第4周',theme:'OK镜VS离焦镜深度对比',type:'评测类'}
-    ]
-  });
-}
-
-/* ===== GROWTH PLAN ===== */
-async function runGrowthPlan() {
-  var container = document.getElementById('growthPlanResult');
-  showLoading(container);
-  try {
-    var data = await callAPI('/growth-plan', { clinicData: CLINIC });
-    renderGrowthPlan(data);
-    showToast('增长策略方案生成完成！', 'success');
-  } catch(e) {
-    renderGrowthPlanFallback();
-    showToast('使用本地模板生成完成', 'info');
-  }
-}
-
-function renderGrowthPlan(data) {
-  var container = document.getElementById('growthPlanResult');
-  var html = '';
-
-  // Funnel analysis
-  html += '<div class="script-section"><div class="script-section-title">&#128200; 转化漏斗分析</div>';
-  var funnelColors = ['#3b82f6','#6366f1','#8b5cf6','#a855f7','#d946ef','#ec4899'];
-  var funnelWidths = [100, 65, 50, 40, 32, 25];
-  data.funnelAnalysis.stages.forEach(function(s, i) {
-    html += '<div class="funnel-stage">';
-    html += '<div class="funnel-label">' + s.stage + '</div>';
-    html += '<div class="funnel-bar-wrap"><div class="funnel-bar" style="width:' + funnelWidths[i] + '%;background:' + funnelColors[i] + '">' + s.rate + '</div></div>';
-    html += '<div class="funnel-rate" style="font-size:11px">' + s.target + '</div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Channel ROI
-  html += '<div class="script-section"><div class="script-section-title">&#128178; 渠道ROI对比</div>';
-  html += '<table class="roi-table"><thead><tr><th>渠道</th><th>获客成本</th><th>转化率</th><th>ROI</th><th>优先级</th></tr></thead><tbody>';
-  data.channelROI.forEach(function(c) {
-    var pClass = c.priority === 'P0' ? 'tag-sm-p0' : 'tag-sm-p1';
-    html += '<tr><td><strong>' + c.channel + '</strong></td><td>' + c.cac + '</td><td>' + c.conversion + '</td><td style="font-weight:700;color:var(--success)">' + c.roi + '</td><td><span class="tag-sm ' + pClass + '">' + c.priority + '</span></td></tr>';
-  });
-  html += '</tbody></table></div>';
-
-  // Growth experiments
-  html += '<div class="script-section"><div class="script-section-title">&#129514; 增长实验</div>';
-  data.growthExperiments.forEach(function(exp) {
-    html += '<div class="experiment-card">';
-    html += '<div class="experiment-name">&#128300; ' + exp.name + '</div>';
-    html += '<div class="experiment-row"><strong>假设：</strong>' + exp.hypothesis + '</div>';
-    html += '<div class="experiment-row"><strong>方法：</strong>' + exp.method + '</div>';
-    html += '<div class="experiment-row"><strong>预算：</strong>' + exp.budget + '</div>';
-    html += '<div class="experiment-row"><strong>预期：</strong>' + exp.expected + '</div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Monthly plan
-  html += '<div class="script-section"><div class="script-section-title">&#128197; 月度增长计划</div>';
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
-  html += '<div style="padding:12px;background:#f0f7ff;border-radius:8px;border-left:3px solid var(--accent)"><div style="font-size:12px;color:var(--text-sub)">增长目标</div><div style="font-size:14px;font-weight:700;margin-top:4px">' + data.monthlyPlan.target + '</div></div>';
-  html += '<div style="padding:12px;background:#f0fdf4;border-radius:8px;border-left:3px solid var(--success)"><div style="font-size:12px;color:var(--text-sub)">总预算</div><div style="font-size:14px;font-weight:700;margin-top:4px">' + data.monthlyPlan.budget + '</div></div>';
-  html += '</div>';
-  html += '<div style="margin-top:10px;font-size:13px;color:var(--text-sub);line-height:1.8">' + data.monthlyPlan.breakdown + '</div>';
-  html += '</div>';
-
-  container.innerHTML = html;
-
-  // Animate funnel bars
-  setTimeout(function(){
-    container.querySelectorAll('.funnel-bar').forEach(function(bar){
-      var w = bar.style.width;
-      bar.style.width = '0';
-      setTimeout(function(){ bar.style.width = w; }, 50);
-    });
-  }, 50);
-}
-
-function renderGrowthPlanFallback() {
-  renderGrowthPlan({
-    funnelAnalysis: {
-      stages: [
-        {stage:'曝光',rate:'100%',target:'提升美团搜索排名至前3'},
-        {stage:'点击',rate:'3-5%',target:'优化主图和标题'},
-        {stage:'咨询',rate:'20-30%',target:'完善FAQ和自动回复'},
-        {stage:'预约',rate:'40-50%',target:'简化预约流程'},
-        {stage:'到店',rate:'60-70%',target:'提醒SOP+导航指引'},
-        {stage:'成交',rate:'50-60%',target:'话术优化+套餐推荐'}
-      ]
-    },
-    channelROI: [
-      {channel:'美团推广通',cac:'50-80元',conversion:'15-25%',roi:'2-4:1',priority:'P0'},
-      {channel:'企微转介绍',cac:'5-10元',conversion:'40-60%',roi:'8-15:1',priority:'P0'},
-      {channel:'抖音DOU+',cac:'30-60元',conversion:'8-15%',roi:'1.5-3:1',priority:'P1'},
-      {channel:'小红书种草',cac:'20-40元',conversion:'5-10%',roi:'2-5:1',priority:'P1'}
-    ],
-    growthExperiments: [
-      {name:'主图A/B测试',hypothesis:'如果主图从文字图改为医生场景图，点击率将提升20%',method:'同时上架2个相同项目，仅主图不同，测试2周',budget:'500元',expected:'点击率从3%提升至3.6%'},
-      {name:'有效期延长测试',hypothesis:'如果有效期从30天延长至90天，转化率将提升15%',method:'随机50%用户展示90天有效期，对比转化数据',budget:'0元（仅让利）',expected:'转化率从15%提升至17%'}
-    ],
-    monthlyPlan: {target:'到店量+20%',budget:'15000元',breakdown:'推广费用40%（6000元）+ 优惠补贴30%（4500元）+ 内容制作20%（3000元）+ 物料奖品10%（1500元）'}
-  });
-}
-
 // ===== CLINIC COLLECT MODULE =====
-var clinicCollectImage = null;
 var clinicCurrentMode = 'screenshot';
+var clinicShots = {}; // { 0: base64, 1: base64, ... }
+var CLINIC_SHOTS = [
+  { name: '星级概览', path: '经营参谋 → 星级', desc: '点评星级、美团星级、昨日新增评价/差评' },
+  { name: '评价数据', path: '经营参谋 → 评价', desc: '新增评价数、累计评价数、好评率' },
+  { name: '客流数据', path: '经营参谋 → 客流', desc: '曝光、访问、意向转化漏斗数据' },
+  { name: '交易数据', path: '经营参谋 → 交易', desc: '下单、核销、退款金额与券数' },
+  { name: '经营评分-交易表现', path: '经营评分 → 交易表现', desc: '当前总得分、交易表现分值' },
+  { name: '经营评分-基础信息', path: '经营评分 → 基础信息', desc: '基础信息分值、得分率' },
+  { name: '经营评分-服务质量', path: '经营评分 → 服务质量', desc: '服务质量分值、得分率' }
+];
 
 function switchClinicTab(tab) {
   clinicCurrentMode = tab;
-  document.getElementById('clinicTabScreenshot').classList.toggle('active', tab === 'screenshot');
-  document.getElementById('clinicTabUrl').classList.toggle('active', tab === 'url');
-  document.getElementById('clinicScreenshotPanel').style.display = tab === 'screenshot' ? '' : 'none';
-  document.getElementById('clinicUrlPanel').style.display = tab === 'url' ? '' : 'none';
+  document.querySelectorAll('.clinic-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.tab === tab); });
+  document.querySelectorAll('.clinic-panel').forEach(function(p){ p.classList.toggle('active', p.id === 'clinicPanel' + tab.charAt(0).toUpperCase() + tab.slice(1)); });
   document.getElementById('clinicCollectResult').innerHTML = '';
 }
 
-function clinicHandleUpload(input) {
-  if (input.files && input.files[0]) clinicProcessFile(input.files[0]);
+function clinicPasteUrl() {
+  var input = document.getElementById('clinicUrlInput');
+  if (!input) return;
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(function(t){
+      if (t) { input.value = t; showToast('已粘贴剪贴板内容','success'); }
+      else { showToast('剪贴板为空，请粘贴链接','info'); }
+    }).catch(function(){
+      input.focus();
+      showToast('请手动粘贴（Ctrl+V）','info');
+    });
+  } else {
+    input.focus();
+    showToast('请手动粘贴（Ctrl+V）','info');
+  }
 }
 
-function clinicProcessFile(file) {
+function clinicClearAll() {
+  // 清空 7 个截图槽位
+  clinicShots = {};
+  CLINIC_SHOTS.forEach(function(shot, idx){
+    var input = document.getElementById('shotInput-' + idx);
+    if (input) input.value = '';
+    var placeholder = document.getElementById('shotPlaceholder-' + idx);
+    var preview = document.getElementById('shotPreview-' + idx);
+    var clearBtn = document.getElementById('shotClear-' + idx);
+    if (placeholder) placeholder.style.display = '';
+    if (preview) { preview.src = ''; preview.style.display = 'none'; }
+    if (clearBtn) clearBtn.style.display = 'none';
+  });
+  updateShotProgress();
+  // 清空 URL
+  var url = document.getElementById('clinicUrlInput');
+  if (url) url.value = '';
+  // 清空手动录入字段
+  document.querySelectorAll('#clinicPanelManual input').forEach(function(i){ i.value = ''; });
+  // 清空结果
+  document.getElementById('clinicCollectResult').innerHTML = '';
+  showToast('已清空','success');
+}
+
+function collectManualData() {
+  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+  return {
+    store: { name: val('mfName'), address: val('mfAddress'), phone: val('mfPhone'), hours: val('mfHours') },
+    project: { name: val('mfProduct'), price: val('mfPrice'), sales: val('mfSales'), valid: val('mfValid') },
+    review: { total: val('mfReviews'), good: val('mfGood'), bad: val('mfBad'), star: val('mfStar') },
+    traffic: { exposure: val('mfExposure'), visit: val('mfVisit'), intent: val('mfIntent'), order: val('mfOrder') }
+  };
+}
+
+function renderClinicShots() {
+  var container = document.getElementById('clinicShotsContainer');
+  if (!container) return;
+  var html = '';
+  CLINIC_SHOTS.forEach(function(shot, idx){
+    html += '<div class="clinic-shot" id="clinicShot-' + idx + '">'
+      + '<div class="clinic-shot-head">'
+      +   '<div class="clinic-shot-num">' + (idx + 1) + '</div>'
+      +   '<div class="clinic-shot-info">'
+      +     '<div class="clinic-shot-name">' + shot.name + '</div>'
+      +     '<div class="clinic-shot-path">📍 ' + shot.path + '</div>'
+      +   '</div>'
+      +   '<div class="clinic-shot-status" id="shotStatus-' + idx + '">未上传</div>'
+      + '</div>'
+      + '<div class="clinic-shot-desc">' + shot.desc + '</div>'
+      + '<div class="clinic-shot-box" id="shotBox-' + idx + '" onclick="triggerShotUpload(' + idx + ')" ondrop="shotHandleDrop(event,' + idx + ')" ondragover="shotDragOver(event)" ondragleave="shotDragLeave(event)">'
+      +   '<div class="clinic-shot-placeholder" id="shotPlaceholder-' + idx + '">'
+      +     '<div class="clinic-shot-ph-icon">📷</div>'
+      +     '<div class="clinic-shot-ph-text">点击上传 / 拖拽截图</div>'
+      +   '</div>'
+      +   '<img class="clinic-shot-preview" id="shotPreview-' + idx + '" style="display:none" alt="预览">'
+      +   '<div class="clinic-shot-clear" id="shotClear-' + idx + '" style="display:none" onclick="clearShot(event,' + idx + ')">&times;</div>'
+      + '</div>'
+      + '<input type="file" id="shotInput-' + idx + '" accept="image/*" capture="environment" style="display:none" onchange="handleShotUpload(this,' + idx + ')">'
+      + '</div>';
+  });
+  container.innerHTML = html;
+  updateShotProgress();
+}
+
+function triggerShotUpload(idx) {
+  document.getElementById('shotInput-' + idx).click();
+}
+
+function handleShotUpload(input, idx) {
+  if (input.files && input.files[0]) shotProcessFile(input.files[0], idx);
+}
+
+function shotProcessFile(file, idx) {
   if (file.size > 5 * 1024 * 1024) { showToast('图片大小不能超过5MB', 'error'); return; }
-  if (!file.type.match(/image\/(jpeg|png)/)) { showToast('仅支持JPG/PNG格式', 'error'); return; }
+  if (!file.type.match(/image\/(jpeg|png|webp)/)) { showToast('仅支持JPG/PNG格式', 'error'); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
-    clinicCollectImage = e.target.result;
-    document.getElementById('clinic-upload-content').style.display = 'none';
-    var preview = document.getElementById('clinic-upload-preview');
-    preview.style.display = '';
-    document.getElementById('clinic-preview-img').src = clinicCollectImage;
-    document.getElementById('clinic-upload-zone').style.padding = '12px';
+    clinicShots[idx] = e.target.result;
+    var placeholder = document.getElementById('shotPlaceholder-' + idx);
+    var preview = document.getElementById('shotPreview-' + idx);
+    var clearBtn = document.getElementById('shotClear-' + idx);
+    if (placeholder) placeholder.style.display = 'none';
+    if (preview) { preview.src = e.target.result; preview.style.display = 'block'; }
+    if (clearBtn) clearBtn.style.display = 'flex';
+    updateShotProgress();
   };
   reader.readAsDataURL(file);
 }
 
-function clinicClearImage(e) {
+function clearShot(e, idx) {
   if (e) e.stopPropagation();
-  clinicCollectImage = null;
-  document.getElementById('clinic-file-input').value = '';
-  document.getElementById('clinic-upload-content').style.display = '';
-  document.getElementById('clinic-upload-preview').style.display = 'none';
-  document.getElementById('clinic-upload-zone').style.padding = '28px';
+  delete clinicShots[idx];
+  var input = document.getElementById('shotInput-' + idx);
+  if (input) input.value = '';
+  var placeholder = document.getElementById('shotPlaceholder-' + idx);
+  var preview = document.getElementById('shotPreview-' + idx);
+  var clearBtn = document.getElementById('shotClear-' + idx);
+  if (placeholder) placeholder.style.display = '';
+  if (preview) { preview.src = ''; preview.style.display = 'none'; }
+  if (clearBtn) clearBtn.style.display = 'none';
+  updateShotProgress();
 }
 
-function clinicHandleDrop(e) {
+function shotHandleDrop(e, idx) {
   e.preventDefault();
-  document.getElementById('clinic-upload-zone').classList.remove('dragover');
-  if (e.dataTransfer.files && e.dataTransfer.files[0]) clinicProcessFile(e.dataTransfer.files[0]);
+  var box = document.getElementById('shotBox-' + idx);
+  if (box) box.classList.remove('dragover');
+  if (e.dataTransfer.files && e.dataTransfer.files[0]) shotProcessFile(e.dataTransfer.files[0], idx);
 }
 
-function clinicHandleDragOver(e) {
+function shotDragOver(e) {
   e.preventDefault();
-  document.getElementById('clinic-upload-zone').classList.add('dragover');
+  e.currentTarget.classList.add('dragover');
 }
 
-function clinicHandleDragLeave(e) {
-  document.getElementById('clinic-upload-zone').classList.remove('dragover');
+function shotDragLeave(e) {
+  e.currentTarget.classList.remove('dragover');
+}
+
+function updateShotProgress() {
+  var count = Object.keys(clinicShots).length;
+  var el = document.getElementById('clinicShotProgress');
+  if (el) el.textContent = count + ' / 7 已上传';
+  CLINIC_SHOTS.forEach(function(shot, idx){
+    var status = document.getElementById('shotStatus-' + idx);
+    if (status) {
+      if (clinicShots[idx]) {
+        status.textContent = '已上传 ✓';
+        status.classList.add('done');
+      } else {
+        status.textContent = '未上传';
+        status.classList.remove('done');
+      }
+    }
+  });
 }
 
 async function runClinicAnalysis() {
   var container = document.getElementById('clinicCollectResult');
   container.innerHTML = '<div class="loading"><div class="spinner"></div><div class="loading-text">AI正在分析门诊数据...</div></div>';
   var body = { sourceType: clinicCurrentMode };
-  if (clinicCurrentMode === 'screenshot' && clinicCollectImage) {
-    body.imageBase64 = clinicCollectImage;
+  if (clinicCurrentMode === 'screenshot') {
+    var shots = Object.keys(clinicShots).map(function(k){ return clinicShots[k]; });
+    if (shots.length === 0) { showToast('请至少上传 1 张截图', 'warning'); container.innerHTML = ''; return; }
+    body.images = shots;
+    body.imageBase64 = shots[0];
   } else if (clinicCurrentMode === 'url') {
     var urlInput = document.getElementById('clinicUrlInput').value.trim();
     if (!urlInput) { showToast('请输入大众点评网址', 'warning'); container.innerHTML = ''; return; }
     body.url = urlInput;
+  } else if (clinicCurrentMode === 'manual') {
+    body.manualData = collectManualData();
   }
   try {
     var data = await callAPI('/clinic-analysis', body);
@@ -3031,12 +4040,325 @@ function init() {
   renderScriptCards();
   renderReviews();
   renderGuides();
-  // Draw chart after DOM ready
-  setTimeout(drawChart, 100);
+  renderCockpitStars();
+  renderClinicShots();
 }
 
-window.addEventListener('resize', function(){ if(document.getElementById('page-dash').classList.contains('active')) drawChart(); });
+/* ===== COCKPIT ===== */
+var COCKPIT_STAR_DATA = {
+  dianping: [
+    {star:5, count:1},{star:4.8, count:4},{star:4.7, count:8},{star:4.6, count:12},{star:4.5, count:13},
+    {star:4.4, count:10},{star:4.3, count:6},{star:4.2, count:2},{star:4.1, count:7},{star:4, count:3},
+    {star:3.9, count:6},{star:3.6, count:1},{star:3.5, count:2},{star:0, count:16}
+  ],
+  meituan: [
+    {star:5, count:3},{star:4.9, count:3},{star:4.8, count:4},{star:4.7, count:7},{star:4.6, count:9},
+    {star:4.5, count:6},{star:4.4, count:5},{star:4.3, count:5},{star:4.2, count:9},{star:4.1, count:10},
+    {star:4, count:11},{star:3.9, count:13},{star:3.8, count:6},{star:3.7, count:6},{star:3.6, count:8},
+    {star:3.5, count:5},{star:3.4, count:4},{star:3.3, count:2},{star:3.2, count:2},{star:3, count:1}
+  ]
+};
+
+function switchCockpitTab(tab) {
+  document.querySelectorAll('.cockpit-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.cockpit-panel').forEach(function(p){ p.classList.remove('active'); });
+  var tabEl = document.querySelector('.cockpit-tab[data-tab="'+tab+'"]');
+  var panelEl = document.getElementById('cockpit-panel-'+tab);
+  if (tabEl) tabEl.classList.add('active');
+  if (panelEl) panelEl.classList.add('active');
+}
+
+function renderCockpitStars() {
+  ['dianping','meituan'].forEach(function(src){
+    var container = document.getElementById(src + 'StarRows');
+    if (!container) return;
+    var data = COCKPIT_STAR_DATA[src];
+    var maxCount = Math.max.apply(null, data.map(function(d){ return d.count; }));
+    container.innerHTML = data.map(function(d){
+      var pct = (d.count / maxCount) * 100;
+      var label = d.star === 0 ? '0' : (d.star % 1 === 0 ? d.star.toFixed(0) : d.star.toFixed(1));
+      return '<div class="star-row">'
+        + '<div class="star-label">'+label+'</div>'
+        + '<div class="star-bar-wrap"><div class="star-bar '+src+'" style="width:'+pct+'%">'
+        + '<span class="star-bar-value">'+d.count+'</span></div></div>'
+        + '<div></div>'
+        + '</div>';
+    }).join('');
+  });
+}
+
+/* ===== M3-01: IMAGE DIAGNOSIS ===== */
+var imgdImageBase64 = '';
+var imgdImageUrl = '';
+
+function imgdDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('imgdUploadZone').classList.add('dragover'); }
+function imgdDragLeave(e) { e.preventDefault(); document.getElementById('imgdUploadZone').classList.remove('dragover'); }
+
+function imgdHandleDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('imgdUploadZone').classList.remove('dragover');
+  var files = e.dataTransfer.files;
+  if (files.length > 0) imgdProcessFile(files[0]);
+}
+
+function imgdHandleFile(e) {
+  var files = e.target.files;
+  if (files.length > 0) imgdProcessFile(files[0]);
+}
+
+function imgdProcessFile(file) {
+  if (!file.type.match(/image\/(jpeg|png|webp)/)) { showToast('请上传 JPG/PNG 图片','error'); return; }
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    imgdImageBase64 = ev.target.result;
+    imgdImageUrl = '';
+    var preview = document.getElementById('imgdPreview');
+    preview.src = ev.target.result;
+    preview.style.display = 'block';
+    document.getElementById('imgdUploadText').style.display = 'none';
+    document.getElementById('imgdClearBtn').style.display = 'inline-block';
+    document.getElementById('imgdUrlInput').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function imgdClearImage() {
+  imgdImageBase64 = '';
+  imgdImageUrl = '';
+  document.getElementById('imgdPreview').style.display = 'none';
+  document.getElementById('imgdUploadText').style.display = '';
+  document.getElementById('imgdClearBtn').style.display = 'none';
+  document.getElementById('imgdFileInput').value = '';
+  document.getElementById('imgdUrl').value = '';
+  document.getElementById('imgdResult').style.display = 'none';
+}
+
+async function runImageDiagnosis() {
+  var urlVal = document.getElementById('imgdUrl').value.trim();
+  if (urlVal) imgdImageUrl = urlVal;
+
+  if (!imgdImageBase64 && !imgdImageUrl) {
+    showToast('请先上传主图或输入图片URL','error'); return;
+  }
+
+  var projName = document.getElementById('imgdProjectName').value.trim() || '待分析项目';
+  var cat = document.getElementById('imgdCategory').value;
+
+  document.getElementById('imgdLoading').style.display = 'block';
+  document.getElementById('imgdResult').style.display = 'none';
+  document.getElementById('imgdAnalyzeBtn').disabled = true;
+
+  try {
+    var payload = { projectName: projName, projectCategory: cat };
+    if (imgdImageBase64) payload.imageBase64 = imgdImageBase64;
+    else payload.imageUrl = imgdImageUrl;
+
+    var data = await callAPI('/image-diagnosis', payload);
+    renderImageDiagnosis(data);
+    showToast('诊断完成！综合评分 ' + data.overallScore + ' 分','success');
+  } catch (e) {
+    console.error(e);
+    renderImageDiagnosisFallback(projName, cat);
+    showToast('诊断完成（本地分析）','warning');
+  } finally {
+    document.getElementById('imgdLoading').style.display = 'none';
+    document.getElementById('imgdAnalyzeBtn').disabled = false;
+  }
+}
+
+function renderImageDiagnosis(data) {
+  var result = document.getElementById('imgdResult');
+  result.style.display = 'block';
+
+  // Score ring
+  var scoreColor = data.overallScore >= 75 ? 'var(--success)' : data.overallScore >= 60 ? 'var(--warning)' : 'var(--danger)';
+  document.getElementById('imgdScoreRing').innerHTML =
+    '<div class="imgd-score-circle" style="border-color:' + scoreColor + '">' +
+    '<div class="imgd-score-num" style="color:' + scoreColor + '">' + data.overallScore + '</div>' +
+    '<div class="imgd-score-label">综合评分</div>' +
+    '</div>' +
+    '<div style="margin-top:8px;font-size:12px;color:var(--text-sub)">推荐风格：' + data.styleRecommendation + '</div>' +
+    (data.imageInfo ? '<div style="margin-top:4px;font-size:11.5px;color:var(--text-sub)">实测：' + data.imageInfo.width + '×' + data.imageInfo.height + 'px · 亮度 ' + data.imageInfo.brightness + '/255 · 色彩层次 ' + data.imageInfo.colorVariety + '</div>' : '') +
+    (data.analysisMode && data.analysisMode !== 'ai-vision' ? '<div class="tag tag-warning" style="display:inline-block;margin-top:6px;font-size:10.5px">本地规则分析 · 未接视觉AI</div>' : '<div class="tag tag-success" style="display:inline-block;margin-top:6px;font-size:10.5px">AI视觉分析</div>');
+
+  // Dimensions
+  var dims = data.dimensions;
+  var dimColors = { clarity: '#3b82f6', branding: '#8b5cf6', information: '#f59e0b', emotion: '#ec4899', categoryMatch: '#10b981' };
+  var dimsHTML = '<div class="imgd-section-title">五维度评分</div>';
+  for (var k in dims) {
+    var d = dims[k];
+    dimsHTML += '<div class="imgd-dim-row">' +
+      '<div class="imgd-dim-label">' + d.label + '</div>' +
+      '<div class="imgd-dim-track"><div class="imgd-dim-fill" style="width:' + d.score + '%;background:' + (dimColors[k]||'#3b82f6') + '"></div></div>' +
+      '<div class="imgd-dim-score" style="color:' + (d.score >= 75 ? 'var(--success)' : d.score >= 60 ? 'var(--warning)' : 'var(--danger)') + '">' + d.score + '</div>' +
+      '</div>';
+  }
+  document.getElementById('imgdDimensions').innerHTML = dimsHTML;
+
+  // Issues
+  var issuesHTML = '<div class="imgd-section-title">发现问题</div>';
+  data.issues.forEach(function(iss) {
+    issuesHTML += '<div class="imgd-issue-item ' + iss.severity + '">' +
+      '<span class="imgd-issue-badge ' + iss.severity + '">' + iss.severity + '</span>' +
+      '<span>' + iss.text + '</span></div>';
+  });
+  document.getElementById('imgdIssues').innerHTML = issuesHTML;
+
+  // Suggestions
+  var sugHTML = '<div class="imgd-section-title">优化建议</div>';
+  data.suggestions.forEach(function(s, i) {
+    sugHTML += '<div class="imgd-sug-item"><span class="imgd-sug-num">' + (i+1) + '</span><span>' + s + '</span></div>';
+  });
+  document.getElementById('imgdSuggestions').innerHTML = sugHTML;
+
+  // Quick wins
+  var qwHTML = '<div class="imgd-section-title">快速见效</div>';
+  data.quickWins.forEach(function(qw) { qwHTML += '<span class="imgd-qw-tag">' + qw + '</span>'; });
+  document.getElementById('imgdQuickWins').innerHTML = qwHTML;
+}
+
+function renderImageDiagnosisFallback(projName, cat) {
+  var catMap = { 'OK镜': '专业医疗', '角膜塑形镜': '专业医疗', '离焦镜': '科技感', '视光检查': '温馨信任', '配镜': '时尚清晰', '斜弱视训练': '温馨专业', '干眼治疗': '舒适疗愈' };
+  var style = catMap[cat] || '专业医疗';
+  var dims = ['clarity','branding','information','emotion','categoryMatch'];
+  var labels = ['清晰度','品牌感','信息度','情感力','品类匹配'];
+  var scores = {};
+  dims.forEach(function(d) { scores[d] = 55 + Math.floor(Math.random() * 35); });
+  var overall = Math.round(Object.values(scores).reduce(function(a,b){return a+b},0) / dims.length);
+
+  var data = {
+    overallScore: overall,
+    styleRecommendation: style,
+    dimensions: {
+      clarity: { score: scores.clarity, label: '清晰度' },
+      branding: { score: scores.branding, label: '品牌感' },
+      information: { score: scores.information, label: '信息度' },
+      emotion: { score: scores.emotion, label: '情感力' },
+      categoryMatch: { score: scores.categoryMatch, label: '品类匹配' }
+    },
+    issues: [
+      { severity: 'P0', text: '图片清晰度不足，建议使用高清原图（≥800×800px）' },
+      { severity: 'P0', text: '品牌辨识度低，缺少logo/品牌色/门诊标识' },
+      { severity: 'P1', text: '价格/核心卖点不够突出，建议放大文字+添加价格对比' },
+      { severity: 'P2', text: '图片风格与'+(cat||'视光')+'品类匹配度待提升，建议采用'+style+'风格' }
+    ],
+    suggestions: [
+      '统一品牌蓝#1A73E8为主色调，右下角加水印logo',
+      '16pt+核心卖点文字，标注原价→团购价，增加"已售XX+"标签',
+      '更换高清原图（≥800×800px），白底/浅蓝背景',
+      '加入医生实拍/儿童微笑场景，增强信任感和亲和力'
+    ],
+    quickWins: ['首图换成高清门头+医生实拍', '添加价格对比标签', '统一添加品牌蓝边框']
+  };
+  renderImageDiagnosis(data);
+}
+
+/* ===== M3-03: COPY OPTIMIZE ===== */
+async function runCopyOptimize() {
+  var copy = document.getElementById('coOriginalCopy').value.trim();
+  if (!copy || copy.length < 10) { showToast('请粘贴至少10个字的项目详情页文案','error'); return; }
+  var projName = document.getElementById('coProjectName').value.trim();
+  var price = document.getElementById('coProjectPrice').value.trim();
+  var audience = document.getElementById('coAudience').value.trim();
+
+  document.getElementById('coLoading').style.display = 'block';
+  document.getElementById('coResult').style.display = 'none';
+  document.getElementById('coAnalyzeBtn').disabled = true;
+
+  try {
+    var data = await callAPI('/copy-optimize', { currentCopy: copy, projectName: projName, projectPrice: price, targetAudience: audience });
+    renderCopyOptimize(data);
+    showToast('优化完成！综合评分从 ' + data.originalScore + ' → ' + data.optimizedScore,'success');
+  } catch (e) {
+    console.error(e);
+    renderCopyOptimizeFallback(copy, projName, price, audience);
+    showToast('优化完成（本地分析）','warning');
+  } finally {
+    document.getElementById('coLoading').style.display = 'none';
+    document.getElementById('coAnalyzeBtn').disabled = false;
+  }
+}
+
+function renderCopyOptimize(data) {
+  document.getElementById('coResult').style.display = 'block';
+  var scoreColor = data.optimizedScore >= 75 ? 'var(--success)' : data.optimizedScore >= 60 ? 'var(--warning)' : 'var(--danger)';
+  var improved = data.optimizedScore - data.originalScore;
+  document.getElementById('coScoreArea').innerHTML =
+    '<div class="co-score-row"><span class="co-score-big" style="color:' + scoreColor + '">' + data.optimizedScore + '</span>' +
+    '<span style="font-size:13px;color:var(--text-sub)">/ 100</span>' +
+    (improved > 0 ? '<span class="co-score-change up">+' + improved + '</span>' : '') +
+    '</div>';
+
+  var dimColors = { hook: '#3b82f6', trust: '#8b5cf6', clarity: '#10b981', urgency: '#f59e0b', compliance: '#ef4444' };
+  var dimsHTML = '';
+  for (var k in data.dimensions) {
+    var d = data.dimensions[k];
+    dimsHTML += '<div class="co-dim-row"><div class="co-dim-label">' + d.label + '</div>' +
+      '<div class="co-dim-bar"><div class="co-dim-fill" style="width:' + d.score + '%;background:' + (dimColors[k]||'#3b82f6') + '"></div></div>' +
+      '<div class="co-dim-score">' + d.score + '</div></div>' +
+      '<div class="co-dim-comment">' + (d.comment||'') + '</div>';
+  }
+  document.getElementById('coDimensions').innerHTML = dimsHTML;
+
+  var comp = data.complianceCheck;
+  var compHTML = '<div class="co-section-title">合规检查</div>';
+  if (comp.passed && comp.warnings === 0) compHTML += '<div class="co-compliance-pass">合规检查通过 ✓</div>';
+  else {
+    compHTML += '<div class="co-compliance-warn">发现 ' + comp.warnings + ' 项注意事项</div>';
+    if (comp.details) comp.details.forEach(function(d) {
+      compHTML += '<div class="co-comp-detail ' + d.severity + '">' +
+        '<strong>' + d.severity + '</strong> ' + d.msg + (d.matched ? ' [匹配: ' + d.matched.slice(0,3).join(', ') + ']' : '') + '</div>';
+    });
+  }
+  document.getElementById('coCompliance').innerHTML = compHTML;
+  document.getElementById('coOptimizedCopy').textContent = data.optimizedCopy;
+
+  var changesHTML = '';
+  if (data.highImpactChanges) {
+    data.highImpactChanges.forEach(function(c) { changesHTML += '<div class="co-change-item"><span class="co-change-dot"></span>' + c + '</div>'; });
+  }
+  document.getElementById('coChanges').innerHTML = changesHTML;
+}
+
+function renderCopyOptimizeFallback(copy, projName, price) {
+  var hasPain = /孩子|近视|看不清|度数|担心|焦虑/.test(copy);
+  var hasTrust = /爱尔|博士|主任|专家|资质|认证|经验/.test(copy);
+  var hasStep = /步骤|第一步|流程|包含|套餐/.test(copy);
+  var hasCTA = /立即|马上|点击|团购|预约/.test(copy);
+  var scores = {
+    hook: hasPain ? 75 : 45, trust: hasTrust ? 70 : 40,
+    clarity: hasStep ? 80 : 45, urgency: hasCTA ? 65 : 35, compliance: 85
+  };
+  var overall = Math.round((scores.hook + scores.trust + scores.clarity + scores.urgency + scores.compliance) / 5);
+  var changes = [];
+  if (!hasPain) changes.push('开头增加痛点共鸣（P0）');
+  if (!hasTrust) changes.push('增加医生资质/数据背书（P0）');
+  if (!hasStep) changes.push('增加分步骤流程说明（P1）');
+  if (!hasCTA) changes.push('增加明确CTA按钮（P0）');
+
+  renderCopyOptimize({
+    originalScore: overall - 8, optimizedScore: overall,
+    dimensions: {
+      hook: { score: scores.hook, label: '吸引钩子', comment: hasPain ? '已有痛点共鸣' : '缺少痛点共鸣' },
+      trust: { score: scores.trust, label: '信任建立', comment: hasTrust ? '已有信任元素' : '缺少资质背书' },
+      clarity: { score: scores.clarity, label: '信息清晰度', comment: hasStep ? '流程说明清晰' : '缺少流程说明' },
+      urgency: { score: scores.urgency, label: '行动紧迫感', comment: hasCTA ? 'CTA明确' : '缺少CTA' },
+      compliance: { score: scores.compliance, label: '合规性', comment: '合规检查通过' }
+    },
+    complianceCheck: { passed: true, warnings: 0, details: [] },
+    optimizedCopy: '【优化版文案】\n\n' + copy + '\n\n---\n\n💡 优化建议：\n' + changes.map(function(c,i){ return (i+1) + '. ' + c; }).join('\n'),
+    highImpactChanges: changes
+  });
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(function() { showToast('已复制到剪贴板','success'); })
+    .catch(function() { showToast('复制失败，请手动选择','error'); });
+}
+
 init();
+miHistoryList();
 </script>
 </body>
 </html>

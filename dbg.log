@@ -1,0 +1,24 @@
+link: http://localhost:3000/fill.html?t=a1ban3ujncu3
+API 待填: 30 | managers: ["熊嘉明","蔡文鸿","谢京宏"] | regions: ["山东省区","浙江省区","湖北省区","湖南省区"]
+首店 missing: {"storeName":"常德爱尔眼科西街门诊","city":"常德市","region":"湖南省区","manager":"蔡文鸿","meituanStar":4,"dianpingStar":0,"opsScore":null,"missing":["opsScore"],"suggestions":{}}
+
+=== 页面文本（前 400 字）===
+门店数据填报
+🔒
+网络连接失败
+
+请检查网络后重试，或联系运营主管
+
+重新加载
+
+=== 控件 ===
+number inputs: 0
+text inputs: 0
+list 子节点: 0
+
+=== 日志 ===
+[RESP] 200 http://localhost:3000/api/monthly-fill-form?token=a1ban3ujncu3
+[error] Failed to load resource: the server responded with a status of 404 (Not Found)
+
+=== 页面内 fetch 探测 ===
+{"status":200,"ok":true,"total":30,"keys":["ok","month","fileName","updatedAt","totalPending","stores","regions","managers"]}

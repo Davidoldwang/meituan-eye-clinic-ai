@@ -1,0 +1,10 @@
+◇ injected env (2) from .env // tip: ⌘ override existing { override: true }
+  Seedream API: 已配置 ✓ (Key: 8fb72699...)
+  Seedream 模型: doubao-seedream-4-5-251128
+(node:19860) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+=================================
+  美团眼科运营AI助手 后端服务
+  地址: http://localhost:3000
+  启动: node server.js
+=================================

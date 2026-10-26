@@ -1,0 +1,144 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#0B2A6B',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* 背景装饰网格 */}
+    <Box style={{
+        position: 'absolute', top: 0, right: 0, width: 520, height: 720,
+        background: 'linear-gradient(200deg, rgba(53,200,240,0.16) 0%, rgba(53,200,240,0) 60%)',
+    }} />
+
+    {/* A 标题块 */}
+    <Box style={{ position: 'absolute', top: 30, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 38, background: '#35C8F0', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.2 }}>技术架构：轻量、可控、不中断</Text>
+            <Text style={{ fontSize: 13, color: '#8FC4F8', marginTop: 4, letterSpacing: 1 }}>单文件前端 + 轻量后端 + 国产大模型</Text>
+        </Box>
+    </Box>
+    <Image src="assets/logo_2026.png" style={{
+        position: 'absolute', top: 32, right: 64,
+        width: 128, height: 54, objectFit: 'contain', opacity: 0.4,
+    }} />
+
+    {/* B 内容区：三层堆叠 */}
+    <Box style={{
+        position: 'absolute', top: 122, left: 64, right: 64, height: 486,
+        flexDirection: 'column', gap: 12,
+    }}>
+        {/* L1 用户层 */}
+        <Box style={{
+            flex: 1,
+            background: 'rgba(255,255,255,0.07)',
+            borderRadius: 12,
+            borderLeft: '4px solid #35C8F0',
+            paddingLeft: 24, paddingRight: 24, paddingTop: 16, paddingBottom: 16,
+            flexDirection: 'row', alignItems: 'center', gap: 22,
+        }}>
+            <Box style={{ width: 92 }}>
+                <Text style={{ fontSize: 12, color: '#8FC4F8', letterSpacing: 1, marginBottom: 4 }}>接入层</Text>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFFFFF' }}>门店用户</Text>
+            </Box>
+            <Box style={{ flex: 1, flexDirection: 'row', gap: 10 }}>
+                {['经营驾驶舱', '门诊采集', '竞品分析', '文案生成', '套图生成', '主图诊断', '文案优化', '评价管理', '运营诊断', '话术建议'].map((m, i) => (
+                    <Box key={m} style={{
+                        background: i % 3 === 0 ? '#35C8F0' : 'rgba(255,255,255,0.14)',
+                        borderRadius: 6, padding: '9px 7px',
+                        alignItems: 'center', justifyContent: 'center',
+                    }}>
+                        <Text style={{
+                            fontSize: 12,
+                            color: i % 3 === 0 ? '#0B2A6B' : '#D6E8FF',
+                            fontWeight: i % 3 === 0 ? 'bold' : 'normal',
+                            textAlign: 'center', lineHeight: 1.3,
+                        }}>{m}</Text>
+                    </Box>
+                ))}
+            </Box>
+        </Box>
+
+        {/* L2 应用层 */}
+        <Box style={{
+            flex: 1,
+            background: 'rgba(255,255,255,0.07)',
+            borderRadius: 12,
+            borderLeft: '4px solid #35C8F0',
+            paddingLeft: 24, paddingRight: 24, paddingTop: 16, paddingBottom: 16,
+            flexDirection: 'row', alignItems: 'center', gap: 22,
+        }}>
+            <Box style={{ width: 92 }}>
+                <Text style={{ fontSize: 12, color: '#8FC4F8', letterSpacing: 1, marginBottom: 4 }}>应用层</Text>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFFFFF' }}>单文件 SPA</Text>
+            </Box>
+            <Box style={{ flex: 1, flexDirection: 'row', gap: 12 }}>
+                <Box style={{
+                    flex: 1, background: 'rgba(53,200,240,0.16)',
+                    borderRadius: 8, padding: 14,
+                    border: '1px solid rgba(53,200,240,0.35)',
+                }}>
+                    <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#ADE8FF', marginBottom: 6 }}>前端 meituan-agent.html</Text>
+                    <Text style={{ fontSize: 12, color: '#B8D6F5', lineHeight: 1.6 }}>
+                        单文件 HTML + 原生 JS，零框架依赖，10 个功能页面 + 移动端自适应（414px 视口可直接拍照上传）
+                    </Text>
+                </Box>
+                <Box style={{
+                    flex: 1, background: 'rgba(53,200,240,0.16)',
+                    borderRadius: 8, padding: 14,
+                    border: '1px solid rgba(53,200,240,0.35)',
+                }}>
+                    <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#ADE8FF', marginBottom: 6 }}>后端 server.js</Text>
+                    <Text style={{ fontSize: 12, color: '#B8D6F5', lineHeight: 1.6 }}>
+                        Node.js + Express，9 个业务 API 端点，负责模型编排、数据清洗与降级兜底
+                    </Text>
+                </Box>
+            </Box>
+        </Box>
+
+        {/* L3 模型层 */}
+        <Box style={{
+            flex: 1,
+            background: 'linear-gradient(90deg, rgba(53,200,240,0.24) 0%, rgba(53,200,240,0.10) 100%)',
+            borderRadius: 12,
+            borderLeft: '4px solid #FF8A3D',
+            paddingLeft: 24, paddingRight: 24, paddingTop: 16, paddingBottom: 16,
+            flexDirection: 'row', alignItems: 'center', gap: 22,
+        }}>
+            <Box style={{ width: 92 }}>
+                <Text style={{ fontSize: 12, color: '#8FC4F8', letterSpacing: 1, marginBottom: 4 }}>模型层</Text>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#FFFFFF' }}>火山引擎</Text>
+            </Box>
+            <Box style={{ flex: 1, flexDirection: 'row', gap: 12 }}>
+                <Box style={{ flex: 1, background: 'rgba(11,42,107,0.45)', borderRadius: 8, padding: 14 }}>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                        <Box style={{ width: 7, height: 7, borderRadius: 4, background: '#35C8F0' }} />
+                        <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#FFFFFF' }}>Seedream 图像生成</Text>
+                    </Box>
+                    <Text style={{ fontSize: 12, color: '#B8D6F5', lineHeight: 1.6 }}>
+                        套图批量生成 · 主图质量诊断 · 门店实景素材，2028×2028 出图已实测可用
+                    </Text>
+                </Box>
+                <Box style={{ flex: 1, background: 'rgba(11,42,107,0.45)', borderRadius: 8, padding: 14 }}>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                        <Box style={{ width: 7, height: 7, borderRadius: 4, background: '#FF8A3D' }} />
+                        <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#FFFFFF' }}>豆包视觉模型 OCR</Text>
+                    </Box>
+                    <Text style={{ fontSize: 12, color: '#B8D6F5', lineHeight: 1.6 }}>
+                        经营参谋截图识别 · 5 个端点自动探测降级 · 权限开通即启用
+                    </Text>
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 20,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 13, color: '#6E93C8' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 13, color: '#6E93C8', fontFamily: 'Arial, sans-serif' }}>04 / 15</Text>
+    </Box>
+</Slide>

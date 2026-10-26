@@ -1,0 +1,21 @@
+{
+  "name": "meituan-eye-clinic-ai",
+  "version": "1.0.0",
+  "description": "美团电商眼科运营AI助手",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo OK"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jimp": "^0.22.12",
+    "xlsx": "^0.18.5"
+  }
+}

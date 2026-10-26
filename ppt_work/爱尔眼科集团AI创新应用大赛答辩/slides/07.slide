@@ -1,0 +1,112 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#F2F6FD',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* A 标题块 */}
+    <Box style={{ position: 'absolute', top: 26, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 36, background: '#1B5FD9', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0B2A6B', lineHeight: 1.2 }}>门诊采集：7 张截图，替代一张手填表</Text>
+            <Text style={{ fontSize: 12.5, color: '#5A6B8C', marginTop: 3, letterSpacing: 1 }}>
+                按界面分图上传 → AI 识别提取 → 生成诊断报告
+            </Text>
+        </Box>
+    </Box>
+    <Image src="assets/logo_2026.png" style={{
+        position: 'absolute', top: 28, right: 64,
+        width: 112, height: 48, objectFit: 'contain', opacity: 0.55,
+    }} />
+
+    {/* B 内容区 */}
+    <Box style={{
+        position: 'absolute', top: 108, left: 56, right: 56, height: 530,
+        flexDirection: 'row', gap: 14,
+    }}>
+        {/* 左：主截图 */}
+        <Box style={{
+            width: 596,
+            background: '#FFFFFF', borderRadius: 11, padding: 8,
+            boxShadow: '0 6px 22px rgba(11,42,107,0.12)',
+            border: '1px solid rgba(27,95,217,0.12)',
+        }}>
+            <Image src="assets/ui_clinic.png" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 7 }} />
+        </Box>
+
+        {/* 中：7 个界面清单 */}
+        <Box style={{ width: 358, flexDirection: 'column', gap: 8 }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#0B2A6B' }}>7 个界面，逐个对应</Text>
+                <Box style={{ background: '#FF8A3D', borderRadius: 4, padding: '3px 8px' }}>
+                    <Text style={{ fontSize: 10.5, fontWeight: 'bold', color: '#FFFFFF' }}>分图上传指引</Text>
+                </Box>
+            </Box>
+
+            {[
+                { n: '1', t: '星级概览', s: '点评星级 · 美团星级 · 昨日新增评价' },
+                { n: '2', t: '评价数据', s: '新增评价数 · 累计评价数 · 好评率' },
+                { n: '3', t: '客流数据', s: '曝光人数 · 访问人数 · 意向转化' },
+                { n: '4', t: '交易数据', s: '下单人数 · 成交金额 · 客单价' },
+                { n: '5', t: '经营评分', s: '交易表现 · 服务质量分项得分' },
+                { n: '6', t: '基础信息', s: '门店名称 · 地址 · 营业时间' },
+                { n: '7', t: '服务质量', s: '响应速度 · 履约完成率' },
+            ].map((k, i) => (
+                <Box key={k.n} style={{
+                    flex: 1,
+                    background: '#FFFFFF', borderRadius: 8,
+                    paddingLeft: 12, paddingRight: 12, paddingTop: 7, paddingBottom: 7,
+                    flexDirection: 'row', alignItems: 'center', gap: 10,
+                    borderLeft: i < 4 ? '3px solid #1B5FD9' : '3px solid #35C8F0',
+                }}>
+                    <Box style={{
+                        width: 22, height: 22, borderRadius: 11,
+                        background: i < 4 ? 'rgba(27,95,217,0.12)' : 'rgba(53,200,240,0.18)',
+                        justifyContent: 'center', alignItems: 'center',
+                    }}>
+                        <Text style={{ fontSize: 11, fontWeight: 'bold', color: i < 4 ? '#1B5FD9' : '#0E93C4', fontFamily: 'Arial, sans-serif' }}>{k.n}</Text>
+                    </Box>
+                    <Box style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#0B2A6B', lineHeight: 1.3 }}>{k.t}</Text>
+                        <Text style={{ fontSize: 10, color: '#7A8AAA', lineHeight: 1.3 }}>{k.s}</Text>
+                    </Box>
+                </Box>
+            ))}
+        </Box>
+
+        {/* 右：移动端 + 说明 */}
+        <Box style={{ flex: 1, flexDirection: 'column', gap: 10 }}>
+            <Box style={{
+                background: '#FFFFFF', borderRadius: 10, padding: 8,
+                boxShadow: '0 4px 16px rgba(11,42,107,0.10)',
+                alignItems: 'center',
+            }}>
+                <Image src="assets/ui_clinic_mobile.png" style={{
+                    width: 168, height: 320, objectFit: 'cover', borderRadius: 8,
+                    border: '3px solid #0B2A6B',
+                }} />
+            </Box>
+            <Box style={{
+                background: 'linear-gradient(140deg, #0B2A6B 0%, #1B5FD9 100%)',
+                borderRadius: 10, padding: 14, flex: 1,
+            }}>
+                <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#35C8F0', marginBottom: 7 }}>
+                    店长在手机上就能做完
+                </Text>
+                <Text style={{ fontSize: 10.5, color: '#C8D9F5', lineHeight: 1.65 }}>
+                    414px 视口适配，支持相机拍照、相册选图、剪贴板粘贴，底部常驻操作条，不用回办公室开电脑。
+                </Text>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 16,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 12.5, color: '#8494B4' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 12.5, color: '#8494B4', fontFamily: 'Arial, sans-serif' }}>07 / 15</Text>
+    </Box>
+</Slide>

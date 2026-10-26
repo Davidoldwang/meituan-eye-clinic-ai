@@ -1,0 +1,76 @@
+link: http://localhost:3000/fill.html?t=a1ban3ujncu3
+API 待填: 30 | managers: ["熊嘉明","蔡文鸿"] | regions: ["山东省区","浙江省区","湖北省区","湖南省区"]
+首店 missing: {"storeName":"常德爱尔眼科西街门诊","city":"常德市","region":"湖南省区","manager":"蔡文鸿","meituanStar":4,"dianpingStar":0,"opsScore":null,"missing":["opsScore"],"suggestions":{}}
+
+=== 页面文本（前 400 字）===
+门店数据填报
+
+2026-08 · 待填 30 家
+
+✏️
+只填空白项，已填好的不用改
+全部省区
+山东省区
+浙江省区
+湖北省区
+湖南省区
+全部经理
+熊嘉明
+蔡文鸿
+30 家
+常德爱尔眼科西街门诊
+常德市
+湖南省区
+运营评分
+常德爱尔眼视光门诊部
+常德市
+湖南省区
+运营评分
+威海爱尔眼科诊所（古寨东路店）
+威海市
+山东省区
+运营评分
+思茅爱尔眼科门诊部
+普洱市
+省区
+美团星级
+临渭爱尔眼科门诊部
+渭南市
+省区
+襄阳爱尔眼科保康门诊
+襄阳市
+湖北省区
+美团星级
+襄阳爱尔眼科高新门诊部
+襄阳市
+💡 推荐 湖北省区 · 襄阳市同城 1 家门店（置信 100%）
+点击填入
+省区
+美团星级
+爱尔眼科荆门漳河诊所
+荆门市
+省区
+宁波鄞州爱尔光明眼科门诊部
+宁波市
+浙江省区
+美团星级
+潇湘爱尔眼科门诊
+永州市
+湖南省区
+运营评分
+湘西爱尔眼科医院·吉首爱尔眼视光门诊部
+湘西土家族苗族自治州
+湖南省区
+美
+
+=== 控件 ===
+number inputs: 20
+text inputs: 20
+list 子节点: 30
+
+=== 日志 ===
+[RESP] 200 http://localhost:3000/api/monthly-fill-form?token=a1ban3ujncu3
+[error] Failed to load resource: the server responded with a status of 404 (Not Found)
+
+=== 页面内 fetch 探测 ===
+{"status":200,"ok":true,"total":30,"keys":["ok","month","fileName","updatedAt","totalPending","stores","regions","managers"]}

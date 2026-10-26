@@ -1,0 +1,117 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#F2F6FD',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* A 标题块 */}
+    <Box style={{ position: 'absolute', top: 28, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 36, background: '#1B5FD9', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0B2A6B', lineHeight: 1.2 }}>先跑通 28 家，再谈铺开</Text>
+            <Text style={{ fontSize: 12.5, color: '#5A6B8C', marginTop: 3, letterSpacing: 1 }}>
+                辽宁打样 → 区域复制 → 集团打通，三级推进
+            </Text>
+        </Box>
+    </Box>
+    <Image src="assets/logo_2026.png" style={{
+        position: 'absolute', top: 30, right: 64,
+        width: 112, height: 48, objectFit: 'contain', opacity: 0.55,
+    }} />
+
+    {/* B 内容区 */}
+    <Box style={{
+        position: 'absolute', top: 106, left: 64, right: 64, height: 532,
+        flexDirection: 'row', gap: 18,
+    }}>
+        {/* 左：三级阶梯 */}
+        <Box style={{ flex: 1, flexDirection: 'column', justifyContent: 'flex-end', gap: 10 }}>
+            {[
+                {
+                    n: '第一阶段', t: '辽宁 28 家打样', h: 148,
+                    d: '先让沈阳、盘锦直营门诊跑满一个完整月度周期，把截图采集流程和诊断口径固定下来',
+                    k: '口径定型 · 流程跑顺',
+                    c: '#1B5FD9',
+                },
+                {
+                    n: '第二阶段', t: '大区复制', h: 186,
+                    d: '把模板、话术库、评分口径做成可下发的配置，其他省区不再重头搭一遍',
+                    k: '配置下发 · 无需重开发',
+                    c: '#2E86E8',
+                },
+                {
+                    n: '第三阶段', t: '集团数据打通', h: 224,
+                    d: '接入集团经营看板，与 Ahis 周报、月会口径对齐，让美团数据进到经营会议题里',
+                    k: '口径对齐 · 进经营会',
+                    c: '#35C8F0',
+                },
+            ].map((s) => (
+                <Box key={s.n} style={{
+                    height: s.h,
+                    background: '#FFFFFF', borderRadius: 11,
+                    paddingLeft: 20, paddingRight: 20, paddingTop: 14, paddingBottom: 14,
+                    flexDirection: 'column', justifyContent: 'center',
+                    borderLeft: `5px solid ${s.c}`,
+                    boxShadow: '0 4px 16px rgba(11,42,107,0.07)',
+                }}>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                        <Box style={{ background: s.c, borderRadius: 4, padding: '2px 8px' }}>
+                            <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#FFFFFF' }}>{s.n}</Text>
+                        </Box>
+                        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0B2A6B' }}>{s.t}</Text>
+                    </Box>
+                    <Text style={{ fontSize: 11.5, color: '#5A6B8C', lineHeight: 1.65, marginBottom: 7 }}>{s.d}</Text>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Box style={{ width: 5, height: 5, borderRadius: 3, background: s.c }} />
+                        <Text style={{ fontSize: 10.5, color: s.c, fontWeight: 'bold', letterSpacing: 0.5 }}>{s.k}</Text>
+                    </Box>
+                </Box>
+            ))}
+        </Box>
+
+        {/* 右：话术能力截图 + 关键指标 */}
+        <Box style={{ width: 486, flexDirection: 'column', gap: 10 }}>
+            <Box style={{
+                background: '#FFFFFF', borderRadius: 10, padding: 7,
+                boxShadow: '0 4px 18px rgba(11,42,107,0.10)',
+                border: '1px solid rgba(27,95,217,0.12)',
+            }}>
+                <Image src="assets/ui_script.png" style={{ width: '100%', height: 250, objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
+            </Box>
+
+            <Box style={{ flex: 1, flexDirection: 'column', gap: 9 }}>
+                <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#0B2A6B' }}>复制时真正要带走的三样东西</Text>
+                {[
+                    { t: '模板', d: '总部分月下发的品牌视觉与文案结构' },
+                    { t: '口径', d: '评分、转化、价格带的统一算法' },
+                    { t: '话术库', d: '差评回复与咨询转化的分场景沉淀' },
+                ].map((x, i) => (
+                    <Box key={x.t} style={{
+                        flex: 1,
+                        background: 'rgba(27,95,217,0.06)', borderRadius: 8,
+                        paddingLeft: 14, paddingRight: 14, paddingTop: 9, paddingBottom: 9,
+                        flexDirection: 'row', alignItems: 'center', gap: 11,
+                    }}>
+                        <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1B5FD9', fontFamily: 'Arial, sans-serif', width: 26 }}>
+                            {'0' + (i + 1)}
+                        </Text>
+                        <Box style={{ flex: 1 }}>
+                            <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#0B2A6B', lineHeight: 1.3 }}>{x.t}</Text>
+                            <Text style={{ fontSize: 10.5, color: '#7A8AAA', lineHeight: 1.4 }}>{x.d}</Text>
+                        </Box>
+                    </Box>
+                ))}
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 16,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 12.5, color: '#8494B4' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 12.5, color: '#8494B4', fontFamily: 'Arial, sans-serif' }}>12 / 15</Text>
+    </Box>
+</Slide>

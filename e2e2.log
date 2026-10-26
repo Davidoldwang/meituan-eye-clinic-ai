@@ -1,0 +1,64 @@
+导入: true | 排除 13 | 待补录门店 30 | 字段 40
+设经理: ["熊嘉明","蔡文鸿","谢京宏"] | pendingByManager {"蔡文鸿":6,"熊嘉明":1,"未分配经理":22,"谢京宏":1}
+
+--- 主应用 KPI ---
+  纳入统计门店 | 215家 | 覆盖 87 个城市 / 27 个省区
+  数据完整率 | 86% | 185 家四项指标齐全
+  待补录字段 | 40项 | 30 家门店存在缺失
+  平均美团星级 | 3.84 | 低于 4.0 的 100 家
+  平均经营评分 | 70.74分 | 低于 70 分 93 家 · 超 100 28 家
+  差评原文 | 11条 | 覆盖 10 家门店
+  未开通已排除 | 13家 | 其中疑似 13 家待确认
+排除提示: ⓘ 已排除 13 家未开通 / 疑似未开通门店，不计入待补录与省区对标查看并调整状态 →一键确认 13 家疑似未开通
+待补录徽标: 30 (应为 30 或更少)
+
+门店明细[未开通筛选]: 显示 13 / 228 家
+  首行: 爱尔眼科信阳平桥眼科诊所 | 信阳市 | 待补录 | — | 待补录 | 待补录 | 待补录 | 不参与统计 | 疑似未开通
+
+待补录-经理下拉: ["全部运营经理（0）"]
+待补录-省区下拉(前5): ["全部省区（4）","山东省区（1 家）","浙江省区（1 家）","湖北省区（2 家）","湖南省区（6 家）"]
+  [警告] 经理下拉为空，未做筛选测试
+筛选前: 当前待补录 30 家 | 选第一个经理后: 当前待补录 30 家
+省区负责人编辑行数: 27
+
+弹窗可见: true
+链接: http://localhost:3000/fill.html?t=wpzs60ewj5jr
+分发选项: ["全部（30）","省区 · 山东省区（1）","省区 · 浙江省区（1）","省区 · 湖北省区（2）","省区 · 湖南省区（6）"]
+
+--- 填报页 ---
+标题: 门店数据填报 | 副标题: 门店数据填报
+🔒
+网络连接失败
+
+请检查网络后重试，或联系运营主管
+
+重新加载
+输入控件数: 0
+接口待填: 30 | 首店: 常德爱尔眼科西街门诊
+已填: {"ok":false}
+按钮: ["清除筛选","重新加载","提交 0 家"]
+FATAL elementHandle.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    58 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is not visible[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+ elementHandle.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying 

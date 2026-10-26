@@ -1,0 +1,90 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#0B2A6B',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* 全幅城市天际线底图 */}
+    <Image src="assets/bg_city.jpg" style={{
+        position: 'absolute', top: 0, left: 0,
+        width: 1280, height: 720, objectFit: 'cover',
+    }} />
+    {/* 深蓝保护蒙版，保证左侧文字可读 */}
+    <Box style={{
+        position: 'absolute', top: 0, left: 0,
+        width: 1280, height: 720,
+        background: 'linear-gradient(100deg, rgba(11,42,107,0.94) 0%, rgba(11,42,107,0.80) 42%, rgba(27,95,217,0.28) 72%, rgba(27,95,217,0.12) 100%)',
+    }} />
+
+    {/* 顶部：2026 线框标识 + 白色爱尔 LOGO */}
+    <Box style={{
+        position: 'absolute', top: 44, left: 64,
+        flexDirection: 'row', alignItems: 'center', gap: 24,
+    }}>
+        <Image src="assets/logo_2026.png" style={{ width: 168, height: 72, objectFit: 'contain' }} />
+        <Box style={{ width: 1, height: 40, background: 'rgba(255,255,255,0.28)' }} />
+        <Text style={{ fontSize: 15, color: '#ADE8FF', letterSpacing: 2, fontWeight: 'bold' }}>
+            AI 创新应用大赛
+        </Text>
+    </Box>
+
+    <Box style={{ position: 'absolute', top: 44, right: 64, alignItems: 'flex-end' }}>
+        <Image src="assets/logo_eyer.png" style={{ width: 210, height: 58, objectFit: 'contain' }} />
+    </Box>
+
+    {/* 主标题区 */}
+    <Box style={{
+        position: 'absolute', top: 190, left: 64,
+        width: 760,
+        flexDirection: 'column',
+    }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 26 }}>
+            <Box style={{ width: 6, height: 34, background: '#35C8F0', borderRadius: 3 }} />
+            <Text style={{ fontSize: 19, color: '#8FE3F8', letterSpacing: 3, fontWeight: 'bold' }}>
+                美团电商运营 · AI 助手
+            </Text>
+        </Box>
+
+        <Text style={{
+            fontSize: 62, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.15, letterSpacing: 1,
+        }}>
+            让门店的经营截图，<br />变成集团的经营结论
+        </Text>
+
+        <Text style={{
+            fontSize: 19, color: '#C8D9F5', lineHeight: 1.7, marginTop: 28,
+        }}>
+            覆盖美团经营全链路的 AI 运营工作台 —— 采集、分析、创作、评价、决策五位一体
+        </Text>
+    </Box>
+
+    {/* 底部信息条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 52,
+        flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
+    }}>
+        <Box style={{ flexDirection: 'row', gap: 46 }}>
+            <Box>
+                <Text style={{ fontSize: 12, color: '#7FA8E8', letterSpacing: 1, marginBottom: 7 }}>参赛作品</Text>
+                <Text style={{ fontSize: 19, color: '#FFFFFF', fontWeight: 'bold' }}>美团电商眼科运营AI助手</Text>
+            </Box>
+            <Box>
+                <Text style={{ fontSize: 12, color: '#7FA8E8', letterSpacing: 1, marginBottom: 7 }}>汇报单位</Text>
+                <Text style={{ fontSize: 19, color: '#FFFFFF', fontWeight: 'bold' }}>爱尔眼科集团 · 门诊管理中心</Text>
+            </Box>
+            <Box>
+                <Text style={{ fontSize: 12, color: '#7FA8E8', letterSpacing: 1, marginBottom: 7 }}>答辩时长</Text>
+                <Text style={{ fontSize: 19, color: '#FFFFFF', fontWeight: 'bold' }}>演讲 7 分钟 + 答辩 3 分钟</Text>
+            </Box>
+        </Box>
+
+        <Box style={{
+            paddingLeft: 22,
+            borderLeft: '3px solid #35C8F0',
+        }}>
+            <Text style={{ fontSize: 16, color: '#ADE8FF', marginBottom: 5 }}>答辩人</Text>
+            <Text style={{ fontSize: 22, color: '#FFFFFF', fontWeight: 'bold' }}>王皓</Text>
+        </Box>
+    </Box>
+</Slide>

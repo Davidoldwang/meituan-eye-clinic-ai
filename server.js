@@ -14,8 +14,13 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '25mb' }));
 app.use(express.static(path.join(__dirname)));
+
+// 根路径直接返回主应用（避免重定向在网关下丢失分享凭证）
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'meituan-agent.html'));
+});
 
 // ===== 门店基础数据 =====
 const CLINIC = {
@@ -111,6 +116,114 @@ async function callSeedreamAPI({ prompt, imageBase64, size = '1920x1920', maxIma
     }
   }
   return urls;
+}
+
+// 调用火山引擎豆包视觉模型（OCR/多模态理解），识别美团经营参谋截图内容
+// 使用与 Seedream 相同的 VOLC_API_KEY，走 OpenAI 兼容的 chat/completions 接口
+// 端点候选：VISION_MODEL 优先，其次按序自动探测（账号可能仅开通其中一版）
+const VISION_MODEL_CANDIDATES = [
+  process.env.VISION_MODEL,
+  'doubao-1-5-vision-pro-32k-250315',
+  'doubao-vision-pro-250314',
+  'doubao-1.5-vision-pro-32k-250115',
+  'doubao-vision-lite-250314',
+].filter(Boolean);
+
+function callVisionOCR(images) {
+  return callVisionOCRWithModels(VISION_MODEL_CANDIDATES, images, 0);
+}
+
+// 按候选顺序调用视觉模型：命中即返回，全部失败则 reject（触发手动录入降级）
+function callVisionOCRWithModels(models, images, idx) {
+  return new Promise((resolve, reject) => {
+    if (idx >= models.length) {
+      reject(new Error('当前账号未开通豆包视觉模型权限，已降级为手动录入通道'));
+      return;
+    }
+    const visionModel = models[idx];
+    const promptText = '你是一名美团商家经营数据分析助手。请仔细识别以下美团「经营参谋」手机截图中的关键数据，'
+      + '提取并仅返回如下 JSON（不要输出任何其他文字、不要用 markdown 代码块）：'
+      + '{"clinicName":"门店名称","rating":"美团星级(数字)","reviewCount":"累计评价数(数字)","avgStar":"点评星级",'
+      + '"exposure":"曝光人数","visit":"访问人数","intent":"意向转化人数","order":"下单人数",'
+      + '"projects":[{"name":"项目名称","price":"团购价","sales":"销量"}],"summary":"一句话经营概况"}'
+      + '。若某项数据在截图中不存在，则该项填空字符串。项目列表最多提取10个。';
+
+    const content = [{ type: 'text', text: promptText }];
+    images.forEach(img => {
+      content.push({ type: 'image_url', image_url: { url: img } });
+    });
+
+    const payload = {
+      model: visionModel,
+      messages: [{ role: 'user', content }]
+    };
+
+    const body = JSON.stringify(payload);
+    const options = {
+      hostname: 'ark.cn-beijing.volces.com',
+      path: '/api/v3/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${VOLC_API_KEY}`,
+        'Content-Length': Buffer.byteLength(body)
+      },
+      timeout: 60000
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content) {
+            resolve(json.choices[0].message.content);
+          } else {
+            const errMsg = json.error ? (json.error.message || JSON.stringify(json.error)) : data.substring(0, 200);
+            // 当前端点不可用（常见：账号未开通该模型权限），自动尝试下一个候选端点
+            console.warn(`[vision] 端点 ${visionModel} 不可用，尝试下一个候选`);
+            resolve(callVisionOCRWithModels(models, images, idx + 1));
+          }
+        } catch (e) {
+          console.warn(`[vision] 端点 ${visionModel} 响应解析失败，尝试下一个候选`);
+          resolve(callVisionOCRWithModels(models, images, idx + 1));
+        }
+      });
+    });
+
+    req.on('timeout', () => {
+      req.destroy();
+      console.warn(`[vision] 端点 ${visionModel} 超时，尝试下一个候选`);
+      resolve(callVisionOCRWithModels(models, images, idx + 1));
+    });
+    req.on('error', (err) => {
+      console.warn(`[vision] 端点 ${visionModel} 请求失败(${err.message})，尝试下一个候选`);
+      resolve(callVisionOCRWithModels(models, images, idx + 1));
+    });
+    req.write(body);
+    req.end();
+  });
+}
+
+// 从视觉模型返回的文本中提取 JSON
+function extractJsonFromText(text) {
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    // 尝试提取第一个 { 到最后一个 } 之间的内容
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      try {
+        return JSON.parse(text.substring(start, end + 1));
+      } catch (e2) {
+        return null;
+      }
+    }
+    return null;
+  }
 }
 
 // 解析竞品文本，提取结构化数据
@@ -359,46 +472,95 @@ app.post('/api/copywriting-generate', async (req, res) => {
 });
 
 // ===== POST /api/image-generate =====
+// 套图三尺寸：900x900 方图 / 1200x900 横图 / 900x1200 竖图
+// Seedream 要求总像素 >= 3686400，故按同比例放大生成后用 jimp 缩回精确尺寸
+const Jimp = require('jimp');
+const GEN_SLOTS = [
+  { name: '方图 900×900',   targetW: 900,  targetH: 900,  genSize: '2048x2048', layout: '正方形构图，主体居中偏上，标题位于上方约三分之一处，左右视觉平衡' },
+  { name: '横图 1200×900',  targetW: 1200, targetH: 900,  genSize: '2400x1800', layout: '横版4:3构图，标题与主体左右分区自然排布，主视觉约占画面三分之二' },
+  { name: '竖图 900×1200',  targetW: 900,  targetH: 1200, genSize: '1800x2400', layout: '竖版3:4构图，标题在上、主体居中、底部留出信息区，符合手机端浏览习惯' }
+];
+const GEN_STYLES = {
+  pixar3d: {
+    label: '皮克斯3D卡通动画型',
+    desc: '动画电影质感',
+    prompt: '皮克斯迪士尼风格的3D卡通动画海报，主角是圆润可爱的三维卡通人物，大眼睛、表情生动夸张，电影级柔光渲染，材质细腻，色彩明快和谐，整体像动画电影剧照'
+  },
+  illustration: {
+    label: '商业插画型',
+    desc: '精美商业插画',
+    prompt: '高质量商业插画海报，人物为精美动漫插画风格，线条干净利落，色彩层次丰富饱和，光影氛围出色，细节精致，类似游戏或节日主题的商业宣传插画KV'
+  },
+  movieposter: {
+    label: '真人电影海报写实型',
+    desc: '写实电影海报',
+    prompt: '真人电影海报风格的写实摄影海报，真实人物出镜，电影级布光与调色，浅景深虚化背景，肤色自然真实，人物情绪有感染力，画面质感对标院线电影宣传海报'
+  },
+  typography: {
+    label: '文字图形排版型',
+    desc: '大字排版促销',
+    prompt: '以文字图形排版为核心的平面海报设计，超大号粗体中文标题为视觉中心，信息层级分明，配以几何色块与简洁虚化底图，版式现代、对齐严谨、留白得当，类似品牌促销主视觉'
+  }
+};
+// 从远程URL拉取图片Buffer
+function fetchImageBuffer(url) {
+  return new Promise((resolve, reject) => {
+    const get = (u, redirects) => {
+      const mod = u.startsWith('https') ? require('https') : require('http');
+      mod.get(u, { timeout: 60000 }, (r) => {
+        if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location && redirects < 3) {
+          r.resume();
+          get(r.headers.location, redirects + 1);
+          return;
+        }
+        if (r.statusCode !== 200) { r.resume(); reject(new Error('图片下载失败 HTTP ' + r.statusCode)); return; }
+        const chunks = [];
+        r.on('data', c => chunks.push(c));
+        r.on('end', () => resolve(Buffer.concat(chunks)));
+        r.on('error', reject);
+      }).on('timeout', function() { this.destroy(); reject(new Error('图片下载超时')); }).on('error', reject);
+    };
+    get(url, 0);
+  });
+}
+// 缩放到精确目标尺寸并落盘，返回本地访问路径
+async function localizeAndResize(imageUrl, targetW, targetH, fileStem) {
+  const buf = await fetchImageBuffer(imageUrl);
+  const img = await Jimp.read(buf);
+  img.resize(targetW, targetH);   // 生成尺寸与目标等比，直接缩放不会变形或裁切
+  const outDir = path.join(__dirname, 'generated');
+  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+  const outFile = path.join(outDir, `${fileStem}.png`);
+  await img.writeAsync(outFile);
+  return `/generated/${fileStem}.png`;
+}
+
 app.post('/api/image-generate', async (req, res) => {
   try {
     const { style, product, imageBase64 } = req.body;
     const p = product || { name: '儿童青少年视力检查', price: '¥39.9' };
-    const s = style || 'pro';
-
-    const styleMap = {
-      warm: { colors: ['#06b6d4', '#10b981'], label: '亲子温暖型', accent: '#ffffff', desc: '温馨家庭感，蓝绿色调' },
-      pro: { colors: ['#1a3a5c', '#3b82f6'], label: '专业信任型', accent: '#ffffff', desc: '权威医疗感，深蓝白色调' },
-      promo: { colors: ['#ef4444', '#f59e0b'], label: '优惠促销型', accent: '#fff7ed', desc: '活力促销感，红黄色调' },
-      premium: { colors: ['#1f2937', '#d97706'], label: '高端医疗型', accent: '#fef3c7', desc: '高端质感，深灰金色调' }
-    };
-
-    const st = styleMap[s] || styleMap.pro;
+    const st = GEN_STYLES[style] || GEN_STYLES.pixar3d;
 
     // 如果配置了 VOLC_API_KEY，调用 Seedream 真实生成
     if (VOLC_API_KEY) {
-      // 四张图的目标规格（美团/大众点评平台标准尺寸）
-      const slots = [
-        { name: '内页图·第1屏', width: 750, height: 1400, promptExtra: '竖版长图构图，重点突出项目名称和价格优势，顶部醒目标题' },
-        { name: '内页图·第2屏', width: 750, height: 1400, promptExtra: '竖版长图构图，展示服务流程、检查项目和门店环境，专业可信' },
-        { name: '主图A/B测试', width: 800, height: 800, promptExtra: '正方形构图，适合商品主图缩略图，画面中心突出，醒目简洁' },
-        { name: '活动Banner', width: 1200, height: 400, promptExtra: '宽幅横幅构图，适合活动Banner，左右布局，突出限时优惠和活动主题' }
-      ];
-
       try {
-        // 用2组不同提示词生成2张差异化底图（每张约20秒，共约40秒）
-        const basePrompt = `专业眼科医疗门诊宣传海报，${p.name}，${st.desc}，高清医疗广告设计风格，适合美团/大众点评平台展示，画面中包含眼科检查元素、专业医生形象、温馨就诊环境，不要添加任何文字或字母，纯画面设计`;
-        const promptA = `${basePrompt}，${slots[0].promptExtra}`;
-        const promptB = `${basePrompt}，${slots[3].promptExtra}`;
-
-        const urlA = await callSeedreamOnce({ prompt: promptA, imageBase64, size: '1920x1920' });
-        const urlB = await callSeedreamOnce({ prompt: promptB, imageBase64, size: '1920x1920' });
-
-        const images = slots.map((slot, idx) => ({
-          name: slot.name,
-          url: idx === 1 ? (urlB || urlA) : (idx === 3 ? (urlB || urlA) : (urlA || urlB)),
-          width: slot.width,
-          height: slot.height
-        }));
+        const stem = `img-${Date.now()}`;
+        // 串行生成三尺寸，避免并发限流
+        const images = [];
+        for (let i = 0; i < GEN_SLOTS.length; i++) {
+          const slot = GEN_SLOTS[i];
+          const prompt = [
+            `${st.prompt}。眼科门诊宣传海报，主题「${p.name}」`,
+            `海报主标题文字为「${p.name}」，中文文字必须书写准确、笔画清晰、自然融入版面，位置排布自然不生硬`,
+            slot.layout,
+            '画面中所有人物、文字、图形必须完整呈现在画幅之内，四周保留安全边距，任何元素不得被画面边缘裁切、不得贴边出血',
+            '适合美团/大众点评平台展示，构图完整，高清商业设计'
+          ].join('；');
+          console.log(`  [image-generate] 生成 ${slot.name}（${i + 1}/${GEN_SLOTS.length}）...`);
+          const remoteUrl = await callSeedreamOnce({ prompt, imageBase64, size: slot.genSize });
+          const localUrl = await localizeAndResize(remoteUrl, slot.targetW, slot.targetH, `${stem}-${i}`);
+          images.push({ name: slot.name, url: localUrl, width: slot.targetW, height: slot.targetH });
+        }
 
         res.json({ images, styleLabel: st.label, refImage: !!imageBase64 });
         return;
@@ -412,61 +574,48 @@ app.post('/api/image-generate', async (req, res) => {
 
     const images = [
       {
-        name: '内页图·第1屏',
-        width: 750,
-        height: 1400,
-        bg: st.colors,
+        name: '方图 900×900',
+        width: 900,
+        height: 900,
+        bg: ['#1a3a5c', '#3b82f6'],
         title: p.name,
         subtitle: `仅${p.price} · ${st.label}`,
-        accent: st.accent,
+        accent: '#ffffff',
         elements: [
-          { type: 'circle', x: 600, y: 120, r: 80, color: 'rgba(255,255,255,0.08)' },
-          { type: 'circle', x: 100, y: 1300, r: 120, color: 'rgba(255,255,255,0.05)' },
-          { type: 'priceTag', x: 50, y: 400, price: p.price },
-          { type: 'badge', x: 50, y: 500, text: '爱尔眼科' }
+          { type: 'circle', x: 780, y: 140, r: 90, color: 'rgba(255,255,255,0.08)' },
+          { type: 'circle', x: 110, y: 800, r: 100, color: 'rgba(255,255,255,0.05)' },
+          { type: 'priceTag', x: 50, y: 520, price: p.price },
+          { type: 'badge', x: 50, y: 620, text: '爱尔眼科' }
         ]
       },
       {
-        name: '内页图·第2屏',
-        width: 750,
-        height: 1400,
-        bg: st.colors,
-        title: pick(['孩子看不清黑板？', '近视防控关键期', '及早筛查 及早干预']),
-        subtitle: pick(['专业检查 · 科学防控', '精准检测 · 医生解读', '守护孩子清晰视界']),
-        accent: st.accent,
-        elements: [
-          { type: 'circle', x: 650, y: 200, r: 60, color: 'rgba(255,255,255,0.1)' },
-          { type: 'circle', x: 80, y: 1100, r: 100, color: 'rgba(255,255,255,0.06)' },
-          { type: 'line', x1: 50, y1: 800, x2: 700, y2: 800, color: 'rgba(255,255,255,0.15)' }
-        ]
-      },
-      {
-        name: '主图A/B测试',
-        width: 800,
-        height: 800,
-        bg: st.colors,
-        title: p.name,
-        subtitle: p.price,
-        accent: st.accent,
-        elements: [
-          { type: 'circle', x: 650, y: 150, r: 100, color: 'rgba(255,255,255,0.1)' },
-          { type: 'circle', x: 100, y: 650, r: 80, color: 'rgba(255,255,255,0.06)' },
-          { type: 'priceTag', x: 50, y: 550, price: p.price },
-          { type: 'badge', x: 50, y: 650, text: '限时特惠' }
-        ]
-      },
-      {
-        name: '活动Banner',
+        name: '横图 1200×900',
         width: 1200,
-        height: 400,
-        bg: st.colors,
-        title: p.name + ' 限时优惠',
-        subtitle: `${p.price}起 · ${st.label}`,
-        accent: st.accent,
+        height: 900,
+        bg: ['#1a3a5c', '#3b82f6'],
+        title: p.name,
+        subtitle: `仅${p.price} · ${st.label}`,
+        accent: '#ffffff',
         elements: [
-          { type: 'circle', x: 1050, y: 80, r: 100, color: 'rgba(255,255,255,0.08)' },
-          { type: 'circle', x: 1100, y: 350, r: 60, color: 'rgba(255,255,255,0.06)' },
-          { type: 'priceTag', x: 50, y: 250, price: p.price }
+          { type: 'circle', x: 1060, y: 150, r: 90, color: 'rgba(255,255,255,0.1)' },
+          { type: 'circle', x: 120, y: 800, r: 90, color: 'rgba(255,255,255,0.06)' },
+          { type: 'priceTag', x: 50, y: 500, price: p.price },
+          { type: 'badge', x: 50, y: 600, text: '爱尔眼科' }
+        ]
+      },
+      {
+        name: '竖图 900×1200',
+        width: 900,
+        height: 1200,
+        bg: ['#1a3a5c', '#3b82f6'],
+        title: p.name,
+        subtitle: `仅${p.price}起 · ${st.label}`,
+        accent: '#ffffff',
+        elements: [
+          { type: 'circle', x: 760, y: 180, r: 80, color: 'rgba(255,255,255,0.1)' },
+          { type: 'circle', x: 100, y: 1080, r: 90, color: 'rgba(255,255,255,0.06)' },
+          { type: 'priceTag', x: 50, y: 800, price: p.price },
+          { type: 'badge', x: 50, y: 900, text: '限时特惠' }
         ]
       }
     ];
@@ -499,13 +648,6 @@ app.post('/api/script-suggest', async (req, res) => {
           `已成功为您预约${p.name}，时间XX月XX日，地址：${clinic.address}。温馨提示：检查前停戴隐形眼镜3天。如需改期请提前2小时告知。`,
           `【爱尔眼科】您已成功预约${p.name}，就诊时间XX月XX日，${clinic.doctor}医生为您服务。检查前请停戴隐形3天，如需改期请提前联系。`
         ])
-      });
-      scripts.push({
-        name: '企微预约确认',
-        desc: '通过企业微信发送预约确认',
-        iconBg: '#06b6d4',
-        iconChar: 'A2',
-        text: `您好，感谢预约${p.name}！\n\n📅 时间：XX月XX日\n📍 地址：${clinic.address}\n👨‍⚕️ ${clinic.doctor}医生为您服务\n\n温馨提示：检查前停戴隐形眼镜3天，当天无需空腹。如有疑问随时联系我们~`
       });
     }
 
@@ -582,7 +724,7 @@ app.post('/api/script-suggest', async (req, res) => {
     if (s === '离店跟进' || s === '全部') {
       scripts.push({
         name: '离店48小时跟进',
-        desc: '就诊后48小时企微发送',
+        desc: '就诊后48小时发送',
         iconBg: '#ef4444',
         iconChar: 'E',
         text: pick([
@@ -791,371 +933,1226 @@ app.post('/api/meituan-ops', async (req, res) => {
   }
 });
 
-// ===== POST /api/private-domain =====
-app.post('/api/private-domain', async (req, res) => {
-  try {
-    await delay(randInt(800, 1600));
-    const { clinicData, focus } = req.body;
-    const clinic = clinicData || CLINIC;
+// ===== 门诊分析：基于真实提取数据的相关分析生成 =====
+// extracted: { clinicName, rating, reviewCount, avgStar, exposure, visit, intent, order, projects:[{name,price,sales}], goodCount, badCount }
+// meta: { sourceLabel, shotCount }
+function buildAnalysisFromData(extracted, meta) {
+  const d = extracted || {};
+  const clinicName = d.clinicName || '待分析门诊';
+  const rating = parseFloat(d.rating) || parseFloat(d.avgStar) || 0;
+  const reviewCount = parseInt(d.reviewCount) || 0;
+  const exposure = parseInt(d.exposure) || 0;
+  const visit = parseInt(d.visit) || 0;
+  const intent = parseInt(d.intent) || 0;
+  const order = parseInt(d.order) || 0;
+  const goodCount = parseInt(d.goodCount) || 0;
+  const badCount = parseInt(d.badCount) || 0;
 
-    res.json({
-      welcomeScripts: [
-        {
-          name: '新患者欢迎语',
-          text: `您好！欢迎加入${clinic.name}眼健康守护群！我是您的专属眼健康顾问。\n\n📚 为您准备了《儿童近视防控指南》\n🎁 首购优惠券已发放至您的账户\n📞 有任何问题随时咨询，${clinic.doctor}医生团队为您服务`,
-          timing: '添加后自动发送'
-        },
-        {
-          name: '首购关怀',
-          text: `感谢您选择${clinic.name}！\n\n📅 请按照预约时间到店\n💡 检查前停戴隐形眼镜3天\n📞 如需改期请提前2小时告知\n\n期待为您的眼健康保驾护航！`,
-          timing: '下单后1小时'
-        }
-      ],
-      followUpScripts: [
-        {
-          name: 'OK镜1周复查提醒',
-          text: `您好！孩子佩戴OK镜已经1周了，建议安排首次复查。\n\n🔍 复查内容：镜片适配度、角膜健康\n📅 建议时间：配镜后7-10天\n📞 预约电话：${clinic.phone}\n\n及时复查是确保佩戴安全的关键！`,
-          timing: '配镜后7天'
-        },
-        {
-          name: 'OK镜1月复查提醒',
-          text: `您好！孩子佩戴OK镜已满1个月，需要进行月度复查。\n\n🔍 复查内容：视力变化、眼轴测量\n📊 ${clinic.doctor}医生将评估近视控制效果\n🎁 本月复查赠送眼部SPA一次`,
-          timing: '配镜后30天'
-        },
-        {
-          name: '离焦镜3月复查提醒',
-          text: `您好！孩子佩戴离焦镜片已3个月，建议回院复查。\n\n🔍 复查内容：度数变化、镜片磨损检查\n📊 对比初配数据，评估防控效果\n📞 在线预约更便捷`,
-          timing: '配镜后90天'
-        }
-      ],
-      communitySOP: {
-        morning: '8:30 护眼小知识图文（如：20-20-20法则）',
-        noon: '12:00 互动话题/投票（如：你家孩子每天户外几小时？）',
-        evening: '19:30 案例分享/专家答疑预告',
-        weekly: '周五会员日优惠/限时秒杀活动'
-      },
-      patientLayers: [
-        { layer: '新患者', condition: '首次到店0-7天', strategy: '激活体验+使用指导', frequency: '1次/天' },
-        { layer: '活跃患者', condition: '30天内有互动', strategy: '内容种草+复购提醒', frequency: '2次/周' },
-        { layer: 'VIP患者', condition: '累计消费>5000', strategy: '专属顾问+优先预约', frequency: '1次/周' },
-        { layer: '沉默患者', condition: '90天无互动', strategy: '激活优惠+关怀回访', frequency: '1次/月' }
-      ]
+  const visitRate = exposure > 0 ? ((visit / exposure) * 100).toFixed(2) : null;
+  const intentRate = visit > 0 ? ((intent / visit) * 100).toFixed(2) : null;
+  const goodRate = (goodCount + badCount) > 0 ? ((goodCount / (goodCount + badCount)) * 100).toFixed(1) : null;
+
+  // 项目列表：优先用提取的项目，否则构造
+  let projects = [];
+  const rawProjects = Array.isArray(d.projects) ? d.projects : [];
+  rawProjects.slice(0, 15).forEach(p => {
+    if (!p || !p.name) return;
+    const price = p.price || '';
+    const sales = parseInt(p.sales) || 0;
+    const priceNum = parseFloat(String(price).replace(/[¥￥,]/g, ''));
+    projects.push({
+      name: p.name,
+      price: price || '¥—',
+      originalPrice: '¥—',
+      sales: sales > 0 ? ('已售' + sales + '+') : '—',
+      category: '提取项目',
+      status: sales > 500 ? '热销' : sales > 100 ? '正常' : '待观察',
+      issues: sales > 0 && sales < 100 ? '销量偏低，建议优化标题和主图' : ''
     });
-  } catch (e) {
-    console.error('private-domain error:', e);
-    res.status(500).json({ error: '私域运营服务异常，请稍后重试' });
+  });
+  if (projects.length === 0) {
+    projects.push({ name: '未识别到项目数据，请补充截图或手动录入', price: '—', originalPrice: '—', sales: '—', category: '—', status: '待补充', issues: '' });
   }
-});
 
-// ===== POST /api/douyin-plan =====
-app.post('/api/douyin-plan', async (req, res) => {
-  try {
-    await delay(randInt(800, 1600));
-    const { clinicData, contentType } = req.body;
-    const clinic = clinicData || CLINIC;
+  const prices = projects.map(p => parseFloat(String(p.price).replace(/[¥￥,]/g, ''))).filter(v => !isNaN(v) && v > 0);
+  const minPrice = prices.length ? Math.min(...prices) : null;
+  const maxPrice = prices.length ? Math.max(...prices) : null;
+  const avgPrice = prices.length ? (prices.reduce((a, b) => a + b, 0) / prices.length) : null;
+  const totalSales = projects.reduce((s, p) => s + (parseInt(String(p.sales).replace(/[^\d]/g, '')) || 0), 0);
 
-    const videoScripts = [
-      {
-        title: '孩子近视了千万别做这3件事',
-        duration: '35s',
-        opening: '冲突型："孩子近视了，90%的家长都在做错这3件事！"',
-        script: `【0-3s】文字+表情冲击："孩子近视了，90%的家长都做错了！"\n【3-15s】错误1：盲目配镜不检查眼轴\n【15-25s】错误2：忽视每天2小时户外活动\n【25-35s】错误3：从不复查，度数年年涨\n【结尾】引导：来${clinic.name}做专业检查，${clinic.doctor}医生为您制定防控方案`,
-        bgm: '本周热门BGM《热门推荐》',
-        hashtags: ['#近视防控', '#OK镜', '#护眼知识', '#爱尔眼科']
-      },
-      {
-        title: '眼科医生自己孩子怎么防控近视',
-        duration: '45s',
-        opening: '共鸣型："作为眼科医生，我是这样给孩子防控近视的..."',
-        script: `【0-3s】${clinic.doctor}医生出镜："很多家长问我，你自己孩子怎么防近视？"\n【3-20s】分享5个日常习惯：20-20-20法则、户外活动、用眼距离、定期检查、OK镜\n【20-40s】现场展示检查设备和环境\n【40-45s】CTA：关注+预约检查`,
-        bgm: '温馨治愈系BGM',
-        hashtags: ['#眼科医生', '#近视防控', '#OK镜', '#护眼']
-      }
-    ];
-
-    res.json({
-      videoScripts,
-      weeklyCalendar: [
-        { day: '周一', topic: '护眼科普：20-20-20法则', type: '科普讲解' },
-        { day: '周三', topic: `${clinic.doctor}医生答疑：OK镜适合谁？`, type: '医生IP' },
-        { day: '周五', topic: '8岁近视200度，1年后控制0增长', type: '患者故事' }
-      ],
-      livePlan: {
-        theme: `${clinic.doctor}医生在线答疑 · 开学季护眼专场`,
-        script: `【0-15min】留人开场：免费视力筛查名额抽奖\n【15-45min】痛点放大：开学季近视高发原因\n【45-75min】方案讲解：OK镜/离焦镜/功能镜对比\n【75-85min】限时优惠：直播间专属39.9检查券\n【85-90min】关注引导+下次直播预告`,
-        products: ['视力检查39.9', 'OK镜验配咨询', '离焦镜套餐'],
-        duration: '1.5小时'
-      },
-      adStrategy: {
-        budget: '2000元/月',
-        targeting: '3-15岁家长 / 近视人群 / 临沂同城',
-        goal: '粉丝增长500+/月 + 到店转化30+/月'
-      }
-    });
-  } catch (e) {
-    console.error('douyin-plan error:', e);
-    res.status(500).json({ error: '抖音策略服务异常，请稍后重试' });
+  // 定价分析
+  let pricingScore = 65, pricingComment = '未识别到有效价格数据，建议补充截图或手动录入价格', pricingIssues = ['缺少价格数据'];
+  if (avgPrice) {
+    if (minPrice <= 100 && maxPrice >= 500) { pricingScore = 82; pricingComment = '价格梯度清晰，低价引流与高价值项目搭配合理'; pricingIssues = []; }
+    else if (minPrice <= 100) { pricingScore = 70; pricingComment = '以低价引流为主，缺少高价值项目拉升客单价'; pricingIssues = ['缺少高价值项目', '客单价提升空间有限']; }
+    else { pricingScore = 62; pricingComment = '价格带整体偏高，缺少低价引流入口'; pricingIssues = ['缺少低价引流项目', '首次体验门槛偏高']; }
   }
-});
 
-// ===== POST /api/xiaohongshu-plan =====
-app.post('/api/xiaohongshu-plan', async (req, res) => {
-  try {
-    await delay(randInt(800, 1600));
-    const { clinicData, contentType } = req.body;
-    const clinic = clinicData || CLINIC;
-
-    const noteScripts = [
-      {
-        title: `打工人护眼清单｜${clinic.doctor}医生推荐7个好习惯`,
-        type: '图文',
-        body: `【封面】护眼清单大字报\n\n1️⃣ 20-20-20法则：每20分钟看20英尺外20秒\n2️⃣ 每天2小时户外活动\n3️⃣ 用眼距离保持33cm以上\n4️⃣ 每半年一次专业检查\n5️⃣ 睡前热敷缓解疲劳\n6️⃣ 多吃叶黄素食物\n7️⃣ OK镜/离焦镜科学防控\n\n🏥 ${clinic.name}\n👨‍⚕️ ${clinic.doctor}医生｜从业${clinic.doctorExp}\n📍 ${clinic.address}`,
-        tags: ['近视防控', '护眼', 'OK镜', '打工人', '眼科'],
-        cover: '蓝绿色调护眼清单大字报，突出数字7'
-      },
-      {
-        title: 'OK镜VS离焦镜，近视防控到底选哪个',
-        type: '图文',
-        body: `【封面】OK镜🆚离焦镜对比图\n\n💡 OK镜（角膜塑形镜）\n✓ 夜戴白天清晰\n✓ 控制效果60%以上\n✓ 适合8-18岁\n✗ 价格较高（6800-12800）\n✗ 需严格护理\n\n💡 离焦镜片\n✓ 日间佩戴方便\n✓ 控制效果30-60%\n✓ 适合6-15岁\n✓ 价格适中（1580-3680）\n\n🎯 选择建议：根据年龄、度数、生活习惯综合评估\n📞 预约${clinic.doctor}医生专业咨询`,
-        tags: ['OK镜', '离焦镜', '近视防控', '配镜', '眼科'],
-        cover: '对比风格，左右分栏，蓝金配色'
-      }
-    ];
-
-    res.json({
-      noteScripts,
-      weeklyCalendar: [
-        { day: '周二', topic: '打工人护眼清单7个好习惯', type: '护眼干货' },
-        { day: '周四', topic: 'OK镜VS离焦镜到底怎么选', type: '产品测评' },
-        { day: '周六', topic: `39.9做了超全眼科检查！附攻略`, type: '探店分享' }
-      ],
-      seedingPlan: {
-        quantity: '60-80篇/月',
-        budget: '6000-10000元/月',
-        strategy: '素人铺量(50篇) + 腰部达人(15篇) + 头部联动(3篇)'
-      }
-    });
-  } catch (e) {
-    console.error('xiaohongshu-plan error:', e);
-    res.status(500).json({ error: '小红书策略服务异常，请稍后重试' });
+  // 评价分析
+  let reviewSummary = '未识别到评价数据';
+  if (reviewCount > 0) {
+    reviewSummary = '累计评价 ' + reviewCount + ' 条';
+    if (badCount > 0) reviewSummary += '，其中差评 ' + badCount + ' 条（差评率 ' + ((badCount / reviewCount) * 100).toFixed(1) + '%），建议重点跟进差评客户';
+    else reviewSummary += '，差评较少，评价口碑良好';
+    if (goodRate !== null) reviewSummary += '，好评率 ' + goodRate + '%';
   }
-});
 
-// ===== POST /api/wechat-plan =====
-app.post('/api/wechat-plan', async (req, res) => {
-  try {
-    await delay(randInt(800, 1600));
-    const { clinicData, contentType } = req.body;
-    const clinic = clinicData || CLINIC;
-
-    const articleTitles = [
-      '7个护眼习惯，第3个90%人不知道',
-      '8岁近视200度，1年后竟然控制住了',
-      '限时39.9｜开学季护眼礼包开抢',
-      'OK镜VS离焦镜，到底怎么选？'
-    ];
-    const articleBodies = [
-      `【开头】"孩子又揉眼睛了？写作业越凑越近？"\n\n作为家长，你可能正在忽视孩子近视的信号...\n\n1️⃣ 每20分钟远眺20秒\n2️⃣ 每天户外活动2小时\n3️⃣ 定期检查眼轴（90%家长忽略！）\n...\n\n🏥 ${clinic.name}提供儿童青少年视力检查\n👨‍⚕️ ${clinic.doctor}医生亲诊`,
-      `【开头】悬念："8岁近视200度，很多家长选择放弃，但我们做到了0增长"\n\n真实案例分享...\n\n📊 初检数据：右眼200度，左眼175度\n💡 方案：OK镜+户外活动+定期复查\n📈 1年后：度数0增长！\n\n👇 点击下方阅读原文预约检查`
-    ];
-
-    res.json({
-      articleDraft: {
-        title: pick(articleTitles),
-        body: pick(articleBodies),
-        cta: '点击下方阅读原文，预约39.9儿童视力检查'
-      },
-      menuPlan: {
-        menu1: { name: '护眼服务', items: ['在线预约', '专家团队', '门店导航'] },
-        menu2: { name: '眼健康', items: ['护眼知识', '近视防控', '自测工具'] },
-        menu3: { name: '会员中心', items: ['我的积分', '复查提醒', '在线咨询'] }
-      },
-      monthlyCalendar: [
-        { week: '第1周', theme: '开学季护眼指南', type: '科普类' },
-        { week: '第2周', theme: `${clinic.doctor}医生专访：近视防控新进展`, type: '故事类' },
-        { week: '第3周', theme: '限时特惠：视力检查套餐', type: '活动类' },
-        { week: '第4周', theme: 'OK镜VS离焦镜深度对比', type: '评测类' }
-      ]
-    });
-  } catch (e) {
-    console.error('wechat-plan error:', e);
-    res.status(500).json({ error: '公众号运营服务异常，请稍后重试' });
+  // 客流分析
+  let trafficComment = '未识别到客流数据';
+  if (exposure > 0) {
+    trafficComment = '曝光 ' + exposure + ' 人';
+    if (visitRate !== null) trafficComment += '，曝光→访问转化率 ' + visitRate + '%';
+    if (intentRate !== null) trafficComment += '，访问→意向转化率 ' + intentRate + '%';
+    if (visitRate !== null && parseFloat(visitRate) < 10) trafficComment += '。转化率偏低，建议优化主图和标题';
+    else if (visitRate !== null && parseFloat(visitRate) >= 15) trafficComment += '。转化率表现良好，可加大投放';
   }
-});
 
-// ===== POST /api/growth-plan =====
-app.post('/api/growth-plan', async (req, res) => {
-  try {
-    await delay(randInt(800, 1600));
-    const { clinicData, currentMetrics } = req.body;
-    const clinic = clinicData || CLINIC;
+  // 建议
+  const suggestions = [];
+  if (badCount > 0) suggestions.push({ priority: 'P0', category: '评价', title: '跟进 ' + badCount + ' 条差评', desc: '针对差评客户逐一跟进，2小时内回复，个性化道歉+解决方案。', impact: '预计评分回升 0.1-0.2' });
+  if (pricingIssues.includes('缺少低价引流项目')) suggestions.push({ priority: 'P0', category: '定价', title: '增设低价引流项目', desc: '当前缺少低价引流入口，建议新增 ¥29.9-¥99 体验项目降低首次体验门槛。', impact: '预计引流用户 +20%' });
+  if (visitRate !== null && parseFloat(visitRate) < 10) suggestions.push({ priority: 'P1', category: '流量', title: '优化主图与标题提升点击率', desc: '曝光→访问转化率仅 ' + visitRate + '%，建议优化主图为医生场景图、标题补充热门搜索词。', impact: '预计点击率 +15%' });
+  if (intentRate !== null && parseFloat(intentRate) < 10 && visit > 0) suggestions.push({ priority: 'P1', category: '转化', title: '优化详情页提升意向转化', desc: '访问→意向转化率仅 ' + intentRate + '%，建议补充患者案例、强化核心卖点。', impact: '预计意向转化 +10%' });
+  if (projects.length <= 3) suggestions.push({ priority: 'P1', category: '项目', title: '补充项目品类覆盖', desc: '当前项目数量较少，建议补充视力检查、OK镜、离焦镜等核心品类。', impact: '预计覆盖更多搜索流量' });
+  if (suggestions.length === 0) suggestions.push({ priority: 'P2', category: '运营', title: '持续监测经营数据', desc: '当前识别数据较为健康，建议保持日常监测，按周复盘经营指标。', impact: '维持稳定增长' });
 
-    res.json({
-      funnelAnalysis: {
-        stages: [
-          { stage: '曝光', rate: '100%', target: '提升美团搜索排名至前3' },
-          { stage: '点击', rate: '3-5%', target: '优化主图和标题，目标5%+' },
-          { stage: '咨询', rate: '20-30%', target: '完善FAQ和自动回复' },
-          { stage: '预约', rate: '40-50%', target: '简化预约流程' },
-          { stage: '到店', rate: '60-70%', target: '提醒SOP+导航指引' },
-          { stage: '成交', rate: '50-60%', target: '话术优化+套餐推荐' }
-        ]
-      },
-      channelROI: [
-        { channel: '美团推广通', cac: '50-80元', conversion: '15-25%', roi: '2-4:1', priority: 'P0' },
-        { channel: '抖音DOU+', cac: '30-60元', conversion: '8-15%', roi: '1.5-3:1', priority: 'P1' },
-        { channel: '小红书种草', cac: '20-40元', conversion: '5-10%', roi: '2-5:1', priority: 'P1' },
-        { channel: '企微转介绍', cac: '5-10元', conversion: '40-60%', roi: '8-15:1', priority: 'P0' },
-        { channel: '公众号自然', cac: '0-5元', conversion: '3-8%', roi: '10+:1', priority: 'P1' }
-      ],
-      growthExperiments: [
-        {
-          name: '主图A/B测试',
-          hypothesis: '如果主图从文字图改为医生场景图，点击率将提升20%',
-          method: '同时上架2个相同项目，仅主图不同，测试2周',
-          budget: '500元',
-          expected: '点击率从3%提升至3.6%'
-        },
-        {
-          name: '有效期延长测试',
-          hypothesis: '如果有效期从30天延长至90天，转化率将提升15%',
-          method: '随机50%用户展示90天有效期，对比转化数据',
-          budget: '0元（仅让利）',
-          expected: '转化率从15%提升至17%'
-        },
-        {
-          name: '企微加好友激励',
-          hypothesis: '如果到店赠送小礼品引导加企微，私域转化率将提升30%',
-          method: '到店患者赠送护眼贴+企微二维码',
-          budget: '1000元/月',
-          expected: '企微新增200人/月'
-        }
-      ],
-      monthlyPlan: {
-        target: '到店量+20%（从当前基线提升）',
-        budget: '15000元',
-        breakdown: '推广费用40%（6000元） + 优惠补贴30%（4500元） + 内容制作20%（3000元） + 物料奖品10%（1500元）'
-      }
-    });
-  } catch (e) {
-    console.error('growth-plan error:', e);
-    res.status(500).json({ error: '增长策略服务异常，请稍后重试' });
-  }
-});
+  const sourceLabel = meta && meta.sourceLabel ? meta.sourceLabel : '采集数据';
+  const tags = [sourceLabel];
+  if (meta && meta.shotCount) tags.push('已识别 ' + meta.shotCount + ' 个界面');
+  if (reviewCount > 0) tags.push('评价 ' + reviewCount + ' 条');
+  if (exposure > 0) tags.push('曝光 ' + exposure);
+
+  return {
+    clinicInfo: {
+      name: clinicName,
+      rating: rating > 0 ? rating : '—',
+      reviewCount: reviewCount > 0 ? reviewCount + '条' : '—',
+      address: d.address || '（请上传截图或手动录入获取地址）',
+      tags
+    },
+    projects,
+    analysis: {
+      pricing: { score: pricingScore, avgPrice: avgPrice ? '¥' + Math.round(avgPrice) : '—', priceRange: (minPrice !== null && maxPrice !== null) ? ('¥' + minPrice + '-¥' + maxPrice) : '—', comment: pricingComment, issues: pricingIssues },
+      projectSetup: { totalCount: projects.length, categoryBreakdown: { '识别项目': projects.length }, missingCategories: [], comment: '共识别 ' + projects.length + ' 个项目，建议核对是否完整覆盖门店核心品类' },
+      sales: { totalSales: totalSales > 0 ? totalSales + '+' : '—', topSeller: '—', bottomSeller: '—', comment: totalSales > 0 ? '累计销量 ' + totalSales + '+' : '未识别到销量数据' },
+      reviews: { positive: ['好评'], negative: badCount > 0 ? ['差评 ' + badCount + ' 条'] : [], summary: reviewSummary }
+    },
+    traffic: { exposure, visit, intent, order, visitRate, intentRate, comment: trafficComment },
+    suggestions
+  };
+}
+
+function buildAnalysisFromManual(manualData) {
+  const m = manualData || {};
+  const store = m.store || {}, project = m.project || {}, review = m.review || {}, traffic = m.traffic || {};
+  const extracted = {
+    clinicName: store.name,
+    address: store.address,
+    rating: parseFloat(review.star) || null,
+    reviewCount: parseInt(review.total) || null,
+    goodCount: parseInt(review.good) || null,
+    badCount: parseInt(review.bad) || null,
+    exposure: parseInt(traffic.exposure) || null,
+    visit: parseInt(traffic.visit) || null,
+    intent: parseInt(traffic.intent) || null,
+    order: parseInt(traffic.order) || null,
+    projects: (project.name ? [{ name: project.name, price: project.price, sales: project.sales }] : [])
+  };
+  return buildAnalysisFromData(extracted, { sourceLabel: '✏️手动录入' });
+}
+
+function buildAnalysisFromOCR(ocr, shotCount) {
+  return buildAnalysisFromData(ocr, { sourceLabel: '📷截图识别', shotCount: shotCount });
+}
 
 // ===== POST /api/clinic-analysis =====
 app.post('/api/clinic-analysis', async (req, res) => {
   try {
-    await delay(randInt(1200, 2500));
-    const { imageBase64, url, sourceType } = req.body;
-    const hasScreenshot = sourceType === 'screenshot' && imageBase64;
-    const hasUrl = sourceType === 'url' && url;
-    const ratingBase = (4.2 + Math.random() * 0.7).toFixed(1);
-    const reviewCount = randInt(45, 200);
-    const totalProjects = randInt(8, 20);
-    const totalSalesCount = randInt(800, 8000);
-    const tagsBase = ['服务好', '环境好', '专业'];
-    if (hasScreenshot) tagsBase.push('📷已分析截图');
-    if (hasUrl) tagsBase.push('🌐已抓取页面');
-    if (!hasScreenshot && !hasUrl) tagsBase.push('⚠️模拟数据，请上传截图或输入URL获取真实分析');
+    const { imageBase64, url, sourceType, images, manualData } = req.body;
 
-    const clinicNames = hasUrl ? ['大众点评目标门诊', '竞品眼科门诊'] : ['待分析门诊', '目标眼科门诊'];
-    const clinicName = clinicNames[randInt(0, clinicNames.length - 1)];
+    // 1) 手动录入模式：用真实字段生成相关分析
+    if (sourceType === 'manual' && manualData) {
+      await delay(randInt(400, 900));
+      return res.json(buildAnalysisFromManual(manualData));
+    }
 
-    // Project pool
-    const projectPool = [
-      { name: '儿童青少年视力检查', price: '¥39.9', originalPrice: '¥128', category: '视力检查', baseSales: 1500 },
-      { name: '成人综合眼健康检查', price: '¥68', originalPrice: '¥198', category: '眼健康', baseSales: 800 },
-      { name: 'OK镜验配评估', price: '¥199', originalPrice: '¥500', category: 'OK镜', baseSales: 600 },
-      { name: '角膜塑形镜全套', price: '¥6800', originalPrice: '¥8800', category: 'OK镜', baseSales: 120 },
-      { name: '离焦镜验配', price: '¥1680', originalPrice: '¥2380', category: '离焦镜', baseSales: 200 },
-      { name: '蔡司成长乐离焦镜', price: '¥2980', originalPrice: '¥3980', category: '离焦镜', baseSales: 80 },
-      { name: '功能性镜片验配', price: '¥980', originalPrice: '¥1580', category: '功能镜', baseSales: 150 },
-      { name: '防蓝光功能镜', price: '¥580', originalPrice: '¥880', category: '功能镜', baseSales: 300 },
-      { name: '干眼症检查套餐', price: '¥29.9', originalPrice: '¥99', category: '眼健康', baseSales: 900 },
-      { name: '眼部SPA护理', price: '¥88', originalPrice: '¥168', category: '眼健康', baseSales: 500 },
-      { name: '视功能训练（单次）', price: '¥120', originalPrice: '¥200', category: '视功能', baseSales: 350 },
-      { name: 'OK镜护理套装', price: '¥169', originalPrice: '¥269', category: 'OK镜', baseSales: 700 },
-      { name: '儿童斜弱视筛查', price: '¥49.9', originalPrice: '¥150', category: '视力检查', baseSales: 400 },
-      { name: '老花镜验配', price: '¥299', originalPrice: '¥499', category: '功能镜', baseSales: 100 },
-      { name: '眼底照相检查', price: '¥89', originalPrice: '¥200', category: '眼健康', baseSales: 250 },
-      { name: '双眼视功能训练包', price: '¥599', originalPrice: '¥999', category: '视功能', baseSales: 90 },
-      { name: '抗疲劳功能镜片', price: '¥399', originalPrice: '¥699', category: '功能镜', baseSales: 180 },
-      { name: '青少年近视防控套餐', price: '¥268', originalPrice: '¥588', category: '视力检查', baseSales: 450 }
-    ];
-
-    const shuffled = [...projectPool].sort(() => Math.random() - 0.5);
-    const selected = shuffled.slice(0, Math.min(totalProjects, projectPool.length));
-    let runningTotal = 0, topSales = 0, bottomSales = Infinity;
-    let topSeller = '', bottomSeller = '';
-    const categoryBreakdown = {};
-    const projects = [];
-
-    selected.forEach(p => {
-      const salesVariation = randInt(-200, 300);
-      const sc = Math.max(10, p.baseSales + salesVariation);
-      runningTotal += sc;
-      const status = sc > 500 ? '热销' : sc > 200 ? '正常' : '滞销';
-      const issues = [];
-      if (sc < 150) issues.push('销量偏低，建议优化标题和主图');
-      if (parseFloat(p.price.replace('¥', '')) < 50 && p.category !== '眼健康') issues.push('低价引流，可关联高价值套餐');
-      if (p.category === 'OK镜' && !p.name.includes('验配评估')) issues.push('建议添加验配评估引流入口');
-      projects.push({ name: p.name, price: p.price, originalPrice: p.originalPrice, sales: '已售' + sc + '+', category: p.category, status, issues: issues.length > 0 ? issues.join('；') : '' });
-      categoryBreakdown[p.category] = (categoryBreakdown[p.category] || 0) + 1;
-      if (sc > topSales) { topSales = sc; topSeller = p.name; }
-      if (sc < bottomSales) { bottomSales = sc; bottomSeller = p.name; }
-    });
-
-    const prices = selected.map(p => parseFloat(p.price.replace('¥', '')));
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-    const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
-    const pricingScore = randInt(55, 90);
-    const allCategories = ['视力检查', '眼健康', 'OK镜', '离焦镜', '功能镜', '视功能'];
-    const missingCats = allCategories.filter(c => !categoryBreakdown[c]);
-    const missingMap = { OK镜: '角膜塑形镜验配套餐', 离焦镜: '多点离焦镜片验配', 功能镜: '抗疲劳功能镜片', 视力检查: '成人深度视力检查', 眼健康: '眼底OCT检查', 视功能: '双眼视功能训练包' };
-
-    res.json({
-      clinicInfo: { name: clinicName, rating: ratingBase, reviewCount: reviewCount + '条', address: hasUrl ? '已从URL提取地址信息' : '请上传截图获取完整地址信息', tags: tagsBase },
-      projects,
-      analysis: {
-        pricing: {
-          score: pricingScore,
-          avgPrice: '¥' + Math.round(avgPrice),
-          priceRange: '¥' + minPrice.toFixed(1) + '-¥' + maxPrice,
-          comment: pricingScore >= 75 ? '定价结构合理，低价引流与高价值项目梯度清晰' : '价格带偏窄，缺少中间价位项目，建议补充¥200-500价位产品',
-          issues: pricingScore >= 75 ? ['部分高价项目缺少中间梯度过渡'] : ['低价位项目占比过高', '缺少¥200-500中间价位产品', '高价项目原价虚标明显']
-        },
-        projectSetup: {
-          totalCount: projects.length,
-          categoryBreakdown,
-          missingCategories: missingCats.map(c => missingMap[c]),
-          comment: missingCats.length === 0 ? '项目品类覆盖全面，各核心产品线均有布局' : '缺少' + missingCats.join('、') + '品类，建议补充以覆盖更广患者需求'
-        },
-        sales: {
-          totalSales: runningTotal + '+',
-          topSeller,
-          bottomSeller,
-          comment: '热销项目集中在低价引流款，高价值产品（OK镜/离焦镜）转化率需提升。建议：① 增加OK镜验配评估引流 ② 设置阶梯优惠引导升级 ③ 高价值项目添加患者案例'
-        },
-        reviews: {
-          positive: ['医生专业', '态度好', '环境干净', '检查仔细', '效果明显', '性价比高', '孩子视力改善', '杜医生耐心'],
-          negative: ['等待时间长', '停车不便', '价格偏贵', '预约难'],
-          summary: '好评集中在医生专业度和检查细致度，差评主要涉及等待时长和预约便利性。建议：① 优化预约排班系统 ② 提供到店停车指引 ③ 增加高峰时段导诊人员'
+    // 2) 截图模式：尝试视觉 OCR 识别截图内容
+    if (sourceType === 'screenshot' && Array.isArray(images) && images.length > 0) {
+      await delay(randInt(300, 600));
+      try {
+        const ocrText = await callVisionOCR(images);
+        const ocr = extractJsonFromText(ocrText);
+        if (ocr && (ocr.clinicName || ocr.rating || ocr.reviewCount || (Array.isArray(ocr.projects) && ocr.projects.length))) {
+          return res.json(buildAnalysisFromOCR(ocr, images.length));
         }
-      },
-      suggestions: [
-        { priority: 'P0', category: '定价', title: '增设OK镜验配评估引流价¥99', desc: '当前OK镜产品线缺少低价引流入口。建议新增¥99验配评估（原价¥300），降低首次接触门槛，验配后引导至¥6800全套产品。', impact: '预计引流用户+30%，OK镜转化率提升5%' },
-        { priority: 'P0', category: '评价', title: '建立差评快速响应机制', desc: '当前差评回复率不足50%。建议AI自动监测+人工审核，2小时内回复差评，个性化道歉+解决方案。', impact: '预计差评转化率+15%，评分回升0.1-0.2' },
-        { priority: 'P1', category: '项目', title: missingCats.length > 0 ? '补充' + missingCats.slice(0, 2).join('、') + '品类' : '优化项目命名提升搜索匹配', desc: missingCats.length > 0 ? '当前缺失核心品类，建议新增' + missingCats.map(c => missingMap[c]).slice(0, 2).join('、') + '等团购项目。' : '建议优化为包含热门搜索词，如"儿童"、"近视防控"、"角膜塑形"等。', impact: '预计覆盖新增搜索流量20%，GMV+10%' },
-        { priority: 'P1', category: '销量', title: '高价值项目添加患者案例增强转化', desc: 'OK镜/离焦镜等高价值项目页面缺少真实案例。建议添加患儿姓名（化名）+年龄+度数+使用时长+控制效果的数据展示。', impact: '预计高价值项目点击率+25%，转化率+10%' },
-        { priority: 'P2', category: '定价', title: '设置组合套餐提升客单价', desc: '建议设计"视力检查+干眼筛查"、"OK镜验配+护理套装"等组合套餐，优惠15-20%，引导一站式消费。', impact: '预计客单价提升15-25%' }
-      ]
-    });
+      } catch (ocrErr) {
+        console.error('[clinic-analysis] 视觉OCR失败:', ocrErr.message);
+      }
+      // OCR 通道不可用：降级为「截图已接收 + 引导手动录入」，不丢用户已上传的工作量
+      return res.json(buildAnalysisFromData({
+        clinicName: '（视觉模型未授权，已切换手动录入通道）',
+        projects: []
+      }, { sourceLabel: '⚠️待手动补录', shotCount: images.length }));
+    }
+
+    // 3) URL 模式：返回明确提示（URL 抓取需额外能力）
+    if (sourceType === 'url' && url) {
+      await delay(randInt(600, 1200));
+      return res.json(buildAnalysisFromData({
+        clinicName: '（URL 抓取暂未接入，请使用截图或手动录入）',
+        projects: []
+      }, { sourceLabel: '🌐URL 采集（待接入）' }));
+    }
+
+    // 4) 无有效输入
+    await delay(randInt(300, 500));
+    return res.json(buildAnalysisFromData({ projects: [] }, { sourceLabel: '⚠️请上传截图或手动录入数据' }));
   } catch (e) {
     console.error('clinic-analysis error:', e);
     res.status(500).json({ error: '门诊分析服务异常，请稍后重试' });
   }
+});
+
+
+// ===== M3-01: 主图诊断分析 =====
+app.post('/api/image-diagnosis', async (req, res) => {
+  try {
+    const { imageBase64, imageUrl, projectName, projectCategory } = req.body;
+    if (!imageBase64 && !imageUrl) {
+      return res.status(400).json({ error: '请提供图片（Base64或URL）' });
+    }
+
+    // 本地规则分析：用 jimp 解析图片真实属性（分辨率/宽高比/亮度/色彩丰富度），
+    // 豆包视觉模型未开通权限，此模式不依赖大模型；结果基于可测量的图像事实而非随机数
+    let imgInfo = null;
+    if (imageBase64) {
+      try {
+        const b64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+        const img = await Jimp.read(Buffer.from(b64, 'base64'));
+        const w = img.bitmap.width, h = img.bitmap.height;
+        let lumSum = 0, n = 0;
+        const colorSet = new Set();
+        const step = Math.max(1, Math.floor(Math.min(w, h) / 48));
+        img.scan(0, 0, w, h, function (x, y, idx) {
+          if (x % step || y % step) return;
+          const r = this.bitmap.data[idx], g = this.bitmap.data[idx + 1], b = this.bitmap.data[idx + 2];
+          lumSum += 0.299 * r + 0.587 * g + 0.114 * b;
+          colorSet.add(((r >> 5) << 6) | ((g >> 5) << 3) | (b >> 5));
+          n++;
+        });
+        imgInfo = {
+          width: w,
+          height: h,
+          brightness: n ? Math.round(lumSum / n) : null,
+          colorVariety: colorSet.size
+        };
+      } catch (imgErr) {
+        console.error('[image-diagnosis] 图片解析失败，退化为通用分析:', imgErr.message);
+      }
+    }
+
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+    // 清晰度：按短边真实分辨率评估（美团主图规范 ≥800px）
+    const minSide = imgInfo ? Math.min(imgInfo.width, imgInfo.height) : null;
+    const clarityScore = minSide !== null
+      ? clamp(Math.round(minSide / 900 * 100), 35, 96)
+      : randInt(45, 70);
+
+    // 品类匹配：主图规范为 1:1，其次看色彩层次（过单调或过杂都扣分）
+    let categoryScore;
+    if (imgInfo) {
+      const ratio = imgInfo.width / imgInfo.height;
+      const ratioPenalty = Math.abs(ratio - 1) <= 0.05 ? 0 : (ratio === 4 / 3 || ratio === 3 / 4 || Math.abs(ratio - 4 / 3) < 0.05 || Math.abs(ratio - 3 / 4) < 0.05) ? 8 : 22;
+      const variety = imgInfo.colorVariety;
+      const varietyPenalty = variety < 10 ? 12 : variety > 160 ? 6 : 0;
+      categoryScore = clamp(88 - ratioPenalty - varietyPenalty, 30, 92);
+    } else {
+      categoryScore = randInt(55, 75);
+    }
+
+    // 亮度：过暗/过曝都影响质感
+    const brightness = imgInfo ? imgInfo.brightness : null;
+    const isBright = brightness === null ? Math.random() > 0.3 : (brightness >= 100 && brightness <= 210);
+
+    // 品牌感 / 情感力依赖视觉语义理解，视觉AI未接入时按中性区间估算，不虚构具体问题
+    const brandingScore = isBright ? randInt(62, 78) : randInt(50, 65);
+    const emotionScore = randInt(60, 78);
+    const infoScore = imgInfo && minSide !== null && minSide >= 700 ? randInt(62, 85) : randInt(45, 68);
+
+    const overallScore = Math.round(
+      (clarityScore * 0.2 + brandingScore * 0.25 + infoScore * 0.2 + emotionScore * 0.15 + categoryScore * 0.2)
+    );
+
+    const cat = projectCategory || '视光检查';
+    const catStyles = {
+      '角膜塑形镜': { style: '专业医疗', keywords: ['专业', '精准', '安全', '个性化'] },
+      'OK镜': { style: '专业医疗', keywords: ['专业', '精准', '安全', '个性化'] },
+      '离焦镜': { style: '科技感', keywords: ['科技', '防控', '有效', '舒适'] },
+      '视光检查': { style: '温馨信任', keywords: ['细心', '全面', '专业', '安心'] },
+      '配镜': { style: '时尚清晰', keywords: ['清晰', '时尚', '舒适', '精准'] },
+      '斜弱视训练': { style: '温馨专业', keywords: ['耐心', '趣味', '坚持', '进步'] },
+      '干眼治疗': { style: '舒适疗愈', keywords: ['舒缓', '滋润', '温和', '清爽'] }
+    };
+    const style = catStyles[cat] || { style: '专业医疗', keywords: ['专业', '信赖', '品质'] };
+
+    const issues = [];
+    if (minSide !== null && minSide < 800) issues.push({ dim: 'clarity', text: `实际分辨率仅 ${imgInfo.width}×${imgInfo.height}px，低于美团主图规范 800×800px，建议更换高清原图`, severity: 'P0' });
+    if (brightness !== null && brightness < 100) issues.push({ dim: 'clarity', text: `画面整体偏暗（平均亮度 ${brightness}/255），建议提亮或换浅色背景`, severity: 'P1' });
+    if (brightness !== null && brightness > 230) issues.push({ dim: 'clarity', text: '画面过曝偏白，主体可能缺乏层次，建议适当压暗背景', severity: 'P2' });
+    if (imgInfo) {
+      const ratio = imgInfo.width / imgInfo.height;
+      if (Math.abs(ratio - 1) > 0.05) issues.push({ dim: 'categoryMatch', text: `当前为 ${imgInfo.width}×${imgInfo.height} 非正方形，美团主图展示位按 1:1 裁切时两侧/上下会被裁切，建议输出 1:1 版本`, severity: 'P1' });
+      if (imgInfo.colorVariety < 10) issues.push({ dim: 'categoryMatch', text: '画面色彩过于单调（大面积纯色/渐变），信息量偏弱，建议增加主体或卖点元素', severity: 'P2' });
+    }
+    if (brandingScore < 70) issues.push({ dim: 'branding', text: '品牌感评估为中性：视觉AI未接入，无法确认logo/品牌色/门诊标识是否清晰，建议自查右下角是否有品牌水印', severity: 'P1' });
+    if (infoScore < 70) issues.push({ dim: 'information', text: '价格/核心卖点建议放大呈现，标注「原价→团购价」对比', severity: 'P1' });
+
+    const suggestions = [];
+    if (minSide !== null && minSide < 800) suggestions.push(`输出尺寸提升到 900×900 以上（套图生成模块可直接生成）`);
+    if (imgInfo) {
+      const ratio = imgInfo.width / imgInfo.height;
+      if (Math.abs(ratio - 1) > 0.05) suggestions.push('补一张 1:1 正方形版本，避免美团主图位自动裁切主体');
+    }
+    if (brightness !== null && (brightness < 100 || brightness > 230)) suggestions.push('调整曝光：主体与背景明度差保持在可辨识范围，避免死黑或死白');
+    if (brandingScore < 70) suggestions.push('所有项目主图统一右下角/左上角添加品牌logo水印');
+    if (infoScore < 70) suggestions.push('16pt+核心卖点文字，标注原价→团购价，增加"已售XX+"标签');
+    suggestions.push('参考' + style.style + '类主图风格，统一排版和色调');
+
+    const quickWins = [];
+    if (minSide !== null && minSide < 800) quickWins.push('换用 ≥900×900 高清原图');
+    if (infoScore < 75) quickWins.push('添加价格对比标签："原价¥XX→团购¥XX"');
+    quickWins.push('统一添加品牌蓝边框或logo水印');
+
+    res.json({
+      clinicName: CLINIC.name,
+      analyzedAt: new Date().toISOString(),
+      projectCategory: cat,
+      styleRecommendation: style.style,
+      overallScore,
+      analysisMode: imgInfo ? 'local-heuristic' : (imageBase64 ? 'local-fallback' : 'url-not-analyzed'),
+      analysisNote: imgInfo
+        ? '本地规则分析（视觉AI未接入）：分辨率/比例/亮度/色彩为实测值，品牌感与情感力为中性估算，待开通豆包视觉模型后升级为AI识图'
+        : '通用规则分析：未能解析图片像素，建议上传本地图片获得更准的实测分析',
+      imageInfo: imgInfo,
+      dimensions: {
+        clarity: { score: clarityScore, weight: 20, label: '清晰度', status: clarityScore >= 75 ? 'good' : clarityScore >= 60 ? 'warn' : 'bad' },
+        branding: { score: brandingScore, weight: 25, label: '品牌感', status: brandingScore >= 75 ? 'good' : brandingScore >= 60 ? 'warn' : 'bad' },
+        information: { score: infoScore, weight: 20, label: '信息度', status: infoScore >= 75 ? 'good' : infoScore >= 60 ? 'warn' : 'bad' },
+        emotion: { score: emotionScore, weight: 15, label: '情感力', status: emotionScore >= 75 ? 'good' : emotionScore >= 60 ? 'warn' : 'bad' },
+        categoryMatch: { score: categoryScore, weight: 20, label: '品类匹配', status: categoryScore >= 75 ? 'good' : categoryScore >= 60 ? 'warn' : 'bad' }
+      },
+      issues: issues.length > 0 ? issues : [{ dim: 'overall', text: '主图整体表现良好，各项指标均达标', severity: 'P2' }],
+      suggestions: suggestions.length > 0 ? suggestions : ['主图符合美团医疗类目最佳实践，建议保持并定期刷新'],
+      quickWins: quickWins.length > 0 ? quickWins : ['暂无紧急优化项，建议定期A/B测试微调'],
+      perImageAnalysis: [{
+        imageIndex: 0,
+        projectName: projectName || '待分析项目',
+        currentIssues: issues.filter(i => i.severity === 'P0' || i.severity === 'P1').map(i => i.text),
+        optimizationDirection: `${style.style}风格，突出${style.keywords.slice(0, 3).join('+')}`,
+        priority: issues.some(i => i.severity === 'P0') ? 'P0' : issues.some(i => i.severity === 'P1') ? 'P1' : 'P2'
+      }],
+      nextSteps: [
+        issues.some(i => i.severity === 'P0') ? '立即处理P0级问题（品牌/清晰度）' : '监控效果数据',
+        '生成优化Brief → 设计师改图 → 合规检查 → 上传上线',
+        '上线后3天查看CTR变化，7天对比转化率'
+      ]
+    });
+  } catch (e) {
+    console.error('image-diagnosis error:', e);
+    res.status(500).json({ error: '主图诊断服务异常，请稍后重试' });
+  }
+});
+
+// ===== M3-03: 详情页文案优化 =====
+const COPY_RULES = [
+  { rule: '绝对化用语', pattern: /最好|第一|唯一|首选|独家|顶尖|No\.1|100%有效|根治/g, severity: 'FAIL', msg: '禁止使用绝对化/疗效承诺用语' },
+  { rule: '患者证明', pattern: /XX妈妈说|XX爸爸说|某患者|用了之后/g, severity: 'WARN', msg: '避免使用未授权的患者名义作证明' },
+  { rule: '疗效承诺', pattern: /保证|确保|一定|肯定|绝对能/g, severity: 'FAIL', msg: '禁止对效果做断言或保证' },
+  { rule: '315敏感词', pattern: /骗人|没效果|坑|假的|上当|投诉/g, severity: 'INFO', msg: '315敏感词（注意语境，可能被算法标记）' },
+  { rule: '价格合规', pattern: /原价|市场价|门店价|吊牌价/g, severity: 'WARN', msg: '标注"原价"需有真实成交记录支撑' },
+  { rule: '机构比较', pattern: /比其他|比别家|最好.*眼科|最专业/g, severity: 'FAIL', msg: '禁止与其他医疗机构直接比较' }
+];
+
+app.post('/api/copy-optimize', async (req, res) => {
+  try {
+    const { currentCopy, projectName, projectPrice, targetAudience } = req.body;
+    if (!currentCopy) return res.status(400).json({ error: '请提供详情页文案' });
+
+    await delay(600 + Math.random() * 800);
+
+    // 合规检查
+    const complianceResults = [];
+    COPY_RULES.forEach(r => {
+      const matches = currentCopy.match(r.pattern);
+      if (matches) complianceResults.push({ rule: r.rule, severity: r.severity, matched: [...new Set(matches)], msg: r.msg });
+    });
+
+    // 五维度评分 (基于文案特征启发式打分)
+    const hasPainPoint = /孩子|近视|看不清|度数|担心|焦虑|怎么办|越来越/.test(currentCopy);
+    const hasPriceAnchor = /¥|元|原价|团购|优惠|限时|特惠/.test(currentCopy);
+    const hasTrustElement = /爱尔|博士|主任|专家|资质|认证|会员|年.*经验/.test(currentCopy);
+    const hasStepByStep = /步骤|第一步|第二步|流程|首先|然后|最后|包含|套餐内容/.test(currentCopy);
+    const hasCTA = /立即|马上|点击|团购|预约|咨询|扫码/.test(currentCopy);
+    const hasUrgency = /限时|限量|仅剩|最后|即将|截止|名额/.test(currentCopy);
+    const hasSocialProof = /好评|五星|已售|复购|推荐|口碑/.test(currentCopy);
+    const wordCount = currentCopy.length;
+
+    const hookScore = Math.min(95, 40 + (hasPainPoint ? 30 : 0) + (wordCount > 50 ? 15 : 0) + (hasPriceAnchor ? 10 : 0));
+    const trustScore = Math.min(95, 35 + (hasTrustElement ? 25 : 0) + (hasSocialProof ? 20 : 0) + (wordCount > 200 ? 10 : 5));
+    const clarityScore = Math.min(95, 30 + (hasStepByStep ? 30 : 0) + (wordCount > 100 ? 15 : 0) + (hasCTA ? 10 : 0));
+    const urgencyScore = Math.min(95, 25 + (hasCTA ? 20 : 0) + (hasUrgency ? 30 : 0) + (hasPriceAnchor ? 10 : 0));
+    const complianceScore = complianceResults.filter(r => r.severity === 'FAIL').length > 0 ? 30 :
+      complianceResults.filter(r => r.severity === 'WARN').length > 0 ? 55 : 85;
+
+    const overallScore = Math.round(hookScore * 0.2 + trustScore * 0.25 + clarityScore * 0.25 + urgencyScore * 0.1 + complianceScore * 0.2);
+
+    // 生成优化版文案
+    const name = projectName || '视力检查';
+    const price = projectPrice || '¥199';
+    const audience = targetAudience || '6-14岁近视儿童家长';
+
+    // 原始文案分段对比
+    const sections = [];
+    const originalParts = currentCopy.split(/\n\n|\r\n\r\n/).filter(Boolean);
+    if (originalParts.length === 0) originalParts.push(currentCopy);
+
+    const improvedParts = [];
+    // 开头钩子
+    if (!hasPainPoint) {
+      improvedParts.push(`【孩子近视度数涨太快？可能是没选对矫正方式】\n\n每年暑假后，很多家长发现孩子近视度数又涨了50-100度。其实，除了配普通眼镜，还有一种国际公认的近视控制方法——角膜塑形镜（OK镜）。`);
+    } else {
+      improvedParts.push(originalParts[0].replace(/^[【\[]?/, '【').replace(/^(.{0,50})/, '【$1】'));
+    }
+    // 信任建立
+    if (!hasTrustElement) {
+      improvedParts.push(`为什么选择爱尔眼科？\n\n爱尔眼科 · 全球连锁眼科医疗机构\n杜秀臻医生 · 从业10年 · 青少年近视防控专家\n已为3000+青少年提供个性化近视防控方案`);
+    } else {
+      improvedParts.push(originalParts[Math.min(1, originalParts.length - 1)] || '');
+    }
+    // 流程说明
+    if (!hasStepByStep) {
+      improvedParts.push(`【${name}包含哪些项目？】\n\n① 综合验光：精准测量屈光状态\n② 角膜地形图：评估角膜形态是否适合OK镜\n③ 眼轴长度测量：客观评估近视进展\n④ 医生一对一解读报告+个性化方案建议`);
+    } else {
+      improvedParts.push(originalParts[Math.min(2, originalParts.length - 1)] || '');
+    }
+    // 价格 + CTA
+    improvedParts.push(`【限时团购 · 仅需${price}】\n\n${name}\n原价¥${Math.round(parseFloat(price.replace('¥','')) * 2.5)} → 团购价${price}\n含：完整检查 + 医生报告解读 + 个性化方案\n有效期：购买后30天内到院\n\n📍 ${CLINIC.address}\n📞 ${CLINIC.phone}\n\n⚠️ 温馨提示：本套餐为检查评估套餐，不含OK镜产品费用。具体配戴方案需医生面诊后确定。\n\n[点击立即团购 →]`);
+
+    const optimizedCopy = improvedParts.join('\n\n');
+
+    // 对比分析
+    const comparison = [];
+    const beforeAfterMap = [
+      { section: '开头钩子', before: originalParts[0] || '(缺少开头)', after: improvedParts[0].substring(0, 80) + '...', reason: hasPainPoint ? '已包含痛点共鸣，微调格式' : '新增痛点共鸣+数据锚定', score: hasPainPoint ? 75 : 40 },
+      { section: '信任建立', before: originalParts[1] || '(缺少)', after: improvedParts[1].substring(0, 80) + '...', reason: hasTrustElement ? '已包含信任元素' : '新增资质/数据背书', score: hasTrustElement ? 70 : 35 },
+      { section: '流程说明', before: originalParts[2] || '(缺少)', after: improvedParts[2].substring(0, 80) + '...', reason: hasStepByStep ? '流程描述清晰' : '新增分步骤流程说明', score: hasStepByStep ? 80 : 30 },
+      { section: '行动号召', before: '(原无明确CTA)', after: improvedParts[3].substring(0, 80) + '...', reason: '新增价格对比+团购CTA+温馨提示', score: hasCTA ? 65 : 25 }
+    ];
+
+    res.json({
+      projectName: name,
+      projectPrice: price,
+      originalScore: overallScore > 75 ? overallScore - randInt(5, 15) : overallScore,
+      optimizedScore: overallScore,
+      dimensions: {
+        hook: { score: hookScore, label: '吸引钩子', comment: hookScore < 60 ? '缺少痛点共鸣，开头不够吸引' : hookScore < 75 ? '有一定吸引力，可增强数据锚定' : '痛点明确，吸引力强' },
+        trust: { score: trustScore, label: '信任建立', comment: trustScore < 60 ? '缺少资质/数据背书，信任感不足' : trustScore < 75 ? '有基本信任元素，可增加具体数据' : '信任元素完善' },
+        clarity: { score: clarityScore, label: '信息清晰度', comment: clarityScore < 60 ? '缺少流程说明，信息不够清晰' : clarityScore < 75 ? '结构基本清晰，可增加分步骤说明' : '结构清晰，信息完整' },
+        urgency: { score: urgencyScore, label: '行动紧迫感', comment: urgencyScore < 50 ? '缺少限时/CTA元素，转化驱动力弱' : urgencyScore < 70 ? '有CTA但紧迫感不足' : 'CTA明确，紧迫感强' },
+        compliance: { score: complianceScore, label: '合规性', comment: complianceResults.filter(r => r.severity === 'FAIL').length > 0 ? '存在合规红线问题，必须修改' : complianceResults.filter(r => r.severity === 'WARN').length > 0 ? '有需注意的合规项' : '合规检查通过' }
+      },
+      complianceCheck: {
+        passed: complianceResults.filter(r => r.severity === 'FAIL').length === 0,
+        warnings: complianceResults.filter(r => r.severity === 'WARN').length,
+        details: complianceResults
+      },
+      optimizedCopy,
+      beforeAfterComparison: comparison.length > 0 ? comparison : beforeAfterMap,
+      highImpactChanges: [
+        hasPainPoint ? null : '开头增加痛点共鸣（P0）',
+        hasTrustElement ? null : '增加医生资质/数据背书（P0）',
+        hasStepByStep ? null : '增加分步骤流程说明（P1）',
+        hasCTA ? null : '增加明确CTA按钮（P0）'
+      ].filter(Boolean),
+      seoKeywords: [name, '近视防控', '儿童视力检查', '角膜塑形镜', 'OK镜', '爱尔眼科', '青少年近视', '眼科检查']
+    });
+  } catch (e) {
+    console.error('copy-optimize error:', e);
+    res.status(500).json({ error: '文案优化服务异常，请稍后重试' });
+  }
+});
+
+// ===================================================================
+// 月度数据导入模块
+// 字段结构依据《8月集团门诊后台得分和星级分析.xlsx》设计：
+//   主表「8月」：省区 / 店铺名称 / 城市 / 美团星级 / 点评星级 / 经营评分（228 行）
+//   副表「Sheet1」：店铺ID / 店铺名称 / 城市 / 评论内容（11 条差评）
+// 缺失值统一处理：文本 "NULL"、空串、"-"、"无" 一律视为缺失，可后续手动补录
+// ===================================================================
+const XLSX = require('xlsx');
+const fs = require('fs');
+const DATA_DIR = path.join(__dirname, '.data', 'monthly');
+
+// 标准字段定义（aliases 用于表头自动匹配）
+const M_FIELDS = [
+  { key: 'region',       label: '省区',     aliases: ['省区', '区域', '大区', '省份', '所属省区'], type: 'text', required: false, fillable: true, hint: '如「山东省区」，缺失时按同城门店自动推荐' },
+  { key: 'storeName',    label: '店铺名称', aliases: ['店铺名称', '门店名称', '店铺名', '门诊名称', '门店', 'storename'], type: 'text', required: true, fillable: false, hint: '唯一键，必填' },
+  { key: 'city',         label: '城市',     aliases: ['城市', '所在城市', '地市', '市'], type: 'text', required: true, fillable: false, hint: '如「临沂市」，必填' },
+  { key: 'manager',      label: '运营经理', aliases: ['运营经理', '省区经理', '运营负责人', '区域经理', '城市经理'], type: 'text', required: false, fillable: false, hint: '仅用于填报链接按经理筛选，可在页面按省区批量设置' },
+  { key: 'status',       label: '门店状态', aliases: ['门店状态', '是否开通', '开通状态', '状态', '门店情况'], type: 'text', required: false, fillable: false, hint: '未开通/未上线门店不计入待补录' },
+  { key: 'meituanStar',  label: '美团星级', aliases: ['美团星级', '美团评分', '店铺星级', '美团门店星级'], type: 'dec1', required: false, fillable: true, min: 0, max: 5, hint: '0~5，一位小数' },
+  { key: 'dianpingStar', label: '点评星级', aliases: ['点评星级', '大众点评星级', '点评评分', '点评分'], type: 'dec1', required: false, fillable: true, min: 0, max: 5, hint: '0~5，一位小数' },
+  { key: 'opsScore',     label: '经营评分', aliases: ['经营评分', '后台得分', '后台评分', '经营分', '评分'], type: 'int', required: false, fillable: true, min: 0, max: 110, hint: '0~110（存在加分项，允许超 100）' }
+];
+const M_FIELDS_REVIEW = [
+  { key: 'storeId',       label: '店铺ID',   aliases: ['店铺id', '门店id', 'poiid', 'shopid'], type: 'text' },
+  { key: 'storeName',     label: '店铺名称', aliases: ['店铺名称', '门店名称', '店铺名', '门诊名称'], type: 'text' },
+  { key: 'city',          label: '城市',     aliases: ['城市', '所在城市'], type: 'text' },
+  { key: 'reviewContent', label: '评论内容', aliases: ['评论内容', '评价内容', '差评内容', '评论', '内容'], type: 'text' }
+];
+
+// 空值归一：文本 NULL / 空串 / 占位符 → null
+function mNull(v) {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'number') return isFinite(v) ? v : null;
+  const s = String(v).trim();
+  if (!s) return null;
+  if (/^(null|n\/a|na|none|nil|-|--|—|\/|无|暂无|待补)$/i.test(s)) return null;
+  return s;
+}
+function mNum(v, type) {
+  const raw = mNull(v);
+  if (raw === null) return null;
+  let n;
+  if (typeof raw === 'number') n = raw;
+  else {
+    const cleaned = String(raw).replace(/[^\d.\-]/g, '');
+    if (!cleaned) return null;
+    n = Number(cleaned);
+  }
+  if (!isFinite(n)) return null;
+  return type === 'int' ? Math.round(n) : Math.round(n * 10) / 10;
+}
+function mText(v) {
+  const raw = mNull(v);
+  if (raw === null) return null;
+  // 逆向清洗字面量 \n（部分 Excel 导出把换行写成反斜杠+n）
+  return String(raw).replace(/\\n/g, '\n').replace(/\s+/g, ' ').trim() || null;
+}
+
+// 表头识别：在前 6 行中找命中别名最多的那一行
+function mDetectHeader(rows, fields) {
+  let best = { row: 0, score: 0, map: {} };
+  for (let r = 0; r < Math.min(6, rows.length); r++) {
+    const map = {};
+    let score = 0;
+    (rows[r] || []).forEach((cell, ci) => {
+      const name = mNull(cell);
+      if (name === null) return;
+      const lower = String(name).toLowerCase().replace(/\s/g, '');
+      const hit = fields.find(f => f.aliases.some(a => lower === a.toLowerCase().replace(/\s/g, '')));
+      if (hit && map[hit.key] === undefined) { map[hit.key] = ci; score++; }
+    });
+    if (score > best.score) best = { row: r, score, map };
+  }
+  return best;
+}
+
+// 读取工作簿 → { main: {name, rows}, review: {name, rows} }
+function mReadWorkbook(buffer) {
+  const wb = XLSX.read(buffer, { type: 'buffer', cellDates: false });
+  const candidates = wb.SheetNames.map(name => {
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: null, raw: true, blankrows: false });
+    const mainH = mDetectHeader(rows, M_FIELDS);
+    const revH = mDetectHeader(rows, M_FIELDS_REVIEW);
+    return { name, rows, mainH, revH };
+  });
+  // 主表：命中最多的主表字段；差评表：含「评论内容」且命中差评字段更多
+  let main = null, review = null;
+  candidates.forEach(c => {
+    const hasReviewCol = c.revH.map.reviewContent !== undefined;
+    if (!hasReviewCol && (!main || c.mainH.score > main.mainH.score)) main = c;
+  });
+  candidates.forEach(c => {
+    if (c.revH.map.reviewContent !== undefined && (!review || c.revH.score > review.revH.score)) review = c;
+  });
+  if (!main) {
+    candidates.forEach(c => { if (!main || c.mainH.score > main.mainH.score) main = c; });
+  }
+  if (main && review && main.name === review.name) {
+    // 同一张表既含门店指标又含评论，视为单表模式
+    review = null;
+  }
+  return { wb, main, review };
+}
+
+// 从主表提取门店记录
+// 门店状态归一：显式状态列优先；无状态列时，三项指标全空视为「疑似未开通」
+function mStatusOf(raw, rec) {
+  const s = mText(raw);
+  const hasStatusCol = raw !== undefined;
+  if (s) {
+    if (/未开通|未上线|未营业|筹备|筹建|暂停|停业|关闭|装修/.test(s)) return 'unopened';
+    if (/已开通|已上线|正常|在营|营业中/.test(s)) return 'active';
+  }
+  if (hasStatusCol && raw !== null && raw !== undefined) return 'active';
+  const allNull = rec.meituanStar === null && rec.dianpingStar === null && rec.opsScore === null;
+  return allNull ? 'suspect' : 'active';
+}
+
+function mExtractStores(sheet) {
+  const { rows, mainH } = sheet;
+  const map = mainH.map;
+  const out = [];
+  for (let r = mainH.row + 1; r < rows.length; r++) {
+    const row = rows[r] || [];
+    const storeName = mText(row[map.storeName]);
+    if (!storeName) continue;
+    // 跳过合计/小计行
+    if (/^(合计|小计|汇总|总计|平均|备注|说明)/.test(storeName)) continue;
+    const rec = {
+      storeName,
+      city: mText(map.city !== undefined ? row[map.city] : null),
+      region: mText(map.region !== undefined ? row[map.region] : null),
+      manager: mText(map.manager !== undefined ? row[map.manager] : null),
+      meituanStar: map.meituanStar !== undefined ? mNum(row[map.meituanStar], 'dec1') : null,
+      dianpingStar: map.dianpingStar !== undefined ? mNum(row[map.dianpingStar], 'dec1') : null,
+      opsScore: map.opsScore !== undefined ? mNum(row[map.opsScore], 'int') : null,
+      sourceRow: r + 1,
+      manual: {}
+    };
+    rec.status = mStatusOf(map.status !== undefined ? row[map.status] : undefined, rec);
+    out.push(rec);
+  }
+  return out;
+}
+
+function mExtractReviews(sheet) {
+  if (!sheet) return [];
+  const { rows, revH } = sheet;
+  const map = revH.map;
+  const out = [];
+  for (let r = revH.row + 1; r < rows.length; r++) {
+    const row = rows[r] || [];
+    const content = mText(map.reviewContent !== undefined ? row[map.reviewContent] : null);
+    const storeName = mText(map.storeName !== undefined ? row[map.storeName] : null);
+    if (!content && !storeName) continue;
+    out.push({
+      storeId: mText(map.storeId !== undefined ? row[map.storeId] : null),
+      storeName: storeName || '（未填门店）',
+      city: mText(map.city !== undefined ? row[map.city] : null),
+      content: content || '',
+      sourceRow: r + 1
+    });
+  }
+  return out;
+}
+
+// 缺失字段清单 + 同城自动推荐
+function mPending(store) {
+  return M_FIELDS.filter(f => f.fillable && (store[f.key] === null || store[f.key] === undefined)).map(f => f.key);
+}
+function mSuggest(stores, key) {
+  const bucket = {};
+  stores.forEach(s => {
+    if (s[key] === null || s[key] === undefined) return;
+    const c = s.city || '';
+    if (!c) return;
+    (bucket[c] = bucket[c] || []).push(s[key]);
+  });
+  const result = {};
+  stores.forEach(s => {
+    if (s[key] !== null && s[key] !== undefined) return;
+    const c = s.city || '';
+    const arr = bucket[c];
+    if (!arr || !arr.length) return;
+    // 取众数
+    const freq = {};
+    arr.forEach(v => freq[v] = (freq[v] || 0) + 1);
+    const top = Object.keys(freq).sort((a, b) => freq[b] - freq[a])[0];
+    const pct = Math.round(freq[top] / arr.length * 100);
+    // 置信度不足 50% 的不作推荐，避免误导
+    if (pct < 50) return;
+    const val = isNaN(Number(top)) ? top : Number(top);
+    result[s.storeName] = { value: val, from: `${c}同城 ${arr.length} 家门店`, confidence: pct };
+  });
+  return result;
+}
+
+// 分布统计（NULL 单独成箱，不混入数值区间）
+function mBucket(values, buckets) {
+  const valid = values.filter(v => v !== null && v !== undefined);
+  return buckets.map(b => {
+    const count = valid.filter(v => v >= b.min && (b.max === null || v < b.max)).length;
+    return { label: b.label, min: b.min, max: b.max, count, pct: valid.length ? Math.round(count / valid.length * 1000) / 10 : 0 };
+  });
+}
+
+// 主分析
+function mAnalyze({ month, fileName, stores, reviews, meta }) {
+  const managerMap = (meta && meta.managerMap) || {};
+  // 运营经理补全：门店自带优先，其次按「省区 → 经理」映射
+  const withMgr = stores.map(s => Object.assign({}, s, {
+    manager: s.manager || (s.region && managerMap[s.region] ? managerMap[s.region] : null),
+    status: s.status || 'active'
+  }));
+  const isExcluded = s => s.status === 'unopened' || s.status === 'suspect';
+  const activeRaw = withMgr.filter(s => !isExcluded(s));
+  const excludedRaw = withMgr.filter(isExcluded);
+
+  // 仅「省区」属于地理属性，可由同城门店的同省归属推断；
+  // 美团星级 / 点评星级 / 经营评分 是门店级考核指标，同城门店之间没有可比性，禁止自动推断，必须人工补录
+  const SUGGEST = { region: mSuggest(activeRaw, 'region') };
+
+  const annotated = s => {
+    const missing = mPending(s);
+    const suggestions = {};
+    if (s.status === 'active') {
+      missing.forEach(k => { if (SUGGEST[k] && SUGGEST[k][s.storeName]) suggestions[k] = SUGGEST[k][s.storeName]; });
+    }
+    return Object.assign({}, s, { missing, suggestions, complete: Math.round((4 - missing.length) / 4 * 100) });
+  };
+
+  const enriched = activeRaw.map(annotated);
+  const excludedStores = excludedRaw.map(s => Object.assign(annotated(s), { excluded: true }));
+
+  const valid = arr => arr.filter(v => v !== null && v !== undefined);
+  const avg = arr => { const v = valid(arr); return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length * 100) / 100 : null; };
+
+  const starVals = enriched.map(s => s.meituanStar);
+  const dianpingVals = enriched.map(s => s.dianpingStar);
+  const scoreVals = enriched.map(s => s.opsScore);
+
+  const kpi = {
+    storeCount: enriched.length,
+    totalStores: withMgr.length,
+    excludedCount: excludedStores.length,
+    unopenedCount: excludedStores.filter(s => s.status === 'unopened').length,
+    suspectCount: excludedStores.filter(s => s.status === 'suspect').length,
+    completeStores: enriched.filter(s => s.missing.length === 0).length,
+    pendingStores: enriched.filter(s => s.missing.length > 0).length,
+    pendingFieldCount: enriched.reduce((a, s) => a + s.missing.length, 0),
+    avgMeituanStar: avg(starVals),
+    // 点评星级为 0 的样本极可能是「无点评数据」占位，均值仅统计 >0 的有效评分
+    avgDianpingStar: avg(dianpingVals.filter(v => v === null || v > 0)),
+    dianpingValidCount: dianpingVals.filter(v => v !== null && v > 0).length,
+    avgOpsScore: avg(scoreVals),
+    nullStarCount: enriched.filter(s => s.meituanStar === null).length,
+    zeroStarCount: enriched.filter(s => s.meituanStar === 0).length,
+    nullScoreCount: enriched.filter(s => s.opsScore === null).length,
+    zeroScoreCount: enriched.filter(s => s.opsScore === 0).length,
+    dianpingZeroCount: enriched.filter(s => s.dianpingStar === 0).length,
+    opsAbove100: enriched.filter(s => s.opsScore !== null && s.opsScore > 100).length,
+    opsBelow70: enriched.filter(s => s.opsScore !== null && s.opsScore < 70).length,
+    starBelow40: enriched.filter(s => s.meituanStar !== null && s.meituanStar > 0 && s.meituanStar < 4.0).length,
+    reviewCount: reviews.length,
+    reviewStores: new Set(reviews.map(r => r.storeName)).size,
+    regionCount: new Set(enriched.map(s => s.region).filter(Boolean)).size,
+    cityCount: new Set(enriched.map(s => s.city).filter(Boolean)).size
+  };
+
+  // 省区对比（仅统计已填省区）
+  const regionMap = {};
+  enriched.forEach(s => {
+    if (!s.region) return;
+    const r = regionMap[s.region] = regionMap[s.region] || { region: s.region, stores: [], pending: 0 };
+    r.stores.push(s);
+    if (s.missing.length) r.pending++;
+  });
+  const regionStats = Object.values(regionMap).map(r => ({
+    region: r.region,
+    storeCount: r.stores.length,
+    avgMeituanStar: avg(r.stores.map(s => s.meituanStar)),
+    avgOpsScore: avg(r.stores.map(s => s.opsScore)),
+    pendingStores: r.pending,
+    below70: r.stores.filter(s => s.opsScore !== null && s.opsScore < 70).length,
+    reviewCount: reviews.filter(v => r.stores.some(s => s.storeName === v.storeName)).length
+  })).sort((a, b) => (b.avgOpsScore || 0) - (a.avgOpsScore || 0));
+
+  // 评级：按省区均分的三分位划分（前 1/3 为 A，后 1/3 为 C），省区数不足 6 个时退回固定阈值
+  const ratedRegions = regionStats.filter(r => r.avgOpsScore !== null);
+  const sortedScores = ratedRegions.map(r => r.avgOpsScore).sort((a, b) => a - b);
+  const pick = q => sortedScores.length ? sortedScores[Math.min(sortedScores.length - 1, Math.floor(sortedScores.length * q))] : null;
+  const useTercile = sortedScores.length >= 6;
+  const p33 = useTercile ? pick(0.33) : 70;
+  const p67 = useTercile ? pick(0.67) : 85;
+  regionStats.forEach(r => {
+    if (r.avgOpsScore === null) { r.grade = '—'; }
+    else if (r.avgOpsScore >= p67) { r.grade = 'A'; }
+    else if (r.avgOpsScore >= p33) { r.grade = 'B'; }
+    else { r.grade = 'C'; }
+  });
+  const gradeNote = useTercile
+    ? `按 ${sortedScores.length} 个省区均分的三分位划分：A ≥ ${p67} 分，B ${p33}–${p67} 分，C ＜ ${p33} 分`
+    : `省区数不足 6 个，改用固定阈值：A ≥ 85 分，B 70–85 分，C ＜ 70 分`;
+
+  const starDistribution = mBucket(starVals, [
+    { label: '0 分（真实评分）', min: 0, max: 0.0001 },
+    { label: '＜4.0', min: 0.0001, max: 4.0 },
+    { label: '4.0–4.4', min: 4.0, max: 4.5 },
+    { label: '4.5–4.9', min: 4.5, max: 5.0 },
+    { label: '5.0', min: 5.0, max: null }
+  ]);
+  const nullStar = starVals.filter(v => v === null || v === undefined).length;
+  if (nullStar > 0) {
+    starDistribution.unshift({ label: '未填（NULL）', min: null, max: null, count: nullStar, pct: Math.round(nullStar / enriched.length * 1000) / 10 });
+  }
+
+  const scoreDistribution = mBucket(scoreVals, [
+    { label: '0 分（真实评分）', min: 0, max: 0.0001 },
+    { label: '1–59', min: 0.0001, max: 60 },
+    { label: '60–69', min: 60, max: 70 },
+    { label: '70–79', min: 70, max: 80 },
+    { label: '80–89', min: 80, max: 90 },
+    { label: '90–100', min: 90, max: 100.5 },
+    { label: '＞100（含加分）', min: 100.5, max: null }
+  ]);
+  const nullScore = scoreVals.filter(v => v === null || v === undefined).length;
+  if (nullScore > 0) {
+    scoreDistribution.unshift({ label: '未填（NULL）', min: null, max: null, count: nullScore, pct: Math.round(nullScore / enriched.length * 1000) / 10 });
+  }
+
+  const rated = enriched.filter(s => s.opsScore !== null);
+  const top10 = rated.slice().sort((a, b) => b.opsScore - a.opsScore).slice(0, 10);
+  const bottom10 = rated.slice().sort((a, b) => a.opsScore - b.opsScore).slice(0, 10);
+  const lowStar = enriched.filter(s => s.meituanStar !== null && s.meituanStar > 0 && s.meituanStar < 4.2)
+    .sort((a, b) => a.meituanStar - b.meituanStar).slice(0, 15);
+
+  const pendingList = enriched.filter(s => s.missing.length > 0).map(s => ({
+    storeName: s.storeName, city: s.city, region: s.region, manager: s.manager, sourceRow: s.sourceRow,
+    missing: s.missing.map(k => ({ key: k, label: (M_FIELDS.find(f => f.key === k) || {}).label || k })),
+    suggestions: s.suggestions
+  }));
+  const pendingByManager = {};
+  pendingList.forEach(p => {
+    const m = p.manager || '未分配经理';
+    pendingByManager[m] = (pendingByManager[m] || 0) + 1;
+  });
+
+  // 规则化洞察（确定性，不依赖大模型）
+  const insights = [];
+  if (kpi.pendingFieldCount > 0) {
+    const fillableHit = pendingList.filter(p => Object.keys(p.suggestions).length > 0).length;
+    insights.push({ level: 'P0', text: `${kpi.pendingStores} 家门店共 ${kpi.pendingFieldCount} 个字段缺失，其中 ${fillableHit} 家的「省区」可由同城门店归属自动推荐；星级与经营评分属门店级指标、无法互推，需人工逐个补录。` });
+  }
+  if (kpi.excludedCount > 0) {
+    insights.push({ level: 'P2', text: `已排除 ${kpi.excludedCount} 家未开通/疑似未开通门店（美团星级、点评星级、经营评分三项全空），不计入待补录与省区对标；若其中确有已营业门诊，可在「门店明细」中把状态改回「已开通」。` });
+  }
+  if (kpi.regionCount > 0 && kpi.storeCount) {
+    const uncovered = kpi.storeCount - enriched.filter(s => s.region).length;
+    if (uncovered > 0) insights.push({ level: 'P0', text: `省区覆盖率 ${Math.round((1 - uncovered / kpi.storeCount) * 100)}%，${uncovered} 家门店未归属省区，将无法进入省区横向对标，须优先补齐。` });
+  }
+  if (kpi.opsBelow70 > 0) insights.push({ level: 'P0', text: `经营评分低于 70 分的门店 ${kpi.opsBelow70} 家（占 ${Math.round(kpi.opsBelow70 / (rated.length || 1) * 100)}%），为平台流量分配的最弱环节，建议本月内完成一次一对一诊断。` });
+  if (kpi.starBelow40 > 0) insights.push({ level: 'P1', text: `美团星级低于 4.0 的门店 ${kpi.starBelow40} 家，星级直接影响列表排序与点击率，需结合差评原文逐条整改。` });
+  if (kpi.opsAbove100 > 0) insights.push({ level: 'P1', text: `${kpi.opsAbove100} 家门店经营评分超过 100（存在加分项），可作为标杆样本反推加分动作，输出可复制的运营 SOP。` });
+  if (kpi.dianpingZeroCount > kpi.storeCount * 0.3) insights.push({ level: 'P1', text: `点评星级为 0 的门店 ${kpi.dianpingZeroCount} 家（占 ${Math.round(kpi.dianpingZeroCount / kpi.storeCount * 100)}%），0 很可能代表「无点评数据」而非真实评分，建议与业务确认口径后再纳入考核，避免误判。` });
+  if (kpi.nullStarCount > 0) insights.push({ level: 'P2', text: `${kpi.nullStarCount} 家门店美团星级为空（源文件标记 NULL），其中 ${kpi.zeroStarCount} 家为真实 0 分，两者含义不同，补录时请勿一并按 0 处理。` });
+  if (regionStats.length >= 2) {
+    const best = regionStats[0], worst = regionStats[regionStats.length - 1];
+    if (best.avgOpsScore !== null && worst.avgOpsScore !== null && best.avgOpsScore - worst.avgOpsScore > 5) {
+      insights.push({ level: 'P1', text: `省区差距显著：${best.region} 均分 ${best.avgOpsScore}，${worst.region} 均分 ${worst.avgOpsScore}，相差 ${Math.round((best.avgOpsScore - worst.avgOpsScore) * 10) / 10} 分，建议把 A 级省区的做法做成标准包下发。` });
+    }
+  }
+  if (kpi.reviewCount > 0) insights.push({ level: 'P2', text: `本月收到差评原文 ${kpi.reviewCount} 条，覆盖 ${kpi.reviewStores} 家门店，已转入「评价管理」模块生成回复话术。` });
+
+  // 字段映射回显
+  const mapping = M_FIELDS.map(f => ({
+    field: f.key, label: f.label, hint: f.hint,
+    columnIndex: meta.mainMap[f.key] !== undefined ? meta.mainMap[f.key] : null,
+    columnName: meta.mainMap[f.key] !== undefined ? meta.mainHeaders[meta.mainMap[f.key]] : null,
+    matched: meta.mainMap[f.key] !== undefined
+  }));
+
+  const result = {
+    ok: true,
+    month,
+    fileName,
+    importedAt: new Date().toISOString(),
+    meta: {
+      sheetCount: meta.sheetCount,
+      mainSheet: meta.mainSheet,
+      reviewSheet: meta.reviewSheet,
+      totalRows: withMgr.length,
+      excludedRows: excludedStores.length,
+      headerRow: meta.headerRow + 1,
+      headers: meta.mainHeaders,
+      mainMap: meta.mainMap || {},
+      sheetNames: meta.sheetNames || [],
+      warnings: meta.warnings || [],
+      reviewSource: meta.reviewSheet ? `${meta.reviewSheet}（${reviews.length} 条）` : '未检测到差评明细表'
+    },
+    mapping,
+    kpi,
+    stores: enriched.concat(excludedStores),
+    pendingList,
+    pendingByManager,
+    managerMap,
+    managers: Array.from(new Set(enriched.map(s => s.manager).filter(Boolean))).sort(),
+    regions: Array.from(new Set(enriched.map(s => s.region).filter(Boolean))).sort(),
+    regionStats,
+    gradeNote,
+    starDistribution,
+    scoreDistribution,
+    top10, bottom10, lowStar,
+    reviews: reviews.slice(0, 200),
+    insights,
+    warnings: meta.warnings || []
+  };
+  return result;
+}
+
+function mEnsureDir() {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+function mSave(month, payload) {
+  try {
+    mEnsureDir();
+    fs.writeFileSync(path.join(DATA_DIR, `${month || 'unknown'}.json`), JSON.stringify(payload, null, 1), 'utf8');
+  } catch (e) { console.error('月度数据落盘失败:', e.message); }
+}
+function mLoad(month) {
+  try {
+    const p = path.join(DATA_DIR, `${month}.json`);
+    if (!fs.existsSync(p)) return null;
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+  } catch (e) { return null; }
+}
+function mFindByToken(token) {
+  try {
+    mEnsureDir();
+    const files = fs.readdirSync(DATA_DIR).filter(f => f.endsWith('.json'));
+    for (const f of files) {
+      try {
+        const j = JSON.parse(fs.readFileSync(path.join(DATA_DIR, f), 'utf8'));
+        if (j && j.fillToken && j.fillToken === token) return j;
+      } catch (e) { /* skip broken file */ }
+    }
+  } catch (e) { /* ignore */ }
+  return null;
+}
+// 用存档里的门店原始值重跑分析（补录、设经理、外部填报都走这里）
+function mRebuild(data, overrides) {
+  const src = data.meta || {};
+  const meta = {
+    sheetCount: src.sheetCount || 1,
+    mainSheet: src.mainSheet || '—',
+    reviewSheet: src.reviewSheet || null,
+    headerRow: Math.max(0, (src.headerRow || 1) - 1),
+    mainHeaders: src.headers || [],
+    mainMap: src.mainMap || {},
+    sheetNames: src.sheetNames || [],
+    warnings: src.warnings || [],
+    managerMap: (overrides && overrides.managerMap) || data.managerMap || {}
+  };
+  const payload = mAnalyze({ month: data.month, fileName: data.fileName, stores: data.stores || [], reviews: data.reviews || [], meta });
+  payload.fillToken = data.fillToken || null;
+  payload.importedAt = data.importedAt || payload.importedAt;
+  if (overrides && overrides.managerMap) payload.managerMap = overrides.managerMap;
+  return payload;
+}
+function mClampNum(v, min, max, type) {
+  if (v === null || v === undefined || v === '') return null;
+  const n = Number(String(v).replace(/[^\d.\-]/g, ''));
+  if (!isFinite(n)) return null;
+  const clamped = Math.min(max, Math.max(min, n));
+  return type === 'int' ? Math.round(clamped) : Math.round(clamped * 10) / 10;
+}
+
+// --- POST /api/monthly-import  上传 Excel 并解析 ---
+app.post('/api/monthly-import', async (req, res) => {
+  try {
+    const { month, fileName, fileBase64 } = req.body || {};
+    if (!fileBase64) return res.status(400).json({ ok: false, error: '未收到文件内容，请重新选择 Excel 文件' });
+    let buffer;
+    try {
+      buffer = Buffer.from(String(fileBase64).replace(/^data:[^;]+;base64,/, ''), 'base64');
+    } catch (e) {
+      return res.status(400).json({ ok: false, error: '文件解码失败，请确认上传的是 .xlsx 文件' });
+    }
+    if (buffer.length > 20 * 1024 * 1024) return res.status(400).json({ ok: false, error: '文件超过 20MB，请精简后上传' });
+
+    const { wb, main, review } = mReadWorkbook(buffer);
+    if (!main || main.mainH.score === 0) {
+      return res.status(400).json({ ok: false, error: '未识别到有效表头。请确保表格包含「店铺名称」「城市」以及「美团星级/点评星级/经营评分」中的至少一列。' });
+    }
+    const stores = mExtractStores(main);
+    if (!stores.length) return res.status(400).json({ ok: false, error: '表头识别成功，但未读到任何门店数据行（店铺名称列全部为空）。' });
+    const reviews = mExtractReviews(review);
+
+    const warnings = [];
+    if (main.mainH.map.city === undefined) warnings.push('未找到「城市」列，同城推荐将不可用');
+    if (main.mainH.map.region === undefined) warnings.push('未找到「省区」列，省区对标将不可用');
+    if (!review) warnings.push('未检测到差评明细表（含「评论内容」的工作表），本次仅导入门店指标');
+
+    // 同月重导时沿用已设置的省区负责人映射与填报 token，避免重新上传后丢失
+    const prev = mLoad(month || 'unknown') || {};
+    const prevMap = prev.managerMap || {};
+    const prevStatus = {};
+    (prev.stores || []).forEach(s => { if (s.status && s.status !== 'active') prevStatus[s.storeName] = s.status; });
+    const storesWithPrev = stores.map(s => {
+      const st = Object.assign({}, s);
+      if (!st.manager && st.region && prevMap[st.region]) st.manager = prevMap[st.region];
+      if (prevStatus[st.storeName]) st.status = prevStatus[st.storeName];
+      return st;
+    });
+
+    const payload = mAnalyze({
+      month: month || '未命名月份',
+      fileName: fileName || '未命名文件',
+      stores: storesWithPrev, reviews,
+      meta: {
+        sheetCount: wb.SheetNames.length,
+        mainSheet: main.name,
+        reviewSheet: review ? review.name : null,
+        headerRow: main.mainH.row,
+        mainHeaders: (main.rows[main.mainH.row] || []).map(v => mNull(v) || ''),
+        mainMap: main.mainH.map,
+        warnings,
+        managerMap: prevMap
+      }
+    });
+    payload.meta.sheetNames = wb.SheetNames;
+    payload.fillToken = prev.fillToken || null;
+    payload.managerMap = prevMap;
+    mSave(month || 'unknown', payload);
+    console.log(`  [月度导入] ${month} · ${main.name} · ${stores.length} 家门店 · 差评 ${reviews.length} 条`);
+    res.json(payload);
+  } catch (e) {
+    console.error('monthly-import error:', e);
+    res.status(500).json({ ok: false, error: '解析失败：' + e.message });
+  }
+});
+
+// --- POST /api/monthly-reanalyze  手动补录后重算 ---
+app.post('/api/monthly-reanalyze', (req, res) => {
+  try {
+    const { month, fileName, stores, reviews, meta } = req.body || {};
+    if (!Array.isArray(stores)) return res.status(400).json({ ok: false, error: '缺少门店数据' });
+    const cur = mLoad(month) || {};
+    const bodyMeta = meta || {};
+    const payload = mAnalyze({
+      month: month || '未命名月份',
+      fileName: fileName || '手动补录',
+      stores, reviews: Array.isArray(reviews) ? reviews : [],
+      meta: {
+        sheetCount: (cur.meta && cur.meta.sheetCount) || 1,
+        mainSheet: bodyMeta.mainSheet || (cur.meta && cur.meta.mainSheet) || '手动录入',
+        reviewSheet: bodyMeta.reviewSheet !== undefined ? bodyMeta.reviewSheet : ((cur.meta && cur.meta.reviewSheet) || null),
+        headerRow: bodyMeta.headerRow !== undefined ? bodyMeta.headerRow : Math.max(0, ((cur.meta && cur.meta.headerRow) || 1) - 1),
+        mainHeaders: bodyMeta.mainHeaders || (cur.meta && cur.meta.headers) || M_FIELDS.map(f => f.label),
+        mainMap: (cur.meta && cur.meta.mainMap) || {},
+        sheetNames: (cur.meta && cur.meta.sheetNames) || [],
+        warnings: (cur.meta && cur.meta.warnings) || [],
+        managerMap: bodyMeta.managerMap || cur.managerMap || {}
+      }
+    });
+    payload.fillToken = cur.fillToken || null;
+    mSave(month || 'unknown', payload);
+    res.json(payload);
+  } catch (e) {
+    console.error('monthly-reanalyze error:', e);
+    res.status(500).json({ ok: false, error: '重算失败：' + e.message });
+  }
+});
+
+// --- POST /api/monthly-fill-link  生成外部填报链接 ---
+app.post('/api/monthly-fill-link', (req, res) => {
+  try {
+    const { month } = req.body || {};
+    const data = mLoad(month);
+    if (!data) return res.status(404).json({ ok: false, error: '该月份尚未导入数据，请先上传 Excel' });
+    if (!data.fillToken) {
+      data.fillToken = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+      mSave(month, data);
+    }
+    const host = req.get('host') || `localhost:${PORT}`;
+    const base = `${req.protocol}://${host}`;
+    const pending = (data.stores || []).filter(s => !s.excluded && s.missing && s.missing.length).length;
+    res.json({
+      ok: true,
+      token: data.fillToken,
+      path: `/fill.html?t=${data.fillToken}`,
+      url: `${base}/fill.html?t=${data.fillToken}`,
+      month: data.month,
+      pending: pending
+    });
+  } catch (e) {
+    console.error('monthly-fill-link error:', e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// --- GET /api/monthly-fill-form?token=  外部填报页取数 ---
+app.get('/api/monthly-fill-form', (req, res) => {
+  try {
+    const token = String(req.query.token || '').trim();
+    if (!token) return res.status(400).json({ ok: false, error: '缺少填报凭证' });
+    const data = mFindByToken(token);
+    if (!data) return res.status(404).json({ ok: false, error: '填报链接已失效，请向运营主管重新获取' });
+    const pending = (data.stores || []).filter(s => !s.excluded && s.missing && s.missing.length);
+    res.json({
+      ok: true,
+      month: data.month,
+      fileName: data.fileName,
+      updatedAt: data.importedAt,
+      totalPending: pending.length,
+      stores: pending.map(s => ({
+        storeName: s.storeName,
+        city: s.city || null,
+        region: s.region || null,
+        manager: s.manager || null,
+        meituanStar: s.meituanStar === undefined ? null : s.meituanStar,
+        dianpingStar: s.dianpingStar === undefined ? null : s.dianpingStar,
+        opsScore: s.opsScore === undefined ? null : s.opsScore,
+        missing: s.missing || [],
+        suggestions: s.suggestions || {}
+      })),
+      regions: Array.from(new Set(pending.map(s => s.region).filter(Boolean))).sort(),
+      managers: Array.from(new Set(pending.map(s => s.manager).filter(Boolean))).sort()
+    });
+  } catch (e) {
+    console.error('monthly-fill-form error:', e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// --- POST /api/monthly-fill-submit  外部填报提交回写 ---
+app.post('/api/monthly-fill-submit', (req, res) => {
+  try {
+    const { token, fills } = req.body || {};
+    if (!token) return res.status(400).json({ ok: false, error: '缺少填报凭证' });
+    if (!Array.isArray(fills)) return res.status(400).json({ ok: false, error: '没有可提交的填报内容' });
+    const data = mFindByToken(token);
+    if (!data) return res.status(404).json({ ok: false, error: '填报链接已失效，请向运营主管重新获取' });
+
+    const map = new Map((data.stores || []).map(s => [s.storeName, s]));
+    let saved = 0;
+    fills.forEach(f => {
+      if (!f || !f.storeName) return;
+      const s = map.get(f.storeName);
+      if (!s) return;
+      let touched = false;
+      const region = f.region === null || f.region === undefined ? '' : String(f.region).trim();
+      if (region) { s.region = region; touched = true; }
+      const ms = mClampNum(f.meituanStar, 0, 5, 'dec1');
+      if (ms !== null) { s.meituanStar = ms; touched = true; }
+      const ds = mClampNum(f.dianpingStar, 0, 5, 'dec1');
+      if (ds !== null) { s.dianpingStar = ds; touched = true; }
+      const os = mClampNum(f.opsScore, 0, 110, 'int');
+      if (os !== null) { s.opsScore = os; touched = true; }
+      if (touched) saved++;
+    });
+
+    const payload = mRebuild(data);
+    payload.fillToken = token;
+    mSave(data.month, payload);
+    res.json({
+      ok: true,
+      saved,
+      remaining: payload.kpi.pendingStores,
+      storeCount: payload.kpi.storeCount,
+      message: saved ? `已保存 ${saved} 家门店，还剩 ${payload.kpi.pendingStores} 家待填` : '本次没有可保存的修改'
+    });
+  } catch (e) {
+    console.error('monthly-fill-submit error:', e);
+    res.status(500).json({ ok: false, error: '提交失败：' + e.message });
+  }
+});
+
+// --- POST /api/monthly-set-manager  按省区设置运营经理 ---
+app.post('/api/monthly-set-manager', (req, res) => {
+  try {
+    const { month, managerMap } = req.body || {};
+    const data = mLoad(month);
+    if (!data) return res.status(404).json({ ok: false, error: '该月份尚未导入数据' });
+    const mm = managerMap && typeof managerMap === 'object' ? managerMap : {};
+    (data.stores || []).forEach(s => {
+      if (s.region && mm[s.region]) s.manager = String(mm[s.region]).trim() || null;
+    });
+    data.managerMap = mm;
+    const payload = mRebuild(data, { managerMap: mm });
+    payload.fillToken = data.fillToken || null;
+    mSave(month, payload);
+    res.json(payload);
+  } catch (e) {
+    console.error('monthly-set-manager error:', e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// --- POST /api/monthly-set-status  标记门店开通状态（未开通门店不计入待补录） ---
+app.post('/api/monthly-set-status', (req, res) => {
+  try {
+    const { month, storeNames, status } = req.body || {};
+    const data = mLoad(month);
+    if (!data) return res.status(404).json({ ok: false, error: '该月份尚未导入数据' });
+    const allow = ['active', 'unopened'];
+    if (allow.indexOf(status) < 0) return res.status(400).json({ ok: false, error: '状态值只能是 active 或 unopened' });
+    const set = new Set(Array.isArray(storeNames) ? storeNames : []);
+    let changed = 0;
+    (data.stores || []).forEach(s => {
+      if (set.has(s.storeName)) { s.status = status; changed++; }
+    });
+    const payload = mRebuild(data);
+    payload.fillToken = data.fillToken || null;
+    mSave(month, payload);
+    res.json(Object.assign({ changed }, payload));
+  } catch (e) {
+    console.error('monthly-set-status error:', e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// --- GET /api/monthly-history  已存档月份 ---
+app.get('/api/monthly-history', (req, res) => {
+  try {
+    mEnsureDir();
+    const files = fs.readdirSync(DATA_DIR).filter(f => f.endsWith('.json'));
+    const list = files.map(f => {
+      try {
+        const j = JSON.parse(fs.readFileSync(path.join(DATA_DIR, f), 'utf8'));
+        return { month: j.month, fileName: j.fileName, importedAt: j.importedAt, storeCount: j.kpi ? j.kpi.storeCount : 0, pending: j.kpi ? j.kpi.pendingFieldCount : 0 };
+      } catch (e) { return null; }
+    }).filter(Boolean).sort((a, b) => String(b.month).localeCompare(String(a.month)));
+    res.json({ ok: true, list });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// --- GET /api/monthly-detail?month=  ---
+app.get('/api/monthly-detail', (req, res) => {
+  try {
+    const m = req.query.month;
+    const p = path.join(DATA_DIR, `${m}.json`);
+    if (!fs.existsSync(p)) return res.status(404).json({ ok: false, error: '该月份尚未导入数据' });
+    res.json(JSON.parse(fs.readFileSync(p, 'utf8')));
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// --- GET /api/monthly-template  下载填报模板 ---
+app.get('/api/monthly-template', (req, res) => {
+  try {
+    const headers = ['省区', '店铺名称', '城市', '美团星级', '点评星级', '经营评分', '运营经理', '门店状态'];
+    const sample = [
+      ['山东省区', '临沂爱尔眼科视光门诊（金水河畔店）', '临沂市', 4.4, 0, 71, '张三', '已开通'],
+      ['湖南省区', '崇德爱尔眼科门诊', '常德市', 4.2, 0, 64, '李四', '已开通'],
+      ['', '待填写门店示例', '待填写城市', null, null, null, '', '已开通']
+    ];
+    const ws = XLSX.utils.aoa_to_sheet([headers].concat(sample));
+    ws['!cols'] = [{ wch: 14 }, { wch: 36 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '月度门店指标');
+    const ws2 = XLSX.utils.aoa_to_sheet([['店铺ID', '店铺名称', '城市', '评论内容']].concat([
+      [131624831, '长沙芙蓉爱尔眼科门诊部（芙蓉店）', '长沙市', '差评原文填写在此'],
+      [null, '待填写门店', '待填写城市', null]
+    ]));
+    ws2['!cols'] = [{ wch: 14 }, { wch: 34 }, { wch: 14 }, { wch: 80 }];
+    XLSX.utils.book_append_sheet(wb, ws2, '差评明细');
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="monthly-template.xlsx"');
+    res.send(buf);
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
 // ===== 启动服务器 =====

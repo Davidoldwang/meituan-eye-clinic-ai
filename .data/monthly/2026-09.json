@@ -1,0 +1,5352 @@
+{
+ "ok": true,
+ "month": "2026-09",
+ "fileName": "9月集团门诊后台得分和星级分析.xlsx",
+ "importedAt": "2026-10-26T09:06:48.394Z",
+ "meta": {
+  "sheetCount": 2,
+  "mainSheet": "8月",
+  "reviewSheet": "Sheet1",
+  "totalRows": 228,
+  "excludedRows": 13,
+  "headerRow": 1,
+  "headers": [
+   "省区",
+   "店铺名称",
+   "城市",
+   "美团星级",
+   "点评星级",
+   "经营评分"
+  ],
+  "mainMap": {
+   "region": 0,
+   "storeName": 1,
+   "city": 2,
+   "meituanStar": 3,
+   "dianpingStar": 4,
+   "opsScore": 5
+  },
+  "sheetNames": [
+   "Sheet1",
+   "8月"
+  ],
+  "warnings": [],
+  "reviewSource": "Sheet1（11 条）"
+ },
+ "mapping": [
+  {
+   "field": "region",
+   "label": "省区",
+   "hint": "如「山东省区」，缺失时按同城门店自动推荐",
+   "columnIndex": 0,
+   "columnName": "省区",
+   "matched": true
+  },
+  {
+   "field": "storeName",
+   "label": "店铺名称",
+   "hint": "唯一键，必填",
+   "columnIndex": 1,
+   "columnName": "店铺名称",
+   "matched": true
+  },
+  {
+   "field": "city",
+   "label": "城市",
+   "hint": "如「临沂市」，必填",
+   "columnIndex": 2,
+   "columnName": "城市",
+   "matched": true
+  },
+  {
+   "field": "manager",
+   "label": "运营经理",
+   "hint": "仅用于填报链接按经理筛选，可在页面按省区批量设置",
+   "columnIndex": null,
+   "columnName": null,
+   "matched": false
+  },
+  {
+   "field": "status",
+   "label": "门店状态",
+   "hint": "未开通/未上线门店不计入待补录",
+   "columnIndex": null,
+   "columnName": null,
+   "matched": false
+  },
+  {
+   "field": "meituanStar",
+   "label": "美团星级",
+   "hint": "0~5，一位小数",
+   "columnIndex": 3,
+   "columnName": "美团星级",
+   "matched": true
+  },
+  {
+   "field": "dianpingStar",
+   "label": "点评星级",
+   "hint": "0~5，一位小数",
+   "columnIndex": 4,
+   "columnName": "点评星级",
+   "matched": true
+  },
+  {
+   "field": "opsScore",
+   "label": "经营评分",
+   "hint": "0~110（存在加分项，允许超 100）",
+   "columnIndex": 5,
+   "columnName": "经营评分",
+   "matched": true
+  }
+ ],
+ "kpi": {
+  "storeCount": 215,
+  "totalStores": 228,
+  "excludedCount": 13,
+  "unopenedCount": 0,
+  "suspectCount": 13,
+  "completeStores": 185,
+  "pendingStores": 30,
+  "pendingFieldCount": 40,
+  "avgMeituanStar": 3.84,
+  "avgDianpingStar": 4.34,
+  "dianpingValidCount": 103,
+  "avgOpsScore": 70.74,
+  "nullStarCount": 13,
+  "zeroStarCount": 4,
+  "nullScoreCount": 7,
+  "zeroScoreCount": 2,
+  "dianpingZeroCount": 112,
+  "opsAbove100": 28,
+  "opsBelow70": 93,
+  "starBelow40": 100,
+  "reviewCount": 11,
+  "reviewStores": 10,
+  "regionCount": 27,
+  "cityCount": 87
+ },
+ "stores": [
+  {
+   "storeName": "临沂爱尔眼科视光门诊（金水河畔店）",
+   "city": "临沂市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 4.4,
+   "dianpingStar": 0,
+   "opsScore": 71,
+   "sourceRow": 2,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "崇德爱尔眼科门诊",
+   "city": "常德市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 0,
+   "opsScore": 64,
+   "sourceRow": 3,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "常德爱尔眼科西街门诊",
+   "city": "常德市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 0,
+   "opsScore": null,
+   "sourceRow": 4,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "常德爱尔眼视光门诊部",
+   "city": "常德市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 0,
+   "opsScore": null,
+   "sourceRow": 5,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "黄石爱尔西塞眼科门诊部（大上海广场银杏雅苑院）",
+   "city": "黄石市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 0,
+   "opsScore": 96,
+   "sourceRow": 7,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "梧州爱尔眼科医院龙圩门诊部",
+   "city": "梧州市",
+   "region": "广西省区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 0,
+   "opsScore": 90,
+   "sourceRow": 8,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "贵阳爱尔眼科南明诊所·青少年近视防控·医学验光配镜（花果园店）",
+   "city": "贵阳市",
+   "region": "贵州省区",
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 0,
+   "opsScore": 63,
+   "sourceRow": 9,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "威海爱尔眼科诊所（古寨东路店）",
+   "city": "威海市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 0,
+   "opsScore": null,
+   "sourceRow": 10,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "思茅爱尔眼科门诊部",
+   "city": "普洱市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 20,
+   "sourceRow": 11,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "福州锐明爱尔眼科·青少年近视眼防控门诊",
+   "city": "福州市",
+   "region": "福建省区",
+   "manager": null,
+   "meituanStar": 5,
+   "dianpingStar": 4.7,
+   "opsScore": 100,
+   "sourceRow": 12,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "福州台江爱尔眼科·青少年近视眼防控门诊",
+   "city": "福州市",
+   "region": "福建省区",
+   "manager": null,
+   "meituanStar": 4.4,
+   "dianpingStar": 4.5,
+   "opsScore": 85,
+   "sourceRow": 13,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "福州长乐爱尔眼科·青少年近视眼防控门诊",
+   "city": "福州市",
+   "region": "福建省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 3.9,
+   "opsScore": 75,
+   "sourceRow": 14,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "绍兴爱尔眼科视光门诊（袍江店）",
+   "city": "绍兴市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 0,
+   "opsScore": 61,
+   "sourceRow": 15,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（南岗门诊部）",
+   "city": "哈尔滨市",
+   "region": "黑龙江省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 4.1,
+   "opsScore": 100,
+   "sourceRow": 16,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "哈尔滨爱尔眼科（道外门诊店）",
+   "city": "哈尔滨市",
+   "region": "黑龙江省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.3,
+   "opsScore": 105,
+   "sourceRow": 17,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "岳阳爱尔眼科视光门诊（经开分院）",
+   "city": "岳阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 0,
+   "opsScore": 105,
+   "sourceRow": 18,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "临渭爱尔眼科门诊部",
+   "city": "渭南市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 0,
+   "opsScore": 55,
+   "sourceRow": 19,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "襄阳爱尔眼科保康门诊",
+   "city": "襄阳市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 17,
+   "sourceRow": 20,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "襄阳爱尔眼科高新门诊部",
+   "city": "襄阳市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 13,
+   "sourceRow": 21,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "湖北省区",
+     "from": "襄阳市同城 1 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 50
+  },
+  {
+   "storeName": "杭州爱尔眼科视光门诊（丁桥店）",
+   "city": "杭州市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 0,
+   "opsScore": 71,
+   "sourceRow": 22,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "揭阳爱尔眼科榕城诊所",
+   "city": "揭阳市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.4,
+   "dianpingStar": 0,
+   "opsScore": 84,
+   "sourceRow": 23,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "东营爱尔眼科广饶门诊",
+   "city": "东营市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 0,
+   "opsScore": 75,
+   "sourceRow": 24,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科垦利诊所（育才华都院）",
+   "city": "东营市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 0,
+   "opsScore": 62,
+   "sourceRow": 25,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "济南爱尔眼科门诊部（盛世花城院）",
+   "city": "济南市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 0,
+   "opsScore": 68,
+   "sourceRow": 26,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "济南爱尔眼科诊所（历下文化西路店）",
+   "city": "济南市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 0,
+   "opsScore": 66,
+   "sourceRow": 27,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "牡丹江爱尔焦点眼科视光门诊部",
+   "city": "牡丹江市",
+   "region": "黑龙江省区",
+   "manager": null,
+   "meituanStar": 4.9,
+   "dianpingStar": 0,
+   "opsScore": 100,
+   "sourceRow": 28,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "兰州爱尔眼视光诊所",
+   "city": "兰州市",
+   "region": "甘青宁区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 0,
+   "opsScore": 84,
+   "sourceRow": 29,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（鞍山店）",
+   "city": "鞍山市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.7,
+   "dianpingStar": 4.4,
+   "opsScore": 66,
+   "sourceRow": 30,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科清徐门诊部",
+   "city": "太原市",
+   "region": "山西省区",
+   "manager": null,
+   "meituanStar": 4.5,
+   "dianpingStar": 3.9,
+   "opsScore": 98,
+   "sourceRow": 31,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科小店门诊部",
+   "city": "太原市",
+   "region": "山西省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 0,
+   "opsScore": 98,
+   "sourceRow": 32,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科新建南路诊所（太原店）",
+   "city": "太原市",
+   "region": "山西省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 0,
+   "opsScore": 78,
+   "sourceRow": 33,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "汉中爱尔奥斯美眼视光门诊",
+   "city": "汉中市",
+   "region": "陕西省区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 0,
+   "opsScore": 45,
+   "sourceRow": 34,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "汉中爱尔南院眼科门诊（大河坎店）",
+   "city": "汉中市",
+   "region": "陕西省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 0,
+   "opsScore": 19,
+   "sourceRow": 35,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科眼科诊所（城固县劳动路教师小区分院）",
+   "city": "汉中市",
+   "region": "陕西省区",
+   "manager": null,
+   "meituanStar": 3.1,
+   "dianpingStar": 0,
+   "opsScore": 27,
+   "sourceRow": 36,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科荆门漳河诊所",
+   "city": "荆门市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 39,
+   "sourceRow": 37,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（阜新店）",
+   "city": "阜新市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.8,
+   "dianpingStar": 3.9,
+   "opsScore": 35,
+   "sourceRow": 38,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科（镇海门诊部）",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 5,
+   "dianpingStar": 4.5,
+   "opsScore": 100,
+   "sourceRow": 39,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科·庄市诊所",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.5,
+   "dianpingStar": 4.6,
+   "opsScore": 105,
+   "sourceRow": 40,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科·海曙门诊部",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.7,
+   "dianpingStar": 4.5,
+   "opsScore": 105,
+   "sourceRow": 41,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科·钟公庙诊所",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 4.5,
+   "opsScore": 88,
+   "sourceRow": 42,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科·高新诊所",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.1,
+   "opsScore": 93,
+   "sourceRow": 43,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科·江北诊所",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 4.5,
+   "opsScore": 83,
+   "sourceRow": 44,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科·余姚诊所",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.3,
+   "opsScore": 78,
+   "sourceRow": 45,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科·北仑诊所",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 4.1,
+   "opsScore": 68,
+   "sourceRow": 46,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波鄞州爱尔光明眼科门诊部",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 0,
+   "sourceRow": 47,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "宁波爱尔光明眼科（青林湾门诊部）",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 0,
+   "sourceRow": 50,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科·OK镜·离焦眼镜（横岗诊所）",
+   "city": "深圳市",
+   "region": "深圳特区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 4.5,
+   "opsScore": 76,
+   "sourceRow": 51,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科·OK镜·离焦眼镜（坪山六和诊所）",
+   "city": "深圳市",
+   "region": "深圳特区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.5,
+   "opsScore": 69,
+   "sourceRow": 52,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科|海得视门诊·OK镜（深圳分院）",
+   "city": "深圳市",
+   "region": "深圳特区",
+   "manager": null,
+   "meituanStar": 4.5,
+   "dianpingStar": 4.7,
+   "opsScore": 100,
+   "sourceRow": 53,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（马田诊所）",
+   "city": "深圳市",
+   "region": "深圳特区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 4.5,
+   "opsScore": 55,
+   "sourceRow": 54,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "深圳桂园爱尔眼科诊所",
+   "city": "深圳市",
+   "region": "深圳特区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 4.6,
+   "opsScore": 51,
+   "sourceRow": 55,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（新安诊所）",
+   "city": "深圳市",
+   "region": "深圳特区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 4.5,
+   "opsScore": 51,
+   "sourceRow": 56,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "深圳爱尔蛇口眼科诊所·青少年近视防控",
+   "city": "深圳市",
+   "region": "深圳特区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.6,
+   "opsScore": 51,
+   "sourceRow": 57,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科·OK镜·离焦眼镜（龙岗碧湖诊所）",
+   "city": "深圳市",
+   "region": "深圳特区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 4.1,
+   "opsScore": 52,
+   "sourceRow": 58,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "民智爱尔眼科·OK镜·离焦眼镜诊所（龙华店）",
+   "city": "深圳市",
+   "region": "深圳特区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 4.2,
+   "opsScore": 42,
+   "sourceRow": 59,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（赣县门诊部）",
+   "city": "赣州市",
+   "region": "江西省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 0,
+   "opsScore": 64,
+   "sourceRow": 60,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "潇湘爱尔眼科门诊",
+   "city": "永州市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 3.5,
+   "opsScore": null,
+   "sourceRow": 61,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "湘西爱尔眼科医院·吉首爱尔眼视光门诊部",
+   "city": "湘西土家族苗族自治州",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 21,
+   "sourceRow": 62,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "合肥包河爱尔眼科诊所·验光配镜中心",
+   "city": "合肥市",
+   "region": "安徽省区",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 4.3,
+   "opsScore": 67,
+   "sourceRow": 63,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "昆明爱尔眼科·近视防控门诊（和谐店）",
+   "city": "昆明市",
+   "region": "云南省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 0,
+   "opsScore": 79,
+   "sourceRow": 64,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（辽阳首山诊所）",
+   "city": "辽阳市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 25,
+   "sourceRow": 65,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "爱尔眼科海得视门诊·OK镜·离焦眼镜（天河分院）",
+   "city": "广州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.7,
+   "opsScore": 105,
+   "sourceRow": 66,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科海得视门诊·OK镜·离焦眼镜（越秀分院）",
+   "city": "广州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.8,
+   "dianpingStar": 4.7,
+   "opsScore": 105,
+   "sourceRow": 67,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科·白云门诊",
+   "city": "广州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 0,
+   "opsScore": 46,
+   "sourceRow": 68,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科海得视门诊·OK镜·离焦眼镜（海珠分院）",
+   "city": "广州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.4,
+   "dianpingStar": 4.7,
+   "opsScore": 105,
+   "sourceRow": 69,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科海得视门诊·OK镜·离焦眼镜（番禺分院）",
+   "city": "广州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.7,
+   "opsScore": 100,
+   "sourceRow": 70,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊部（新塘店）",
+   "city": "广州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 0,
+   "opsScore": 50,
+   "sourceRow": 71,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "十堰爱尔眼科东岳门诊部",
+   "city": "十堰市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 0,
+   "opsScore": 47,
+   "sourceRow": 72,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "重庆爱尔眼科（两江星光诊所）",
+   "city": "重庆市",
+   "region": "重庆特区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.5,
+   "opsScore": 83,
+   "sourceRow": 73,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "重庆爱尔眼科（两江天宫殿诊所）",
+   "city": "重庆市",
+   "region": "重庆特区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 4.4,
+   "opsScore": 78,
+   "sourceRow": 74,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "重庆爱尔眼科（南岸茶园诊所）",
+   "city": "重庆市",
+   "region": "重庆特区",
+   "manager": null,
+   "meituanStar": 3.2,
+   "dianpingStar": 4.2,
+   "opsScore": 73,
+   "sourceRow": 75,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "重庆爱尔眼科（南岸弹子石诊所）",
+   "city": "重庆市",
+   "region": "重庆特区",
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 4.2,
+   "opsScore": 69,
+   "sourceRow": 76,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "重庆爱尔眼科（巴南鱼洞诊所）",
+   "city": "重庆市",
+   "region": "重庆特区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 0,
+   "opsScore": 66,
+   "sourceRow": 77,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "永川爱尔阳光眼科门诊",
+   "city": "重庆市",
+   "region": "重庆特区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 46,
+   "sourceRow": 78,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁德霞浦爱尔眼科·青少年近视眼防控门诊",
+   "city": "宁德市",
+   "region": "福建省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.1,
+   "opsScore": 75,
+   "sourceRow": 79,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁德古田爱尔眼科·青少年近视眼防控门诊",
+   "city": "宁德市",
+   "region": "福建省区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 0,
+   "opsScore": 62,
+   "sourceRow": 80,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔视光眼科门诊 · 近视管理（双塔店）",
+   "city": "朝阳市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 0,
+   "opsScore": 73,
+   "sourceRow": 81,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "辽宁省区",
+     "from": "朝阳市同城 1 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 75
+  },
+  {
+   "storeName": "喀左爱尔眼科诊所",
+   "city": "朝阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 0,
+   "opsScore": 77,
+   "sourceRow": 82,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（珠江店）",
+   "city": "朝阳市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.2,
+   "opsScore": 50,
+   "sourceRow": 83,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "辽宁省区",
+     "from": "朝阳市同城 1 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 75
+  },
+  {
+   "storeName": "西安爱尔眼科视光诊所（未央分院）",
+   "city": "西安市",
+   "region": "陕西省区",
+   "manager": null,
+   "meituanStar": 3.3,
+   "dianpingStar": 0,
+   "opsScore": 68,
+   "sourceRow": 84,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "西安高新区爱尔眼科诊所",
+   "city": "西安市",
+   "region": "陕西省区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 4,
+   "opsScore": 60,
+   "sourceRow": 85,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "西安爱尔眼科视光诊所（碑林分院）",
+   "city": "西安市",
+   "region": "陕西省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 56,
+   "sourceRow": 86,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "怀化爱尔眼科·迎丰诊所（市委广场店）",
+   "city": "怀化市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 0,
+   "opsScore": 43,
+   "sourceRow": 87,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "怀化爱尔眼科·天星诊所（天星坪店）",
+   "city": "怀化市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 4.4,
+   "opsScore": 36,
+   "sourceRow": 88,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "怀化爱尔眼科·城南诊所（盛世华都店）",
+   "city": "怀化市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 3.9,
+   "opsScore": 31,
+   "sourceRow": 89,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "北京怀柔爱尔眼科·近视防控门诊·医学验光配镜",
+   "city": "北京市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 4.7,
+   "opsScore": 40,
+   "sourceRow": 90,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "广阳爱尔眼科诊所",
+   "city": "廊坊市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 50,
+   "sourceRow": 91,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "长沙芙蓉爱尔眼科门诊部（芙蓉店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 4.6,
+   "opsScore": 100,
+   "sourceRow": 92,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔北辰眼科诊所（北辰店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 4.5,
+   "opsScore": 100,
+   "sourceRow": 93,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙梅溪湖爱尔眼科门诊部（梅溪湖店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 4.6,
+   "opsScore": 94,
+   "sourceRow": 94,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔八方眼科门诊部（24品生活中心店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.5,
+   "opsScore": 103,
+   "sourceRow": 95,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔眼科门诊部（黄土岭院）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 4.5,
+   "dianpingStar": 4.6,
+   "opsScore": 103,
+   "sourceRow": 96,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔眼科洋湖诊所",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.6,
+   "opsScore": 105,
+   "sourceRow": 97,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔万芙眼科诊所",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 4.3,
+   "opsScore": 100,
+   "sourceRow": 98,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙开福万国城爱尔眼科诊所（万国城店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 4.4,
+   "opsScore": 103,
+   "sourceRow": 99,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔清溪川眼科门诊部（清溪川店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 4.3,
+   "opsScore": 100,
+   "sourceRow": 100,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙望城爱尔眼科门诊部（望城店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 4.3,
+   "opsScore": 98,
+   "sourceRow": 101,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙开福爱尔眼科门诊部（开福店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 4.6,
+   "dianpingStar": 4.4,
+   "opsScore": 98,
+   "sourceRow": 102,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔银星眼科门诊部（银星店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 0,
+   "opsScore": 98,
+   "sourceRow": 103,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙学士爱尔眼科门诊部（学士店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 3.2,
+   "dianpingStar": 0,
+   "opsScore": 98,
+   "sourceRow": 104,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙雨花爱尔眼科门诊部（雨花门诊部）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 3.6,
+   "opsScore": 93,
+   "sourceRow": 105,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔月湖眼科诊所（月湖店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 4.7,
+   "dianpingStar": 4.6,
+   "opsScore": 90,
+   "sourceRow": 106,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "星沙爱尔眼科泉塘诊所",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 4,
+   "opsScore": 43,
+   "sourceRow": 107,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔松桂园眼科诊所（松桂园店）",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 0,
+   "dianpingStar": 0,
+   "opsScore": 36,
+   "sourceRow": 108,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "韶关曲江爱尔眼科诊所",
+   "city": "韶关市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 0,
+   "opsScore": 50,
+   "sourceRow": 109,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "南昌洪城爱尔眼科·东湖门诊·医学配镜",
+   "city": "南昌市",
+   "region": "江西省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 4.4,
+   "opsScore": 68,
+   "sourceRow": 110,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔美视眼科门诊·近视管理（大洼店）",
+   "city": "盘锦市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 4.2,
+   "opsScore": 93,
+   "sourceRow": 111,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "江门爱尔新希望眼科江海诊所·医学验光配镜",
+   "city": "江门市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.5,
+   "dianpingStar": 4.2,
+   "opsScore": 83,
+   "sourceRow": 112,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "新会爱尔新希望维康眼科诊所（悦龙新村店）",
+   "city": "江门市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 15,
+   "sourceRow": 113,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "广东省区",
+     "from": "江门市同城 1 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 50
+  },
+  {
+   "storeName": "太谷爱尔眼科门诊",
+   "city": "晋中市",
+   "region": "山西省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 0,
+   "opsScore": 49,
+   "sourceRow": 114,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "湘潭爱尔眼科医院（易俗河凤凰中路眼科诊所）",
+   "city": "湘潭市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 0,
+   "opsScore": 63,
+   "sourceRow": 118,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "石狮爱尔眼科视光门诊部（天恒国际中心店）",
+   "city": "泉州市",
+   "region": "福建省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 4.2,
+   "opsScore": 81,
+   "sourceRow": 119,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "南安爱尔眼科门诊·青少年近视防控中心",
+   "city": "泉州市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 0,
+   "opsScore": 100,
+   "sourceRow": 120,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "福建省区",
+     "from": "泉州市同城 2 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 75
+  },
+  {
+   "storeName": "德化爱尔眼科视光门诊部（美伦山景叠苑院）",
+   "city": "泉州市",
+   "region": "福建省区",
+   "manager": null,
+   "meituanStar": 0,
+   "dianpingStar": 0,
+   "opsScore": 88,
+   "sourceRow": 121,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科国贸门诊",
+   "city": "海口市",
+   "region": "海南省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 0,
+   "opsScore": 85,
+   "sourceRow": 122,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "益阳爱尔眼科视光诊所",
+   "city": "益阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 53,
+   "sourceRow": 123,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "益阳资阳爱尔眼科诊所",
+   "city": "益阳市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3.2,
+   "dianpingStar": 0,
+   "opsScore": 36,
+   "sourceRow": 124,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "湖南省区",
+     "from": "益阳市同城 1 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 75
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（抚顺店）",
+   "city": "抚顺市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 3.9,
+   "opsScore": 44,
+   "sourceRow": 125,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（本溪店）",
+   "city": "本溪市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 5,
+   "dianpingStar": 4.1,
+   "opsScore": 105,
+   "sourceRow": 126,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "湖州爱尔眼科红丰诊所",
+   "city": "湖州市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.7,
+   "dianpingStar": 4.4,
+   "opsScore": 5,
+   "sourceRow": 127,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "湖州织里爱尔眼科诊所",
+   "city": "湖州市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 0,
+   "opsScore": 96,
+   "sourceRow": 128,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "湖州南浔爱尔眼科门诊",
+   "city": "湖州市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 4.3,
+   "opsScore": 52,
+   "sourceRow": 129,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "浙江省区",
+     "from": "湖州市同城 2 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 75
+  },
+  {
+   "storeName": "爱尔眼科诊所（泸县店）",
+   "city": "泸州市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 18,
+   "sourceRow": 131,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "合江爱尔眼科诊所",
+   "city": "泸州市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 15,
+   "sourceRow": 132,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "烟台福山爱尔眼科门诊部",
+   "city": "烟台市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 0,
+   "opsScore": 105,
+   "sourceRow": 133,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "烟台爱尔眼科视光门诊部（莱山店）",
+   "city": "烟台市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 0,
+   "opsScore": 73,
+   "sourceRow": 134,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "烟台爱尔眼科视光门诊部（芝罘幸福院店）",
+   "city": "烟台市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 0,
+   "opsScore": 63,
+   "sourceRow": 135,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "烟台爱尔眼科视光门诊部（蓬莱院）",
+   "city": "烟台市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 0,
+   "dianpingStar": 0,
+   "opsScore": 20,
+   "sourceRow": 136,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊（大连开发区店）",
+   "city": "大连市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 4.5,
+   "opsScore": 105,
+   "sourceRow": 138,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊（大连高新店）",
+   "city": "大连市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.8,
+   "opsScore": 100,
+   "sourceRow": 139,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊（大连旅顺口店）",
+   "city": "大连市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 4.5,
+   "opsScore": 100,
+   "sourceRow": 140,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "邵阳大祥爱尔眼科诊所",
+   "city": "邵阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4.4,
+   "dianpingStar": 0,
+   "opsScore": 61,
+   "sourceRow": 141,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "双清爱尔眼科门诊部",
+   "city": "邵阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 0,
+   "opsScore": 56,
+   "sourceRow": 142,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科北塔视光诊所（西湖春天店）",
+   "city": "邵阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 0,
+   "opsScore": 43,
+   "sourceRow": 143,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "济宁爱尔眼科医院·红星东路眼科门诊",
+   "city": "济宁市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 4.9,
+   "dianpingStar": 4.6,
+   "opsScore": 82,
+   "sourceRow": 144,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "济宁爱尔眼科医院·洸河路眼科门诊",
+   "city": "济宁市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 4.6,
+   "dianpingStar": 4.4,
+   "opsScore": 67,
+   "sourceRow": 145,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "济宁爱尔眼科医院·兖州区眼科门诊",
+   "city": "济宁市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 0,
+   "opsScore": 74,
+   "sourceRow": 146,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "淄博张店爱尔眼科诊所",
+   "city": "淄博市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 0,
+   "opsScore": 50,
+   "sourceRow": 147,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "芜湖爱尔眼科视光诊所（镜湖汀棠院）",
+   "city": "芜湖市",
+   "region": "安徽省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 3.8,
+   "opsScore": 100,
+   "sourceRow": 148,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "东阳爱尔眼科诊所",
+   "city": "金华市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 3.8,
+   "opsScore": 70,
+   "sourceRow": 149,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "无锡爱尔眼科诊所（经开店）",
+   "city": "无锡市",
+   "region": "江苏省区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 4.6,
+   "opsScore": 93,
+   "sourceRow": 150,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "无锡爱尔眼科诊所（锡山店）",
+   "city": "无锡市",
+   "region": "江苏省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 4.6,
+   "opsScore": 105,
+   "sourceRow": 151,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "无锡爱尔眼科诊所（新吴店）",
+   "city": "无锡市",
+   "region": "江苏省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 4.6,
+   "opsScore": 105,
+   "sourceRow": 152,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "海南博鳌乐城爱尔眼科医院琼海嘉积诊所",
+   "city": "琼海市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 49,
+   "sourceRow": 153,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "衡阳珠晖爱尔眼视光门诊部",
+   "city": "衡阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 0,
+   "opsScore": 98,
+   "sourceRow": 154,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "衡阳雁峰区爱尔眼科门诊部（湘江翰林店）",
+   "city": "衡阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 3.1,
+   "dianpingStar": 0,
+   "opsScore": null,
+   "sourceRow": 156,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（浑南店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.6,
+   "opsScore": 103,
+   "sourceRow": 157,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（三台子店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 4.6,
+   "opsScore": 103,
+   "sourceRow": 158,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（于洪店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.8,
+   "dianpingStar": 4.5,
+   "opsScore": 101,
+   "sourceRow": 159,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（浑南恒达路店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 4.6,
+   "opsScore": 100,
+   "sourceRow": 160,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（皇姑塔湾店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 4.5,
+   "opsScore": 105,
+   "sourceRow": 161,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（沈河奉天店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 4.5,
+   "opsScore": 105,
+   "sourceRow": 162,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（铁西万达店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 4.1,
+   "opsScore": 98,
+   "sourceRow": 163,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（玖伍文化城店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.6,
+   "dianpingStar": 4.4,
+   "opsScore": 100,
+   "sourceRow": 164,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（铁西保工店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.7,
+   "dianpingStar": 4.5,
+   "opsScore": 83,
+   "sourceRow": 165,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（苏家屯店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.9,
+   "dianpingStar": 4.5,
+   "opsScore": 96,
+   "sourceRow": 166,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（和平长白店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 4.6,
+   "opsScore": 75,
+   "sourceRow": 167,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（北一路店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 4.5,
+   "opsScore": 83,
+   "sourceRow": 168,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（皇姑陵东店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 4.2,
+   "opsScore": 68,
+   "sourceRow": 169,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（郫都诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 0,
+   "opsScore": 39,
+   "sourceRow": 170,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（龙泉驿北泉诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 0,
+   "opsScore": 33,
+   "sourceRow": 171,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（双楠诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.3,
+   "opsScore": 46,
+   "sourceRow": 172,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（新津诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3.3,
+   "dianpingStar": 0,
+   "opsScore": 25,
+   "sourceRow": 173,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（成华诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3.3,
+   "dianpingStar": 0,
+   "opsScore": 30,
+   "sourceRow": 174,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（金牛九里堤诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 32,
+   "sourceRow": 175,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（青羊诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3.2,
+   "dianpingStar": 0,
+   "opsScore": 22,
+   "sourceRow": 176,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（科华诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3.3,
+   "dianpingStar": 0,
+   "opsScore": 27,
+   "sourceRow": 177,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（温江诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 0,
+   "opsScore": 15,
+   "sourceRow": 178,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "梅州五华爱尔眼科门诊",
+   "city": "梅州市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 17,
+   "sourceRow": 181,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "爱尔眼科（卓越诊所）",
+   "city": "长春市",
+   "region": "吉林省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 4.2,
+   "opsScore": 103,
+   "sourceRow": 182,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长春爱尔眼科视光门诊（北湖诊所）",
+   "city": "长春市",
+   "region": "吉林长春",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 0,
+   "opsScore": 75,
+   "sourceRow": 183,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科朝阳诊所",
+   "city": "长春市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 0,
+   "opsScore": 75,
+   "sourceRow": 184,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长春爱尔眼视光诊所（天嘉·水晶城2期店）",
+   "city": "长春市",
+   "region": "吉林省区",
+   "manager": null,
+   "meituanStar": 3.6,
+   "dianpingStar": 0,
+   "opsScore": 50,
+   "sourceRow": 185,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "天津爱尔眼科（鼓楼诊所）",
+   "city": "天津市",
+   "region": "天津特区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 4.4,
+   "opsScore": 77,
+   "sourceRow": 187,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "郴州爱尔眼科门诊（苏仙院区）",
+   "city": "郴州市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 0,
+   "opsScore": 70,
+   "sourceRow": 188,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科|海得视门诊·OK镜·离焦眼镜（东莞分院）",
+   "city": "东莞市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.8,
+   "opsScore": 103,
+   "sourceRow": 189,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "南宁爱尔眼科东葛门诊部",
+   "city": "南宁市",
+   "region": "广西省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.4,
+   "opsScore": 100,
+   "sourceRow": 190,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "南宁爱尔眼科江南门诊部",
+   "city": "南宁市",
+   "region": "广西省区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 0,
+   "opsScore": 105,
+   "sourceRow": 191,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "南宁爱尔眼科金阳门诊部",
+   "city": "南宁市",
+   "region": "广西省区",
+   "manager": null,
+   "meituanStar": 3.4,
+   "dianpingStar": 0,
+   "opsScore": 100,
+   "sourceRow": 192,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科园湖门诊部",
+   "city": "南宁市",
+   "region": "广西省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 0,
+   "opsScore": 90,
+   "sourceRow": 193,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "阜阳市颍州区爱尔眼科诊所",
+   "city": "阜阳市",
+   "region": "安徽省区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 0,
+   "opsScore": 81,
+   "sourceRow": 194,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "阜阳颍泉爱尔眼科诊所",
+   "city": "阜阳市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 0,
+   "opsScore": 47,
+   "sourceRow": 195,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "安徽省区",
+     "from": "阜阳市同城 1 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 75
+  },
+  {
+   "storeName": "珠海斗门爱尔眼科诊所",
+   "city": "珠海市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": null,
+   "sourceRow": 196,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "娄底爱尔眼科门诊部",
+   "city": "娄底市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 0,
+   "opsScore": 58,
+   "sourceRow": 197,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "娄底爱尔眼科视光门诊（新化分院）",
+   "city": "娄底市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 3.7,
+   "dianpingStar": 0,
+   "opsScore": 70,
+   "sourceRow": 198,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "冷水江爱尔眼科门诊部（金领国际A栋院）",
+   "city": "娄底市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 0,
+   "opsScore": 63,
+   "sourceRow": 199,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科城南诊所",
+   "city": "娄底市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 0,
+   "opsScore": 50,
+   "sourceRow": 200,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科海得视门诊·OK镜·离焦眼镜（佛山分院）",
+   "city": "佛山市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 5,
+   "dianpingStar": 4.8,
+   "opsScore": 105,
+   "sourceRow": 201,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "南海沥新爱尔眼科诊所·OK镜·离焦眼镜（大沥店）",
+   "city": "佛山市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.6,
+   "dianpingStar": 4.5,
+   "opsScore": 81,
+   "sourceRow": 202,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "樵新爱尔眼科诊所·OK镜·离焦眼镜·医学验光配镜（西樵店）",
+   "city": "佛山市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.6,
+   "dianpingStar": 4.4,
+   "opsScore": 88,
+   "sourceRow": 203,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "佛山禅城爱尔眼科诊所",
+   "city": "佛山市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 0,
+   "opsScore": 55,
+   "sourceRow": 204,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊部（惠州江北店）",
+   "city": "惠州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.4,
+   "dianpingStar": 3.9,
+   "opsScore": 103,
+   "sourceRow": 206,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊部（惠州麦地店）",
+   "city": "惠州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 4.1,
+   "opsScore": 103,
+   "sourceRow": 207,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "中山坦洲爱尔眼科诊所",
+   "city": "中山市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3.1,
+   "dianpingStar": 0,
+   "opsScore": 3,
+   "sourceRow": 208,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "许昌爱尔眼科南海街诊所",
+   "city": "许昌市",
+   "region": "河南省区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 0,
+   "opsScore": 37,
+   "sourceRow": 209,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（营口店）",
+   "city": "营口市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 4.8,
+   "dianpingStar": 0,
+   "opsScore": 98,
+   "sourceRow": 210,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "孝感爱尔眼科门诊部",
+   "city": "孝感市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 0,
+   "opsScore": 64,
+   "sourceRow": 211,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "金水爱尔眼科诊所",
+   "city": "郑州市",
+   "region": "河南省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 0,
+   "opsScore": 93,
+   "sourceRow": 212,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "中原爱尔眼科诊所",
+   "city": "郑州市",
+   "region": "河南省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 0,
+   "opsScore": 95,
+   "sourceRow": 213,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "石家庄爱尔眼科医院胜利北街门诊",
+   "city": "石家庄市",
+   "region": "河北省区",
+   "manager": null,
+   "meituanStar": 4.8,
+   "dianpingStar": 4.4,
+   "opsScore": 94,
+   "sourceRow": 214,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科裕华东岗路眼科诊所",
+   "city": "石家庄市",
+   "region": "河北省区",
+   "manager": null,
+   "meituanStar": 4.3,
+   "dianpingStar": 0,
+   "opsScore": 99,
+   "sourceRow": 215,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "石家庄爱尔眼科长安卓越眼科诊所",
+   "city": "石家庄市",
+   "region": "河北省区",
+   "manager": null,
+   "meituanStar": 4.6,
+   "dianpingStar": 0,
+   "opsScore": 70,
+   "sourceRow": 216,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科·裕华卓越诊所",
+   "city": "石家庄市",
+   "region": "河北省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 0,
+   "opsScore": 57,
+   "sourceRow": 217,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "武汉爱尔眼科东西湖门诊部",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 4.1,
+   "dianpingStar": 0,
+   "opsScore": 105,
+   "sourceRow": 218,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "武汉爱尔眼科硚口门诊部",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 4.5,
+   "dianpingStar": 4.6,
+   "opsScore": 100,
+   "sourceRow": 219,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "武汉爱尔眼科（江堤路门诊部）",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4,
+   "opsScore": 90,
+   "sourceRow": 220,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "武汉爱尔庙山眼科门诊部",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 0,
+   "opsScore": 85,
+   "sourceRow": 221,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "武汉爱尔眼科青城门诊部",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 3.2,
+   "dianpingStar": 3.5,
+   "opsScore": 73,
+   "sourceRow": 222,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "武汉爱尔江岸眼科门诊部",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 0,
+   "opsScore": 70,
+   "sourceRow": 223,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "武汉爱尔眼科（江夏门诊部）",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 3.3,
+   "dianpingStar": 0,
+   "opsScore": 71,
+   "sourceRow": 224,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "武汉爱尔眼科（蔡甸门诊部）",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 61,
+   "sourceRow": 225,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "湖北爱尔眼科医院-视光门诊",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 3.9,
+   "opsScore": null,
+   "sourceRow": 226,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "meituanStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "咸阳爱尔眼科诊所（旭光光明城院）",
+   "city": "咸阳市",
+   "region": "陕西省区",
+   "manager": null,
+   "meituanStar": 4.4,
+   "dianpingStar": 3.9,
+   "opsScore": 48,
+   "sourceRow": 227,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宣化爱尔眼科门诊",
+   "city": "张家口市",
+   "region": "河北省区",
+   "manager": null,
+   "meituanStar": 3.8,
+   "dianpingStar": 0,
+   "opsScore": 63,
+   "sourceRow": 228,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊（桥西店）",
+   "city": "张家口市",
+   "region": "河北省区",
+   "manager": null,
+   "meituanStar": 0,
+   "dianpingStar": 3.5,
+   "opsScore": 48,
+   "sourceRow": 229,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科信阳平桥眼科诊所",
+   "city": "信阳市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 6,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "region",
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 0,
+   "excluded": true
+  },
+  {
+   "storeName": "宁波鄞州中河爱尔光明眼科诊所",
+   "city": "宁波市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 48,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "region",
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 0,
+   "excluded": true
+  },
+  {
+   "storeName": "宁波镇海新城爱尔光明眼科诊所",
+   "city": "宁波市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 49,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "region",
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 0,
+   "excluded": true
+  },
+  {
+   "storeName": "滨城沪滨爱尔眼科诊所(万达广场北临)",
+   "city": "滨州市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 115,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "region",
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 0,
+   "excluded": true
+  },
+  {
+   "storeName": "沪滨爱尔眼科视光门诊部（博兴乐安院）",
+   "city": "滨州市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 116,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 25,
+   "excluded": true
+  },
+  {
+   "storeName": "沪滨爱尔眼科与视光诊所",
+   "city": "滨州市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 117,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "region",
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 0,
+   "excluded": true
+  },
+  {
+   "storeName": "泰安光明爱尔眼科医院（高新区诊所）",
+   "city": "泰安市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 130,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "region",
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 0,
+   "excluded": true
+  },
+  {
+   "storeName": "栖霞爱尔眼科视光门诊部",
+   "city": "烟台市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 137,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 25,
+   "excluded": true
+  },
+  {
+   "storeName": "衡阳爱尔眼科石鼓门诊部",
+   "city": "衡阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 155,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 25,
+   "excluded": true
+  },
+  {
+   "storeName": "爱尔视珍诊所",
+   "city": "成都市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 179,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "region",
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 0,
+   "excluded": true
+  },
+  {
+   "storeName": "库尔勒爱尔眼科门诊部（和合家园院）",
+   "city": "巴音郭楞蒙古自治州",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 180,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "region",
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 0,
+   "excluded": true
+  },
+  {
+   "storeName": "爱尔眼科（亮视门诊）",
+   "city": "长春市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 186,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "region",
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 0,
+   "excluded": true
+  },
+  {
+   "storeName": "江陵爱尔眼科门诊部",
+   "city": "荆州市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": null,
+   "opsScore": null,
+   "sourceRow": 205,
+   "manual": {},
+   "status": "suspect",
+   "missing": [
+    "meituanStar",
+    "dianpingStar",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 25,
+   "excluded": true
+  }
+ ],
+ "pendingList": [
+  {
+   "storeName": "常德爱尔眼科西街门诊",
+   "city": "常德市",
+   "region": "湖南省区",
+   "manager": null,
+   "sourceRow": 4,
+   "missing": [
+    {
+     "key": "opsScore",
+     "label": "经营评分"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "常德爱尔眼视光门诊部",
+   "city": "常德市",
+   "region": "湖南省区",
+   "manager": null,
+   "sourceRow": 5,
+   "missing": [
+    {
+     "key": "opsScore",
+     "label": "经营评分"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "威海爱尔眼科诊所（古寨东路店）",
+   "city": "威海市",
+   "region": "山东省区",
+   "manager": null,
+   "sourceRow": 10,
+   "missing": [
+    {
+     "key": "opsScore",
+     "label": "经营评分"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "思茅爱尔眼科门诊部",
+   "city": "普洱市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 11,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    },
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "临渭爱尔眼科门诊部",
+   "city": "渭南市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 19,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "襄阳爱尔眼科保康门诊",
+   "city": "襄阳市",
+   "region": "湖北省区",
+   "manager": null,
+   "sourceRow": 20,
+   "missing": [
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "襄阳爱尔眼科高新门诊部",
+   "city": "襄阳市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 21,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    },
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {
+    "region": {
+     "value": "湖北省区",
+     "from": "襄阳市同城 1 家门店",
+     "confidence": 100
+    }
+   }
+  },
+  {
+   "storeName": "爱尔眼科荆门漳河诊所",
+   "city": "荆门市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 37,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "宁波鄞州爱尔光明眼科门诊部",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "sourceRow": 47,
+   "missing": [
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "潇湘爱尔眼科门诊",
+   "city": "永州市",
+   "region": "湖南省区",
+   "manager": null,
+   "sourceRow": 61,
+   "missing": [
+    {
+     "key": "opsScore",
+     "label": "经营评分"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "湘西爱尔眼科医院·吉首爱尔眼视光门诊部",
+   "city": "湘西土家族苗族自治州",
+   "region": "湖南省区",
+   "manager": null,
+   "sourceRow": 62,
+   "missing": [
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "爱尔眼科（辽阳首山诊所）",
+   "city": "辽阳市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 65,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    },
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "十堰爱尔眼科东岳门诊部",
+   "city": "十堰市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 72,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "爱尔视光眼科门诊 · 近视管理（双塔店）",
+   "city": "朝阳市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 81,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {
+    "region": {
+     "value": "辽宁省区",
+     "from": "朝阳市同城 1 家门店",
+     "confidence": 100
+    }
+   }
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（珠江店）",
+   "city": "朝阳市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 83,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {
+    "region": {
+     "value": "辽宁省区",
+     "from": "朝阳市同城 1 家门店",
+     "confidence": 100
+    }
+   }
+  },
+  {
+   "storeName": "北京怀柔爱尔眼科·近视防控门诊·医学验光配镜",
+   "city": "北京市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 90,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "广阳爱尔眼科诊所",
+   "city": "廊坊市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 91,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    },
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "爱尔美视眼科门诊·近视管理（大洼店）",
+   "city": "盘锦市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 111,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "新会爱尔新希望维康眼科诊所（悦龙新村店）",
+   "city": "江门市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 113,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    },
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {
+    "region": {
+     "value": "广东省区",
+     "from": "江门市同城 1 家门店",
+     "confidence": 100
+    }
+   }
+  },
+  {
+   "storeName": "南安爱尔眼科门诊·青少年近视防控中心",
+   "city": "泉州市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 120,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {
+    "region": {
+     "value": "福建省区",
+     "from": "泉州市同城 2 家门店",
+     "confidence": 100
+    }
+   }
+  },
+  {
+   "storeName": "益阳爱尔眼科视光诊所",
+   "city": "益阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "sourceRow": 123,
+   "missing": [
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "益阳资阳爱尔眼科诊所",
+   "city": "益阳市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 124,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {
+    "region": {
+     "value": "湖南省区",
+     "from": "益阳市同城 1 家门店",
+     "confidence": 100
+    }
+   }
+  },
+  {
+   "storeName": "湖州南浔爱尔眼科门诊",
+   "city": "湖州市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 129,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {
+    "region": {
+     "value": "浙江省区",
+     "from": "湖州市同城 2 家门店",
+     "confidence": 100
+    }
+   }
+  },
+  {
+   "storeName": "爱尔眼科诊所（泸县店）",
+   "city": "泸州市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 131,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    },
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "合江爱尔眼科诊所",
+   "city": "泸州市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 132,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    },
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "衡阳雁峰区爱尔眼科门诊部（湘江翰林店）",
+   "city": "衡阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "sourceRow": 156,
+   "missing": [
+    {
+     "key": "opsScore",
+     "label": "经营评分"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "梅州五华爱尔眼科门诊",
+   "city": "梅州市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 181,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    },
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "阜阳颍泉爱尔眼科诊所",
+   "city": "阜阳市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 195,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    }
+   ],
+   "suggestions": {
+    "region": {
+     "value": "安徽省区",
+     "from": "阜阳市同城 1 家门店",
+     "confidence": 100
+    }
+   }
+  },
+  {
+   "storeName": "珠海斗门爱尔眼科诊所",
+   "city": "珠海市",
+   "region": null,
+   "manager": null,
+   "sourceRow": 196,
+   "missing": [
+    {
+     "key": "region",
+     "label": "省区"
+    },
+    {
+     "key": "opsScore",
+     "label": "经营评分"
+    }
+   ],
+   "suggestions": {}
+  },
+  {
+   "storeName": "湖北爱尔眼科医院-视光门诊",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "sourceRow": 226,
+   "missing": [
+    {
+     "key": "meituanStar",
+     "label": "美团星级"
+    },
+    {
+     "key": "opsScore",
+     "label": "经营评分"
+    }
+   ],
+   "suggestions": {}
+  }
+ ],
+ "pendingByManager": {
+  "未分配经理": 30
+ },
+ "managerMap": {},
+ "managers": [],
+ "regions": [
+  "云南省区",
+  "吉林省区",
+  "吉林长春",
+  "四川省区",
+  "天津特区",
+  "安徽省区",
+  "山东省区",
+  "山西省区",
+  "广东省区",
+  "广西省区",
+  "江苏省区",
+  "江西省区",
+  "河北省区",
+  "河南省区",
+  "浙江省区",
+  "海南省区",
+  "深圳特区",
+  "湖北省区",
+  "湖南省区",
+  "甘青宁区",
+  "福建省区",
+  "贵州省区",
+  "辽宁省区",
+  "重庆特区",
+  "长沙医学中心",
+  "陕西省区",
+  "黑龙江省区"
+ ],
+ "regionStats": [
+  {
+   "region": "黑龙江省区",
+   "storeCount": 3,
+   "avgMeituanStar": 4.23,
+   "avgOpsScore": 101.67,
+   "pendingStores": 0,
+   "below70": 0,
+   "reviewCount": 0,
+   "grade": "A"
+  },
+  {
+   "region": "江苏省区",
+   "storeCount": 3,
+   "avgMeituanStar": 4.23,
+   "avgOpsScore": 101,
+   "pendingStores": 0,
+   "below70": 0,
+   "reviewCount": 0,
+   "grade": "A"
+  },
+  {
+   "region": "广西省区",
+   "storeCount": 5,
+   "avgMeituanStar": 3.78,
+   "avgOpsScore": 97,
+   "pendingStores": 0,
+   "below70": 0,
+   "reviewCount": 0,
+   "grade": "A"
+  },
+  {
+   "region": "长沙医学中心",
+   "storeCount": 17,
+   "avgMeituanStar": 3.75,
+   "avgOpsScore": 91.88,
+   "pendingStores": 0,
+   "below70": 2,
+   "reviewCount": 3,
+   "grade": "A"
+  },
+  {
+   "region": "辽宁省区",
+   "storeCount": 23,
+   "avgMeituanStar": 4.15,
+   "avgOpsScore": 88.04,
+   "pendingStores": 0,
+   "below70": 4,
+   "reviewCount": 0,
+   "grade": "A"
+  },
+  {
+   "region": "海南省区",
+   "storeCount": 1,
+   "avgMeituanStar": 4,
+   "avgOpsScore": 85,
+   "pendingStores": 0,
+   "below70": 0,
+   "reviewCount": 0,
+   "grade": "A"
+  },
+  {
+   "region": "甘青宁区",
+   "storeCount": 1,
+   "avgMeituanStar": 4.3,
+   "avgOpsScore": 84,
+   "pendingStores": 0,
+   "below70": 0,
+   "reviewCount": 0,
+   "grade": "A"
+  },
+  {
+   "region": "安徽省区",
+   "storeCount": 3,
+   "avgMeituanStar": 3.83,
+   "avgOpsScore": 82.67,
+   "pendingStores": 0,
+   "below70": 1,
+   "reviewCount": 0,
+   "grade": "A"
+  },
+  {
+   "region": "福建省区",
+   "storeCount": 7,
+   "avgMeituanStar": 3.57,
+   "avgOpsScore": 80.86,
+   "pendingStores": 0,
+   "below70": 1,
+   "reviewCount": 0,
+   "grade": "A"
+  },
+  {
+   "region": "山西省区",
+   "storeCount": 4,
+   "avgMeituanStar": 4.13,
+   "avgOpsScore": 80.75,
+   "pendingStores": 0,
+   "below70": 1,
+   "reviewCount": 0,
+   "grade": "B"
+  },
+  {
+   "region": "云南省区",
+   "storeCount": 1,
+   "avgMeituanStar": 3.9,
+   "avgOpsScore": 79,
+   "pendingStores": 0,
+   "below70": 0,
+   "reviewCount": 0,
+   "grade": "B"
+  },
+  {
+   "region": "广东省区",
+   "storeCount": 18,
+   "avgMeituanStar": 4.1,
+   "avgOpsScore": 78.78,
+   "pendingStores": 0,
+   "below70": 6,
+   "reviewCount": 1,
+   "grade": "B"
+  },
+  {
+   "region": "天津特区",
+   "storeCount": 1,
+   "avgMeituanStar": 3,
+   "avgOpsScore": 77,
+   "pendingStores": 0,
+   "below70": 0,
+   "reviewCount": 0,
+   "grade": "B"
+  },
+  {
+   "region": "吉林省区",
+   "storeCount": 2,
+   "avgMeituanStar": 3.85,
+   "avgOpsScore": 76.5,
+   "pendingStores": 0,
+   "below70": 1,
+   "reviewCount": 0,
+   "grade": "B"
+  },
+  {
+   "region": "湖北省区",
+   "storeCount": 12,
+   "avgMeituanStar": 3.8,
+   "avgOpsScore": 75.64,
+   "pendingStores": 2,
+   "below70": 3,
+   "reviewCount": 1,
+   "grade": "B"
+  },
+  {
+   "region": "吉林长春",
+   "storeCount": 1,
+   "avgMeituanStar": 4,
+   "avgOpsScore": 75,
+   "pendingStores": 0,
+   "below70": 0,
+   "reviewCount": 0,
+   "grade": "B"
+  },
+  {
+   "region": "河南省区",
+   "storeCount": 3,
+   "avgMeituanStar": 3.93,
+   "avgOpsScore": 75,
+   "pendingStores": 0,
+   "below70": 1,
+   "reviewCount": 0,
+   "grade": "B"
+  },
+  {
+   "region": "河北省区",
+   "storeCount": 6,
+   "avgMeituanStar": 3.55,
+   "avgOpsScore": 71.83,
+   "pendingStores": 0,
+   "below70": 3,
+   "reviewCount": 0,
+   "grade": "B"
+  },
+  {
+   "region": "重庆特区",
+   "storeCount": 6,
+   "avgMeituanStar": 3.48,
+   "avgOpsScore": 69.17,
+   "pendingStores": 0,
+   "below70": 3,
+   "reviewCount": 0,
+   "grade": "B"
+  },
+  {
+   "region": "浙江省区",
+   "storeCount": 15,
+   "avgMeituanStar": 4.08,
+   "avgOpsScore": 68.2,
+   "pendingStores": 1,
+   "below70": 5,
+   "reviewCount": 0,
+   "grade": "C"
+  },
+  {
+   "region": "山东省区",
+   "storeCount": 14,
+   "avgMeituanStar": 3.65,
+   "avgOpsScore": 67.38,
+   "pendingStores": 1,
+   "below70": 7,
+   "reviewCount": 2,
+   "grade": "C"
+  },
+  {
+   "region": "江西省区",
+   "storeCount": 2,
+   "avgMeituanStar": 4.15,
+   "avgOpsScore": 66,
+   "pendingStores": 0,
+   "below70": 2,
+   "reviewCount": 0,
+   "grade": "C"
+  },
+  {
+   "region": "贵州省区",
+   "storeCount": 1,
+   "avgMeituanStar": 3.4,
+   "avgOpsScore": 63,
+   "pendingStores": 0,
+   "below70": 1,
+   "reviewCount": 0,
+   "grade": "C"
+  },
+  {
+   "region": "深圳特区",
+   "storeCount": 9,
+   "avgMeituanStar": 3.92,
+   "avgOpsScore": 60.78,
+   "pendingStores": 0,
+   "below70": 7,
+   "reviewCount": 2,
+   "grade": "C"
+  },
+  {
+   "region": "湖南省区",
+   "storeCount": 21,
+   "avgMeituanStar": 3.9,
+   "avgOpsScore": 57.94,
+   "pendingStores": 6,
+   "below70": 13,
+   "reviewCount": 0,
+   "grade": "C"
+  },
+  {
+   "region": "陕西省区",
+   "storeCount": 7,
+   "avgMeituanStar": 3.54,
+   "avgOpsScore": 46.14,
+   "pendingStores": 0,
+   "below70": 7,
+   "reviewCount": 1,
+   "grade": "C"
+  },
+  {
+   "region": "四川省区",
+   "storeCount": 9,
+   "avgMeituanStar": 3.41,
+   "avgOpsScore": 29.89,
+   "pendingStores": 0,
+   "below70": 9,
+   "reviewCount": 1,
+   "grade": "C"
+  }
+ ],
+ "gradeNote": "按 27 个省区均分的三分位划分：A ≥ 80.86 分，B 69.17–80.86 分，C ＜ 69.17 分",
+ "starDistribution": [
+  {
+   "label": "未填（NULL）",
+   "min": null,
+   "max": null,
+   "count": 13,
+   "pct": 6
+  },
+  {
+   "label": "0 分（真实评分）",
+   "min": 0,
+   "max": 0.0001,
+   "count": 4,
+   "pct": 2
+  },
+  {
+   "label": "＜4.0",
+   "min": 0.0001,
+   "max": 4,
+   "count": 100,
+   "pct": 49.5
+  },
+  {
+   "label": "4.0–4.4",
+   "min": 4,
+   "max": 4.5,
+   "count": 69,
+   "pct": 34.2
+  },
+  {
+   "label": "4.5–4.9",
+   "min": 4.5,
+   "max": 5,
+   "count": 25,
+   "pct": 12.4
+  },
+  {
+   "label": "5.0",
+   "min": 5,
+   "max": null,
+   "count": 4,
+   "pct": 2
+  }
+ ],
+ "scoreDistribution": [
+  {
+   "label": "未填（NULL）",
+   "min": null,
+   "max": null,
+   "count": 7,
+   "pct": 3.3
+  },
+  {
+   "label": "0 分（真实评分）",
+   "min": 0,
+   "max": 0.0001,
+   "count": 2,
+   "pct": 1
+  },
+  {
+   "label": "1–59",
+   "min": 0.0001,
+   "max": 60,
+   "count": 65,
+   "pct": 31.3
+  },
+  {
+   "label": "60–69",
+   "min": 60,
+   "max": 70,
+   "count": 26,
+   "pct": 12.5
+  },
+  {
+   "label": "70–79",
+   "min": 70,
+   "max": 80,
+   "count": 26,
+   "pct": 12.5
+  },
+  {
+   "label": "80–89",
+   "min": 80,
+   "max": 90,
+   "count": 17,
+   "pct": 8.2
+  },
+  {
+   "label": "90–100",
+   "min": 90,
+   "max": 100.5,
+   "count": 44,
+   "pct": 21.2
+  },
+  {
+   "label": "＞100（含加分）",
+   "min": 100.5,
+   "max": null,
+   "count": 28,
+   "pct": 13.5
+  }
+ ],
+ "top10": [
+  {
+   "storeName": "哈尔滨爱尔眼科（道外门诊店）",
+   "city": "哈尔滨市",
+   "region": "黑龙江省区",
+   "manager": null,
+   "meituanStar": 4,
+   "dianpingStar": 4.3,
+   "opsScore": 105,
+   "sourceRow": 17,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "岳阳爱尔眼科视光门诊（经开分院）",
+   "city": "岳阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 4.2,
+   "dianpingStar": 0,
+   "opsScore": 105,
+   "sourceRow": 18,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科·庄市诊所",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.5,
+   "dianpingStar": 4.6,
+   "opsScore": 105,
+   "sourceRow": 40,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "宁波爱尔光明眼科·海曙门诊部",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.7,
+   "dianpingStar": 4.5,
+   "opsScore": 105,
+   "sourceRow": 41,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科海得视门诊·OK镜·离焦眼镜（天河分院）",
+   "city": "广州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.7,
+   "opsScore": 105,
+   "sourceRow": 66,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科海得视门诊·OK镜·离焦眼镜（越秀分院）",
+   "city": "广州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.8,
+   "dianpingStar": 4.7,
+   "opsScore": 105,
+   "sourceRow": 67,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科海得视门诊·OK镜·离焦眼镜（海珠分院）",
+   "city": "广州市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 4.4,
+   "dianpingStar": 4.7,
+   "opsScore": 105,
+   "sourceRow": 69,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "长沙爱尔眼科洋湖诊所",
+   "city": "长沙市",
+   "region": "长沙医学中心",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 4.6,
+   "opsScore": 105,
+   "sourceRow": 97,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（本溪店）",
+   "city": "本溪市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 5,
+   "dianpingStar": 4.1,
+   "opsScore": 105,
+   "sourceRow": 126,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "烟台福山爱尔眼科门诊部",
+   "city": "烟台市",
+   "region": "山东省区",
+   "manager": null,
+   "meituanStar": 3.9,
+   "dianpingStar": 0,
+   "opsScore": 105,
+   "sourceRow": 133,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  }
+ ],
+ "bottom10": [
+  {
+   "storeName": "宁波鄞州爱尔光明眼科门诊部",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 0,
+   "sourceRow": 47,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "宁波爱尔光明眼科（青林湾门诊部）",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 0,
+   "sourceRow": 50,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "中山坦洲爱尔眼科诊所",
+   "city": "中山市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3.1,
+   "dianpingStar": 0,
+   "opsScore": 3,
+   "sourceRow": 208,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "湖州爱尔眼科红丰诊所",
+   "city": "湖州市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 4.7,
+   "dianpingStar": 4.4,
+   "opsScore": 5,
+   "sourceRow": 127,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "襄阳爱尔眼科高新门诊部",
+   "city": "襄阳市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 13,
+   "sourceRow": 21,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "湖北省区",
+     "from": "襄阳市同城 1 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 50
+  },
+  {
+   "storeName": "新会爱尔新希望维康眼科诊所（悦龙新村店）",
+   "city": "江门市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 15,
+   "sourceRow": 113,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {
+    "region": {
+     "value": "广东省区",
+     "from": "江门市同城 1 家门店",
+     "confidence": 100
+    }
+   },
+   "complete": 50
+  },
+  {
+   "storeName": "合江爱尔眼科诊所",
+   "city": "泸州市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 15,
+   "sourceRow": 132,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "爱尔眼科（温江诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3.5,
+   "dianpingStar": 0,
+   "opsScore": 15,
+   "sourceRow": 178,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "襄阳爱尔眼科保康门诊",
+   "city": "襄阳市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 17,
+   "sourceRow": 20,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "梅州五华爱尔眼科门诊",
+   "city": "梅州市",
+   "region": null,
+   "manager": null,
+   "meituanStar": null,
+   "dianpingStar": 0,
+   "opsScore": 17,
+   "sourceRow": 181,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "meituanStar"
+   ],
+   "suggestions": {},
+   "complete": 50
+  }
+ ],
+ "lowStar": [
+  {
+   "storeName": "爱尔眼科荆门漳河诊所",
+   "city": "荆门市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 39,
+   "sourceRow": 37,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "宁波爱尔光明眼科（青林湾门诊部）",
+   "city": "宁波市",
+   "region": "浙江省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 0,
+   "sourceRow": 50,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "潇湘爱尔眼科门诊",
+   "city": "永州市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 3.5,
+   "opsScore": null,
+   "sourceRow": 61,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "永川爱尔阳光眼科门诊",
+   "city": "重庆市",
+   "region": "重庆特区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 46,
+   "sourceRow": 78,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "西安爱尔眼科视光诊所（碑林分院）",
+   "city": "西安市",
+   "region": "陕西省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 56,
+   "sourceRow": 86,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊（大连旅顺口店）",
+   "city": "大连市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 4.5,
+   "opsScore": 100,
+   "sourceRow": 140,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "海南博鳌乐城爱尔眼科医院琼海嘉积诊所",
+   "city": "琼海市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 49,
+   "sourceRow": 153,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科门诊·近视管理（皇姑陵东店）",
+   "city": "沈阳市",
+   "region": "辽宁省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 4.2,
+   "opsScore": 68,
+   "sourceRow": 169,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科（金牛九里堤诊所）",
+   "city": "成都市",
+   "region": "四川省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 32,
+   "sourceRow": 175,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "天津爱尔眼科（鼓楼诊所）",
+   "city": "天津市",
+   "region": "天津特区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 4.4,
+   "opsScore": 77,
+   "sourceRow": 187,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "珠海斗门爱尔眼科诊所",
+   "city": "珠海市",
+   "region": null,
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": null,
+   "sourceRow": 196,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "region",
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 50
+  },
+  {
+   "storeName": "武汉爱尔眼科（蔡甸门诊部）",
+   "city": "武汉市",
+   "region": "湖北省区",
+   "manager": null,
+   "meituanStar": 3,
+   "dianpingStar": 0,
+   "opsScore": 61,
+   "sourceRow": 225,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "爱尔眼科眼科诊所（城固县劳动路教师小区分院）",
+   "city": "汉中市",
+   "region": "陕西省区",
+   "manager": null,
+   "meituanStar": 3.1,
+   "dianpingStar": 0,
+   "opsScore": 27,
+   "sourceRow": 36,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  },
+  {
+   "storeName": "衡阳雁峰区爱尔眼科门诊部（湘江翰林店）",
+   "city": "衡阳市",
+   "region": "湖南省区",
+   "manager": null,
+   "meituanStar": 3.1,
+   "dianpingStar": 0,
+   "opsScore": null,
+   "sourceRow": 156,
+   "manual": {},
+   "status": "active",
+   "missing": [
+    "opsScore"
+   ],
+   "suggestions": {},
+   "complete": 75
+  },
+  {
+   "storeName": "中山坦洲爱尔眼科诊所",
+   "city": "中山市",
+   "region": "广东省区",
+   "manager": null,
+   "meituanStar": 3.1,
+   "dianpingStar": 0,
+   "opsScore": 3,
+   "sourceRow": 208,
+   "manual": {},
+   "status": "active",
+   "missing": [],
+   "suggestions": {},
+   "complete": 100
+  }
+ ],
+ "reviews": [
+  {
+   "storeId": "131624831",
+   "storeName": "长沙芙蓉爱尔眼科门诊部（芙蓉店）",
+   "city": "长沙市",
+   "content": "验光都不准，不在那买眼镜就很敷衍，没散光居然测成有散光，还说我度数矫正只能到0.8，还好后面去湘雅医院测得没散光，度数也能矫正到1.0",
+   "sourceRow": 2
+  },
+  {
+   "storeId": "131624831",
+   "storeName": "长沙芙蓉爱尔眼科门诊部（芙蓉店）",
+   "city": "长沙市",
+   "content": "一点都不负责任，孩子眼睛视功能调节不好，不告知不能配离焦镜，也不告诉配离焦镜需要眼睛什么条件才可以。直接就给配了，只为赚钱。",
+   "sourceRow": 3
+  },
+  {
+   "storeId": "822271242",
+   "storeName": "东营爱尔眼科广饶门诊",
+   "city": "东营市",
+   "content": "",
+   "sourceRow": 4
+  },
+  {
+   "storeId": "1418331664",
+   "storeName": "西安爱尔眼科视光诊所（未央分院）",
+   "city": "西安市",
+   "content": "体验感真的巨巨巨差，从预约，到进店，没有一项让人满足的，团购包含的项目还让我额外付费，还有一项检查直接没有做，提前预约的时候已经问了我叫什么名字，去了把名字还给我弄错了，两个人的视力单子一个加散光，一个不加散光，一点都不专业，服务也差，避雷避雷",
+   "sourceRow": 5
+  },
+  {
+   "storeId": "892528475",
+   "storeName": "爱尔眼科·OK镜·离焦眼镜（横岗诊所）",
+   "city": "深圳市",
+   "content": "做检测的男医生还可以，正常走流程。看结果的年纪大的那个女医生医生知识体系很老派完全跟不上现在的防控进度，说话也难听，关于防控什么都不懂还摆出一副要教育家长的态度，不会再来了。不对比不知道，医生专业性相差太多了。",
+   "sourceRow": 6
+  },
+  {
+   "storeId": "1965774585",
+   "storeName": "烟台爱尔眼科视光门诊部（莱山店）",
+   "city": "烟台市",
+   "content": "给的验光数据没法用，配出来的眼镜根本不能戴，直接浪费一副眼镜，\\ 项目效果：差",
+   "sourceRow": 7
+  },
+  {
+   "storeId": "1764645769",
+   "storeName": "长沙爱尔北辰眼科诊所（北辰店）",
+   "city": "长沙市",
+   "content": "感觉验光完全不太准确，验光速度太快了，进去十分钟以内搞定。无论是人工还是机器，感觉都很赶。医师验光也是短短的看了几张图片，就确认数据了。一直没有散光的，突然说有散光。这种验光态度和业务素质，验出来的数据我是一点都不放心",
+   "sourceRow": 8
+  },
+  {
+   "storeId": "1478083249",
+   "storeName": "爱尔眼科（成华诊所）",
+   "city": "成都市",
+   "content": "在眼镜店配了一副眼镜，带了一个月感觉有点头晕，于是自费到这家爱尔眼科来重新检查视力，这家爱尔眼科给我测的镜片度数何我配的眼镜度数不一样，测出来比我配的度数高，给我造成严重误导，然后我花费时间精力金钱回到给我配眼镜的地方理论，结果人家说没有配错，是爱尔眼科给我测错了，我又去了另外一家做验证，得到的结论都是爱尔给我测错了。\\ 作为一家全国连锁的知名品牌，很怀疑聘请的医生是否专业，对消费者是否负责，后续我要求退款，商家还给予拒绝，造成的损失让消费者承担，贵品牌完全没有一点回应，实属令人失望！",
+   "sourceRow": 9
+  },
+  {
+   "storeId": "1359463484",
+   "storeName": "武汉爱尔眼科青城门诊部",
+   "city": "武汉市",
+   "content": "首先我提前咨询了可不可以做睑板腺疏通，客服说可以，并且催促我4点前到达。当然已经3.35分了我离得又比较远，我就打车紧赶慢赶好在四点前赶到了。结果前台又跟我说不可以做，要等医生来做了检查才能做这个项目(当天并没有值班医生，要我后天来先找医生做检查)我说为什么不提前告知，害我浪费打车费和时间？前台并没有很好的态度，只跟我说了句不好意思。然后我走出来拍门头准备给个差评反应下情况，前台又急忙跑出来说可以给我做。我当时心里已经很纳闷并且不愉快了。再说后续服务：我从没见过哪家睑板腺按摩如此敷衍！搞个蒸汽雾化连个眼罩都没有 对着脸喷10分钟，然后搞个很廉价那种发热眼罩热敷10分钟，结果最主要的疏通3分钟不到就结束了(全程手法非常敷衍)最后再搞个冰敷眼罩10分钟结束了！我花100来你这买眼罩来了？？？搞笑吧……还不如一开始跟我说不接待，不至于这么敷衍我吧？！",
+   "sourceRow": 10
+  },
+  {
+   "storeId": "131798812",
+   "storeName": "民智爱尔眼科·OK镜·离焦眼镜诊所（龙华店）",
+   "city": "深圳市",
+   "content": "来检查是否干眼 做了个干眼套餐一般\\ 感觉像智商税\\ 眼睛不舒服还是去大医院看吧\\ 这诊所技术挺差 就是卖眼镜的\\ 买点眼药水",
+   "sourceRow": 11
+  },
+  {
+   "storeId": "1075401353",
+   "storeName": "爱尔眼科海得视门诊·OK镜·离焦眼镜（越秀分院）",
+   "city": "广州市",
+   "content": "真服了，验光师自己眼镜度数不对就别搞别人了，去的那天测完以后戴眼镜适应的时候在看灯光已经有散光的感觉了，和验视力的那说，还和我说是正常的，我说了两次不正常，还举例子了，那个测视力的也看那个灯，当时他说话就说是咦咦哦哦的，还说是正常的结果搞完出到来后来才知道就是散光度数不够。",
+   "sourceRow": 12
+  }
+ ],
+ "insights": [
+  {
+   "level": "P0",
+   "text": "30 家门店共 40 个字段缺失，其中 8 家的「省区」可由同城门店归属自动推荐；星级与经营评分属门店级指标、无法互推，需人工逐个补录。"
+  },
+  {
+   "level": "P2",
+   "text": "已排除 13 家未开通/疑似未开通门店（美团星级、点评星级、经营评分三项全空），不计入待补录与省区对标；若其中确有已营业门诊，可在「门店明细」中把状态改回「已开通」。"
+  },
+  {
+   "level": "P0",
+   "text": "省区覆盖率 91%，20 家门店未归属省区，将无法进入省区横向对标，须优先补齐。"
+  },
+  {
+   "level": "P0",
+   "text": "经营评分低于 70 分的门店 93 家（占 45%），为平台流量分配的最弱环节，建议本月内完成一次一对一诊断。"
+  },
+  {
+   "level": "P1",
+   "text": "美团星级低于 4.0 的门店 100 家，星级直接影响列表排序与点击率，需结合差评原文逐条整改。"
+  },
+  {
+   "level": "P1",
+   "text": "28 家门店经营评分超过 100（存在加分项），可作为标杆样本反推加分动作，输出可复制的运营 SOP。"
+  },
+  {
+   "level": "P1",
+   "text": "点评星级为 0 的门店 112 家（占 52%），0 很可能代表「无点评数据」而非真实评分，建议与业务确认口径后再纳入考核，避免误判。"
+  },
+  {
+   "level": "P2",
+   "text": "13 家门店美团星级为空（源文件标记 NULL），其中 4 家为真实 0 分，两者含义不同，补录时请勿一并按 0 处理。"
+  },
+  {
+   "level": "P1",
+   "text": "省区差距显著：黑龙江省区 均分 101.67，四川省区 均分 29.89，相差 71.8 分，建议把 A 级省区的做法做成标准包下发。"
+  },
+  {
+   "level": "P2",
+   "text": "本月收到差评原文 11 条，覆盖 10 家门店，已转入「评价管理」模块生成回复话术。"
+  }
+ ],
+ "warnings": [],
+ "fillToken": null
+}

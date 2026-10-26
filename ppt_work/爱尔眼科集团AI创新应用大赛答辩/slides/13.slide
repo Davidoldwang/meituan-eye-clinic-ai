@@ -1,0 +1,71 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#0B2A6B',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* 全幅城市底图 */}
+    <Image src="assets/bg_city.jpg" style={{
+        position: 'absolute', top: 0, left: 0, width: 1280, height: 720, objectFit: 'cover',
+    }} />
+    <Box style={{
+        position: 'absolute', top: 0, left: 0, width: 1280, height: 720,
+        background: 'linear-gradient(180deg, rgba(11,42,107,0.90) 0%, rgba(11,42,107,0.72) 50%, rgba(27,95,217,0.58) 100%)',
+    }} />
+    {/* 底部压暗，保证信息条可读 */}
+    <Box style={{
+        position: 'absolute', left: 0, bottom: 0, width: 1280, height: 210,
+        background: 'linear-gradient(180deg, rgba(11,42,107,0) 0%, rgba(11,42,107,0.92) 100%)',
+    }} />
+
+    {/* 顶部 LOGO */}
+    <Box style={{ position: 'absolute', top: 42, left: 64, flexDirection: 'row', alignItems: 'center', gap: 22 }}>
+        <Image src="assets/logo_2026.png" style={{ width: 156, height: 66, objectFit: 'contain' }} />
+        <Box style={{ width: 1, height: 36, background: 'rgba(255,255,255,0.26)' }} />
+        <Image src="assets/logo_eyer.png" style={{ width: 186, height: 52, objectFit: 'contain' }} />
+    </Box>
+
+    {/* 主体金句 */}
+    <Box style={{
+        position: 'absolute', top: 226, left: 64, width: 900,
+        flexDirection: 'column',
+    }}>
+        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 24 }}>
+            <Box style={{ width: 6, height: 32, background: '#35C8F0', borderRadius: 3 }} />
+            <Text style={{ fontSize: 17, color: '#8FE3F8', letterSpacing: 3, fontWeight: 'bold' }}>
+                谢谢聆听 · 敬请指正
+            </Text>
+        </Box>
+
+        <Text style={{ fontSize: 56, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.22 }}>
+            让每家门诊都能自己做<br />美团运营的「专业判断」
+        </Text>
+
+        <Text style={{ fontSize: 16, color: '#C8D9F5', lineHeight: 1.75, marginTop: 26 }}>
+            工具只是开始，真正要沉淀的是把好店长的经验变成集团的标准动作。
+        </Text>
+    </Box>
+
+    {/* 底部信息 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 54,
+        flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
+    }}>
+        <Box style={{ flexDirection: 'row', gap: 48 }}>
+            <Box>
+                <Text style={{ fontSize: 11.5, color: '#A8CDF5', letterSpacing: 1, marginBottom: 6 }}>参赛作品</Text>
+                <Text style={{ fontSize: 17, color: '#FFFFFF', fontWeight: 'bold' }}>美团电商眼科运营AI助手</Text>
+            </Box>
+            <Box>
+                <Text style={{ fontSize: 11.5, color: '#A8CDF5', letterSpacing: 1, marginBottom: 6 }}>汇报单位</Text>
+                <Text style={{ fontSize: 17, color: '#FFFFFF', fontWeight: 'bold' }}>爱尔眼科集团 · 门诊管理中心</Text>
+            </Box>
+        </Box>
+
+        <Box style={{ paddingLeft: 20, borderLeft: '3px solid #35C8F0' }}>
+            <Text style={{ fontSize: 14, color: '#ADE8FF', marginBottom: 4 }}>答辩人</Text>
+            <Text style={{ fontSize: 21, color: '#FFFFFF', fontWeight: 'bold' }}>王皓</Text>
+        </Box>
+    </Box>
+</Slide>

@@ -1,0 +1,172 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#F2F6FD',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* 顶部斜切色带 */}
+    <Image src="assets/bg_bar.jpg" style={{
+        position: 'absolute', top: 0, left: 0,
+        width: 1280, height: 118, objectFit: 'cover',
+    }} />
+    <Box style={{
+        position: 'absolute', top: 0, left: 0,
+        width: 1280, height: 118,
+        background: 'linear-gradient(90deg, rgba(11,42,107,0.94) 0%, rgba(27,95,217,0.82) 60%, rgba(27,95,217,0.55) 100%)',
+    }} />
+
+    {/* A 标题块 */}
+    <Box style={{
+        position: 'absolute', top: 26, left: 64,
+        flexDirection: 'row', alignItems: 'center', gap: 16,
+    }}>
+        <Box style={{ width: 6, height: 40, background: '#35C8F0', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.2 }}>
+                门诊做美团，卡在三个地方
+            </Text>
+            <Text style={{ fontSize: 14, color: '#ADE8FF', marginTop: 5, letterSpacing: 1 }}>
+                数据拿不到 · 内容做不快 · 决策靠经验
+            </Text>
+        </Box>
+    </Box>
+    <Image src="assets/logo_2026.png" style={{
+        position: 'absolute', top: 30, right: 64,
+        width: 132, height: 56, objectFit: 'contain', opacity: 0.5,
+    }} />
+
+    {/* B 内容区：三张痛点卡 */}
+    <Box style={{
+        position: 'absolute', top: 146, left: 64, right: 64,
+        height: 494,
+        flexDirection: 'row', gap: 22,
+    }}>
+        {/* 卡片 1 */}
+        <Box style={{
+            flex: 1,
+            background: '#FFFFFF',
+            borderRadius: 14,
+            borderTop: '4px solid #1B5FD9',
+            padding: 28, paddingTop: 24,
+            flexDirection: 'column',
+            boxShadow: '0 6px 22px rgba(11,42,107,0.08)',
+        }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                <Box style={{
+                    width: 40, height: 40, borderRadius: 20,
+                    background: 'rgba(27,95,217,0.10)',
+                    justifyContent: 'center', alignItems: 'center',
+                }}>
+                    <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#1B5FD9' }}>1</Text>
+                </Box>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#0B2A6B' }}>数据散在门店里</Text>
+            </Box>
+            <Text style={{ fontSize: 64, fontWeight: 'bold', color: '#1B5FD9', lineHeight: 1.0, marginBottom: 4 }}>
+                28
+            </Text>
+            <Text style={{ fontSize: 14, color: '#5A6B8C', marginBottom: 16 }}>家辽宁门诊的经营数据，总部拿不到横向对比</Text>
+            <Text style={{ fontSize: 14, color: '#3A4A66', lineHeight: 1.75, flex: 1 }}>
+                美团「经营参谋」在每家门店的手机里，评分、曝光、转化、评价各自分散。要看全省 28 家门诊的经营评分，只能一家一家登录截图，再用 Excel 手工拼表——一个周期下来两三天，数据还没法实时。
+            </Text>
+            <Box style={{
+                marginTop: 12, padding: '10px 14px',
+                background: 'rgba(255,138,61,0.10)',
+                borderLeft: '3px solid #FF8A3D', borderRadius: 4,
+            }}>
+                <Text style={{ fontSize: 13, color: '#B4560F', lineHeight: 1.6 }}>
+                    后果：总部只能"事后看总分"，发现不了过程问题
+                </Text>
+            </Box>
+        </Box>
+
+        {/* 卡片 2 */}
+        <Box style={{
+            flex: 1,
+            background: '#FFFFFF',
+            borderRadius: 14,
+            borderTop: '4px solid #1B5FD9',
+            padding: 28, paddingTop: 24,
+            flexDirection: 'column',
+            boxShadow: '0 6px 22px rgba(11,42,107,0.08)',
+        }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                <Box style={{
+                    width: 40, height: 40, borderRadius: 20,
+                    background: 'rgba(27,95,217,0.10)',
+                    justifyContent: 'center', alignItems: 'center',
+                }}>
+                    <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#1B5FD9' }}>2</Text>
+                </Box>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#0B2A6B' }}>内容产能跟不上</Text>
+            </Box>
+            <Box style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginBottom: 4 }}>
+                <Text style={{ fontSize: 64, fontWeight: 'bold', color: '#1B5FD9', lineHeight: 1.0 }}>2</Text>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1B5FD9', marginBottom: 8 }}>小时</Text>
+            </Box>
+            <Text style={{ fontSize: 14, color: '#5A6B8C', marginBottom: 16 }}>写一条美团文案，还要配图、排版、凑满 5 张</Text>
+            <Text style={{ fontSize: 14, color: '#3A4A66', lineHeight: 1.75, flex: 1 }}>
+                门诊没有专职设计，暑期档、开学季、活动期文案需求集中爆发。写文案、配图、查违禁词、调整主图，一轮下来两小时起。门店没有美术资源，集团统一的品牌视觉也落不了地。
+            </Text>
+            <Box style={{
+                marginTop: 12, padding: '10px 14px',
+                background: 'rgba(255,138,61,0.10)',
+                borderLeft: '3px solid #FF8A3D', borderRadius: 4,
+            }}>
+                <Text style={{ fontSize: 13, color: '#B4560F', lineHeight: 1.6 }}>
+                    后果：活动期只能仓促发图，质量与合规都难保证
+                </Text>
+            </Box>
+        </Box>
+
+        {/* 卡片 3 */}
+        <Box style={{
+            flex: 1,
+            background: '#FFFFFF',
+            borderRadius: 14,
+            borderTop: '4px solid #FF8A3D',
+            padding: 28, paddingTop: 24,
+            flexDirection: 'column',
+            boxShadow: '0 6px 22px rgba(11,42,107,0.08)',
+        }}>
+            <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                <Box style={{
+                    width: 40, height: 40, borderRadius: 20,
+                    background: 'rgba(255,138,61,0.14)',
+                    justifyContent: 'center', alignItems: 'center',
+                }}>
+                    <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#FF8A3D' }}>3</Text>
+                </Box>
+                <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#0B2A6B' }}>判断全凭经验</Text>
+            </Box>
+            <Box style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginBottom: 4 }}>
+                <Text style={{ fontSize: 64, fontWeight: 'bold', color: '#FF8A3D', lineHeight: 1.0 }}>60</Text>
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#FF8A3D', marginBottom: 8 }}>%</Text>
+            </Box>
+            <Text style={{ fontSize: 14, color: '#5A6B8C', marginBottom: 16 }}>的近 30 天差评没被回复（抽样）</Text>
+            <Text style={{ fontSize: 14, color: '#3A4A66', lineHeight: 1.75, flex: 1 }}>
+                差评要不要回、怎么回、差评背后是哪类问题；团购定价该定多少、和隔壁哪家比；这月该做哪个活动、拉哪个客——全看店长个人经验。人一走，判断就断档，经验也没法沉淀成集团资产。
+            </Text>
+            <Box style={{
+                marginTop: 12, padding: '10px 14px',
+                background: 'rgba(255,138,61,0.10)',
+                borderLeft: '3px solid #FF8A3D', borderRadius: 4,
+            }}>
+                <Text style={{ fontSize: 13, color: '#B4560F', lineHeight: 1.6 }}>
+                    后果：好经验留在个人脑子里，集团拿不走
+                </Text>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 22,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 13, color: '#8494B4' }}>
+            美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛
+        </Text>
+        <Text style={{ fontSize: 13, color: '#8494B4', fontFamily: 'Arial, sans-serif' }}>02 / 15</Text>
+    </Box>
+</Slide>

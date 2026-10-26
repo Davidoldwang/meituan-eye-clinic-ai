@@ -1,0 +1,22 @@
+const { chromium } = require('playwright-core');
+(async () => {
+  const browser = await chromium.launch({ channel: 'msedge' });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  await page.goto('http://localhost:3000/meituan-agent.html', { waitUntil: 'networkidle' });
+  await page.evaluate(() => switchPage('img-diagnosis'));
+  await page.setInputFiles('#imgdFileInput', 'C:/Users/X1 Yoga/.workbuddy/clipboard-images/clipboard-2026-10-26T06-03-39-153Z-d462e5f8.jpg');
+  await page.fill('#imgdProjectName', '成人视力检查');
+  await page.click('#imgdAnalyzeBtn');
+  await page.waitForSelector('#imgdResult', { state: 'visible', timeout: 60000 });
+  await page.waitForTimeout(300);
+  const ring = await page.textContent('#imgdScoreRing');
+  const toasts = await page.$$eval('.toast', els => els.map(e => e.textContent));
+  await page.screenshot({ path: 'test_shots/imgd_fixed.png' });
+  console.log('评分区:', ring.replace(/\s+/g, ' ').trim().substring(0, 160));
+  console.log('toast:', JSON.stringify(toasts));
+  console.log('控制台错误:', errors.length ? JSON.stringify(errors.slice(0,3)) : '无');
+  await browser.close();
+})();

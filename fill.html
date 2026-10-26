@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1a3a5c">
+<title>门店数据填报</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233b82f6'/%3E%3Cpath d='M9 17l5 5 9-11' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --pri:#1a3a5c;
+    --pri-2:#26527e;
+    --acc:#3b82f6;
+    --ok:#10b981;
+    --warn:#f59e0b;
+    --danger:#ef4444;
+    --bg:#f5f7fa;
+    --card:#ffffff;
+    --line:#e6ebf2;
+    --muted:#64748b;
+    --text:#1f2937;
+    --r:12px;
+  }
+  *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    padding-bottom:86px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:12px 12px 0;}
+
+  /* 顶部标题区 */
+  .hd{
+    background:linear-gradient(135deg,var(--pri) 0%,var(--pri-2) 100%);
+    color:#fff;border-radius:14px;padding:18px 16px 16px;
+    box-shadow:0 6px 18px rgba(26,58,92,.18);
+  }
+  .hd h1{margin:0;font-size:20px;font-weight:700;letter-spacing:.5px;}
+  .hd .sub{margin:6px 0 0;font-size:13px;color:#cfe0f2;font-variant-numeric:tabular-nums;}
+  .hd .hint{
+    margin:12px 0 0;padding:8px 10px;border-radius:8px;
+    background:rgba(255,255,255,.12);font-size:12px;color:#e8f1fa;
+    display:flex;align-items:center;gap:6px;
+  }
+
+  /* 预置筛选提示条 */
+  .preset{
+    display:flex;align-items:center;gap:8px;
+    margin-top:10px;padding:9px 11px;border-radius:10px;
+    background:#eff6ff;border:1px solid #dbeafe;color:#1d4ed8;
+    font-size:12px;line-height:1.4;
+  }
+  .preset-ico{flex:none;}
+  .preset-txt{flex:1;min-width:0;word-break:break-all;}
+  .preset-clear{
+    flex:none;height:26px;padding:0 10px;border-radius:7px;
+    border:1px solid #bfdbfe;background:#fff;color:#1d4ed8;
+    font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap;
+  }
+  .preset-clear:active{background:#dbeafe;}
+
+  /* 筛选区（吸顶） */
+  .filters{
+    position:sticky;top:0;z-index:20;
+    background:var(--bg);
+    margin:0 -12px;padding:10px 12px 10px;
+  }
+  .filters::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+    background:var(--line);
+  }
+  .f-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0;}
+  .f-row + .f-row{margin-top:8px;}
+  .f-sel,.f-inp{
+    width:100%;min-width:0;
+    height:38px;border:1px solid var(--line);border-radius:10px;
+    background:var(--card);color:var(--text);font-size:13px;
+    padding:0 10px;outline:none;font-family:inherit;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  .f-sel{
+    appearance:none;-webkit-appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,#94a3b8 50%),linear-gradient(135deg,#94a3b8 50%,transparent 50%);
+    background-position:calc(100% - 15px) 17px,calc(100% - 10px) 17px;
+    background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+    padding-right:28px;
+  }
+  .f-sel:focus,.f-inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+  .f-search-row{display:flex;align-items:center;gap:8px;min-width:0;}
+  .f-search-row .f-inp{flex:1;min-width:0;}
+  .f-count{
+    flex:none;font-size:12px;color:var(--pri);font-weight:600;
+    background:#e8f1fb;border-radius:8px;padding:0 10px;height:38px;
+    display:flex;align-items:center;white-space:nowrap;
+  }
+
+  /* 门店卡片 */
+  #list{padding-bottom:8px;}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:14px;margin-bottom:10px;
+    box-shadow:0 1px 2px rgba(16,32,56,.04);
+  }
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+  .store-name{margin:0;font-size:15px;font-weight:700;color:var(--pri);line-height:1.4;word-break:break-all;}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .meta{font-size:12px;color:var(--muted);}
+  .tag{
+    font-size:11px;line-height:1;padding:4px 7px;border-radius:6px;
+    background:#eef6ff;color:#1d4ed8;border:1px solid #dbeafe;white-space:nowrap;
+  }
+  .tag-muted{background:#f3f4f6;color:#6b7280;border-color:#e5e7eb;}
+  .fields{margin-top:6px;}
+  .field{display:flex;align-items:flex-start;gap:10px;margin-top:10px;}
+  .field > label{
+    flex:none;width:70px;padding-top:9px;font-size:13px;color:#475569;
+  }
+  .ctrl{flex:1;min-width:0;}
+  .inp{
+    width:100%;min-width:0;max-width:340px;height:38px;
+    border:1px solid var(--line);border-radius:9px;background:#fbfcfe;
+    padding:0 10px;font-size:14px;color:var(--text);font-family:inherit;outline:none;
+    transition:border-color .15s,box-shadow .15s,background .15s;
+  }
+  .inp::placeholder{color:#b6c2d1;font-size:13px;}
+  .inp:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+  .inp.invalid{border-color:var(--danger);background:#fef2f2;}
+  .inp.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.14);}
+  .err-msg{display:block;margin-top:5px;font-size:12px;color:var(--danger);}
+
+  /* 推荐条 */
+  .rec{
+    display:flex;align-items:center;gap:8px;
+    margin:10px 0 0;padding:8px 10px;border-radius:9px;cursor:pointer;
+    background:#eff6ff;border:1px dashed #93c5fd;color:#1d4ed8;
+    font-size:12px;line-height:1.4;
+    transition:background .15s,border-color .15s;
+  }
+  .rec > span:first-child{flex:1;min-width:0;}
+  .rec:active{background:#dbeafe;}
+  .rec b{font-weight:700;}
+  .rec .rec-mark{flex:none;color:#2563eb;font-size:11px;opacity:.85;white-space:nowrap;}
+  .rec.used{background:#ecfdf5;border-color:#a7f3d0;color:#047857;cursor:default;}
+  .rec.used .rec-mark{color:#059669;}
+
+  /* 骨架 / 空态 / 错误页 */
+  .sk{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+  .sk-line{height:12px;border-radius:6px;background:linear-gradient(90deg,#eef2f7 25%,#e3e9f1 37%,#eef2f7 63%);background-size:400% 100%;animation:sk 1.3s ease infinite;margin-top:10px;}
+  .sk-line:first-child{margin-top:0;height:16px;width:62%;}
+  .sk-line.short{width:40%;}
+  @keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+  .state{
+    text-align:center;padding:38px 16px;color:var(--muted);font-size:13px;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  }
+  .state .em{display:block;font-size:34px;line-height:1;margin-bottom:10px;}
+  .state .ttl{display:block;font-size:15px;font-weight:600;color:var(--pri);margin-bottom:4px;}
+
+  .errpage{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:44px 20px;text-align:center;}
+  .errpage .em{font-size:42px;line-height:1;display:block;margin-bottom:14px;}
+  .errpage h2{margin:0 0 8px;font-size:20px;color:var(--pri);}
+  .errpage p{margin:0;font-size:13px;color:var(--muted);}
+  .errpage .again{
+    margin-top:18px;height:38px;padding:0 20px;border-radius:9px;border:1px solid var(--line);
+    background:#fff;color:var(--pri);font-size:13px;font-family:inherit;cursor:pointer;
+  }
+
+  /* 底部操作条 */
+  .bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;
+    background:rgba(255,255,255,.97);
+    border-top:1px solid var(--line);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
+    box-shadow:0 -4px 16px rgba(16,32,56,.06);
+  }
+  .bar-in{max-width:696px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .bar-info{font-size:13px;color:var(--muted);white-space:nowrap;}
+  .bar-info b{color:var(--pri);font-size:16px;font-variant-numeric:tabular-nums;padding:0 2px;}
+  .btn{
+    flex:1;height:44px;border:0;border-radius:10px;
+    background:var(--acc);color:#fff;font-size:15px;font-weight:600;font-family:inherit;
+    cursor:pointer;transition:opacity .15s,background .15s;
+  }
+  .btn:active{background:#2f6fd8;}
+  .btn[disabled]{background:#cbd5e1;color:#f8fafc;cursor:not-allowed;}
+
+  /* 提示条 */
+  .toast{
+    position:fixed;left:50%;top:14px;transform:translate(-50%,-16px);
+    z-index:50;max-width:calc(100% - 32px);
+    padding:10px 16px;border-radius:10px;
+    font-size:13px;color:#fff;background:var(--pri);
+    box-shadow:0 8px 22px rgba(16,32,56,.22);
+    opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+    display:flex;align-items:center;gap:8px;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+  .toast.ok{background:#0f9d75;}
+  .toast.warn{background:#d97706;}
+  .toast.danger{background:#dc2626;}
+
+  .refreshing #list{opacity:.55;transition:opacity .15s;pointer-events:none;}
+
+  @media (min-width:721px){
+    body{font-size:14px;}
+    .hd{padding:22px 20px 18px;}
+    .hd h1{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hd">
+      <h1>门店数据填报</h1>
+      <p class="sub" id="hd-sub">正在读取表单…</p>
+      <div class="hint" id="hd-hint"><span>✏️</span><span>只填空白项，已填好的不用改</span></div>
+    </header>
+
+    <div class="preset" id="preset" hidden>
+      <span class="preset-ico">🎯</span>
+      <span class="preset-txt" id="preset-txt"></span>
+      <button class="preset-clear" id="preset-clear" type="button">清除筛选</button>
+    </div>
+
+    <div class="filters" id="filters" hidden>
+      <div class="f-row">
+        <select class="f-sel" id="f-region" aria-label="按省区筛选"></select>
+        <select class="f-sel" id="f-manager" aria-label="按运营经理筛选"></select>
+      </div>
+      <div class="f-row f-search-row">
+        <input class="f-inp" id="f-search" type="search" placeholder="搜索门店名称或城市" aria-label="搜索门店" autocomplete="off">
+        <span class="f-count" id="f-count">0 家</span>
+      </div>
+    </div>
+
+    <main id="list"></main>
+    <div id="errslot"></div>
+  </div>
+
+  <div class="bar" id="bar" hidden>
+    <div class="bar-in">
+      <span class="bar-info">已填写 <b id="bar-n">0</b> 家</span>
+      <button class="btn" id="btn-submit" type="button" disabled>提交 0 家</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   门店数据填报页
+   - 载入：GET /api/monthly-fill-form?token=
+   - 提交：POST /api/monthly-fill-submit
+   - 草稿：localStorage key = mi_fill_draft_<token>
+   ========================================================= */
+(function () {
+  'use strict';
+
+  var API_FORM = '/api/monthly-fill-form';
+  var API_SUBMIT = '/api/monthly-fill-submit';
+
+  /* 字段元数据：顺序即渲染顺序 */
+  var FIELD_META = {
+    region:      { label: '省区',     type: 'text' },
+    meituanStar: { label: '美团星级', type: 'star' },
+    dianpingStar:{ label: '点评星级', type: 'star' },
+    opsScore:    { label: '经营评分', type: 'score' }
+  };
+  var FIELD_ORDER = ['region', 'meituanStar', 'dianpingStar', 'opsScore'];
+
+  /* 链接参数：t=token，可选 m=运营经理、r=省区（值为中文，需解码） */
+  function decodeParam(v) {
+    if (!v) return '';
+    var s = String(v).trim();
+    try {
+      if (s.indexOf('%') > -1) return decodeURIComponent(s).trim();
+    } catch (e) { /* 非法转义时保留原值 */ }
+    return s;
+  }
+
+  var token = '';
+  var presetParam = { manager: '', region: '' };
+  try {
+    var qs = new URLSearchParams(window.location.search);
+    token = decodeParam(qs.get('t'));
+    presetParam.manager = decodeParam(qs.get('m'));
+    presetParam.region = decodeParam(qs.get('r'));
+  } catch (e) { token = ''; }
+
+  var DRAFT_KEY = 'mi_fill_draft_' + token;
+
+  var state = {
+    data: null,          /* 接口返回体 */
+    draft: {},           /* { 门店名: { 字段: 原始字符串 } } */
+    fRegion: '',
+    fManager: '',
+    kw: '',
+    preset: presetParam, /* 链接带来的预置筛选 */
+    presetDone: false,   /* 是否已尝试应用（首屏数据到位后应用一次） */
+    presetActive: false,
+    presetLabel: '',
+    submitting: false,
+    loading: false
+  };
+
+  var el = {
+    sub: document.getElementById('hd-sub'),
+    hint: document.getElementById('hd-hint'),
+    preset: document.getElementById('preset'),
+    presetTxt: document.getElementById('preset-txt'),
+    presetClear: document.getElementById('preset-clear'),
+    filters: document.getElementById('filters'),
+    fRegion: document.getElementById('f-region'),
+    fManager: document.getElementById('f-manager'),
+    fSearch: document.getElementById('f-search'),
+    fCount: document.getElementById('f-count'),
+    list: document.getElementById('list'),
+    errslot: document.getElementById('errslot'),
+    bar: document.getElementById('bar'),
+    barN: document.getElementById('bar-n'),
+    btn: document.getElementById('btn-submit'),
+    toast: document.getElementById('toast')
+  };
+
+  /* ---------------- 工具 ---------------- */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function isBlank(v) {
+    return v === undefined || v === null || String(v).trim() === '';
+  }
+
+  var toastTimer = null;
+  function toast(msg, kind) {
+    el.toast.textContent = msg;
+    el.toast.className = 'toast show' + (kind ? ' ' + kind : '');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      el.toast.className = 'toast' + (kind ? ' ' + kind : '');
+    }, kind === 'danger' ? 4200 : 2600);
+  }
+
+  /* ---------------- 草稿读写 ---------------- */
+  function readDraft() {
+    try {
+      var raw = window.localStorage.getItem(DRAFT_KEY);
+      var obj = raw ? JSON.parse(raw) : null;
+      state.draft = (obj && typeof obj === 'object') ? obj : {};
+    } catch (e) {
+      state.draft = {};
+    }
+  }
+  function persistDraft() {
+    try {
+      var empty = true;
+      for (var k in state.draft) {
+        if (Object.prototype.hasOwnProperty.call(state.draft, k) && state.draft[k]) { empty = false; break; }
+      }
+      if (empty) window.localStorage.removeItem(DRAFT_KEY);
+      else window.localStorage.setItem(DRAFT_KEY, JSON.stringify(state.draft));
+    } catch (e) { /* 隐私模式等场景忽略 */ }
+  }
+  function setDraft(storeName, field, value) {
+    var rec = state.draft[storeName] || {};
+    if (value === '' || value === null || value === undefined) delete rec[field];
+    else rec[field] = String(value);
+    var has = false;
+    for (var k in rec) { if (Object.prototype.hasOwnProperty.call(rec, k)) { has = true; break; } }
+    if (has) state.draft[storeName] = rec;
+    else delete state.draft[storeName];
+    persistDraft();
+  }
+  function getDraft(storeName, field) {
+    var rec = state.draft[storeName];
+    if (!rec) return '';
+    var v = rec[field];
+    return v === undefined || v === null ? '' : String(v);
+  }
+
+  /* ---------------- 载入表单 ---------------- */
+  function loadForm(keepList) {
+    if (state.loading) return;
+    state.loading = true;
+
+    var first = !state.data;
+    if (first) {
+      el.sub.textContent = '正在读取表单…';
+      el.filters.hidden = true;
+      el.errslot.innerHTML = '';
+      showSkeleton();
+    } else if (!keepList) {
+      document.body.classList.add('refreshing');
+    }
+
+    fetch(API_FORM + '?token=' + encodeURIComponent(token), {
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store'
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        return { status: res.status, ok: res.ok, body: body || {} };
+      });
+    }).then(function (r) {
+      state.loading = false;
+      document.body.classList.remove('refreshing');
+
+      if (r.status === 404 || (r.body && r.body.ok === false && r.status === 404)) {
+        showError('链接已失效', '请向运营主管重新获取填报链接', false);
+        return;
+      }
+      if (!r.ok || !r.body || r.body.ok === false) {
+        showError('表单加载失败', '服务器暂时无法返回数据，请稍后重试', true);
+        return;
+      }
+      state.data = r.body;
+      readDraft();
+      el.errslot.innerHTML = '';
+      applyPreset();
+      renderHeader();
+      renderFilters();
+      renderList();
+      updateBar();
+    }).catch(function (err) {
+      state.loading = false;
+      document.body.classList.remove('refreshing');
+      console.error('[fill] 表单加载失败', err);
+      if (first) showError('网络连接失败', '请检查网络后重试，或联系运营主管', true);
+      else { renderList(); updateBar(); toast('刷新失败，请检查网络后重试', 'danger'); }
+    });
+  }
+
+  function showSkeleton() {
+    var html = '';
+    for (var i = 0; i < 3; i++) {
+      html += '<div class="sk"><div class="sk-line"></div>' +
+              '<div class="sk-line short"></div>' +
+              '<div class="sk-line"></div>' +
+              '<div class="sk-line short"></div></div>';
+    }
+    el.list.innerHTML = html;
+    el.bar.hidden = true;
+  }
+
+  function showError(title, desc, retry) {
+    el.sub.textContent = '';
+    el.sub.hidden = true;
+    el.hint.hidden = true;
+    el.filters.hidden = true;
+    el.bar.hidden = true;
+    el.list.innerHTML = '';
+    el.errslot.innerHTML =
+      '<div class="errpage">' +
+        '<span class="em">🔒</span>' +
+        '<h2>' + esc(title) + '</h2>' +
+        '<p>' + esc(desc) + '</p>' +
+        (retry ? '<button class="again" type="button" id="btn-again">重新加载</button>' : '') +
+      '</div>';
+    var again = document.getElementById('btn-again');
+    if (again) {
+      again.onclick = function () {
+        el.errslot.innerHTML = '';
+        loadForm(false);
+      };
+    }
+  }
+
+  /* ---------------- 渲染 ---------------- */
+  function renderHeader() {
+    var d = state.data || {};
+    var pending = d.totalPending;
+    if (typeof pending !== 'number') pending = (d.stores || []).length;
+    el.sub.hidden = false;
+    el.hint.hidden = false;
+    el.sub.textContent = (d.month || '') + ' · 待填 ' + pending + ' 家';
+  }
+
+  function renderFilters() {
+    var d = state.data || {};
+    var regions = Array.isArray(d.regions) ? d.regions : [];
+    var managers = Array.isArray(d.managers) ? d.managers : [];
+
+    el.fRegion.innerHTML = '<option value="">全部省区</option>' + regions.map(function (r) {
+      return '<option value="' + esc(r) + '">' + esc(r) + '</option>';
+    }).join('');
+    el.fManager.innerHTML = '<option value="">全部经理</option>' + managers.map(function (m) {
+      return '<option value="' + esc(m) + '">' + esc(m) + '</option>';
+    }).join('');
+
+    el.fRegion.value = state.fRegion;
+    el.fManager.value = state.fManager;
+    el.fSearch.value = state.kw;
+    el.filters.hidden = false;
+  }
+
+  /* 门店的有效省区：已填的省区优先，其次推荐值（便于按省区筛选出待填门店） */
+  function effRegion(s) {
+    if (s.region) return s.region;
+    if (s.suggestions && s.suggestions.region && s.suggestions.region.value) return s.suggestions.region.value;
+    return '';
+  }
+
+  function filteredStores() {
+    var d = state.data || {};
+    var stores = Array.isArray(d.stores) ? d.stores : [];
+    var kw = state.kw.trim().toLowerCase();
+    return stores.filter(function (s) {
+      if (state.fRegion && effRegion(s) !== state.fRegion) return false;
+      if (state.fManager && s.manager !== state.fManager) return false;
+      if (kw) {
+        var hay = ((s.storeName || '') + ' ' + (s.city || '')).toLowerCase();
+        if (hay.indexOf(kw) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderList() {
+    var list = filteredStores();
+    var total = (state.data && Array.isArray(state.data.stores)) ? state.data.stores.length : 0;
+
+    el.fCount.textContent = list.length + ' 家';
+
+    if (!total) {
+      el.list.innerHTML =
+        '<div class="state"><span class="em">🎉</span>' +
+        '<span class="ttl">全部填完啦</span>本月暂无待补录的门店数据。</div>';
+      return;
+    }
+    if (!list.length) {
+      el.list.innerHTML =
+        '<div class="state"><span class="em">🔍</span>' +
+        '<span class="ttl">没有找到门店</span>试试更换省区、经理或搜索关键词。</div>';
+      return;
+    }
+    el.list.innerHTML = list.map(cardHtml).join('');
+  }
+
+  function cardHtml(s) {
+    var name = s.storeName || '';
+    var missing = Array.isArray(s.missing) ? s.missing : [];
+
+    var tags = '';
+    if (s.city) tags += '<span class="meta">' + esc(s.city) + '</span>';
+    if (s.region) tags += '<span class="tag">' + esc(s.region) + '</span>';
+
+    var fields = '';
+    FIELD_ORDER.forEach(function (f) {
+      if (missing.indexOf(f) === -1) return;
+      fields += fieldHtml(s, f);
+    });
+
+    return '<section class="card" data-store="' + esc(name) + '">' +
+      '<div class="card-top"><h3 class="store-name">' + esc(name) + '</h3></div>' +
+      (tags ? '<div class="tags">' + tags + '</div>' : '') +
+      '<div class="fields">' + fields + '</div>' +
+    '</section>';
+  }
+
+  function fieldHtml(s, f) {
+    var meta = FIELD_META[f];
+    var val = getDraft(s.storeName, f);
+    var html = '';
+
+    /* 省区推荐条 */
+    if (f === 'region' && s.suggestions && s.suggestions.region) {
+      var sug = s.suggestions.region;
+      var conf = (typeof sug.confidence === 'number') ? '（置信 ' + sug.confidence + '%）' : '';
+      var from = sug.from ? ' · ' + sug.from : '';
+      var used = !isBlank(val) && String(val).trim() === String(sug.value).trim();
+      html += '<div class="rec' + (used ? ' used' : '') + '" data-rec="' + esc(s.storeName) + '" data-value="' + esc(sug.value) + '" role="button" tabindex="0">' +
+        '<span>💡 推荐 <b>' + esc(sug.value) + '</b>' + esc(from) + esc(conf) + '</span>' +
+        '<span class="rec-mark">' + (used ? '已填入' : '点击填入') + '</span>' +
+      '</div>';
+    }
+
+    var input;
+    if (f === 'region') {
+      input = '<input class="inp" type="text" data-store="' + esc(s.storeName) + '" data-field="region"' +
+        ' value="' + esc(val) + '" placeholder="如 山东省区" autocomplete="off" enterkeyhint="next">';
+    } else if (f === 'opsScore') {
+      input = '<input class="inp" type="number" inputmode="numeric" step="1" min="0" max="110"' +
+        ' data-store="' + esc(s.storeName) + '" data-field="opsScore"' +
+        ' value="' + esc(val) + '" placeholder="0~110">';
+    } else {
+      input = '<input class="inp" type="number" inputmode="decimal" step="0.1" min="0" max="5"' +
+        ' data-store="' + esc(s.storeName) + '" data-field="' + f + '"' +
+        ' value="' + esc(val) + '" placeholder="0~5">';
+    }
+
+    html += '<div class="field">' +
+      '<label for="">' + esc(meta.label) + '</label>' +
+      '<div class="ctrl">' + input + '<span class="err-msg" hidden></span></div>' +
+    '</div>';
+
+    return html;
+  }
+
+  /* ---------------- 底部条 ---------------- */
+  function filledStores() {
+    var d = state.data || {};
+    var stores = Array.isArray(d.stores) ? d.stores : [];
+    var n = 0;
+    stores.forEach(function (s) {
+      var rec = state.draft[s.storeName];
+      if (!rec) return;
+      var missing = Array.isArray(s.missing) ? s.missing : [];
+      for (var i = 0; i < missing.length; i++) {
+        if (!isBlank(rec[missing[i]])) { n++; return; }
+      }
+    });
+    return n;
+  }
+
+  function updateBar() {
+    if (!state.data) { el.bar.hidden = true; return; }
+    el.bar.hidden = false;
+    var n = filledStores();
+    el.barN.textContent = n;
+    if (state.submitting) {
+      el.btn.disabled = true;
+      el.btn.textContent = '提交中…';
+    } else {
+      el.btn.disabled = n === 0;
+      el.btn.textContent = '提交 ' + n + ' 家';
+    }
+  }
+
+  /* ---------------- 链接预置筛选 ---------------- */
+  /* 应用 URL 上的 m=运营经理 / r=省区；值必须真实存在于接口返回的候选里才生效 */
+  function applyPreset() {
+    var d = state.data || {};
+    var managers = Array.isArray(d.managers) ? d.managers : [];
+    var regions = Array.isArray(d.regions) ? d.regions : [];
+    var pm = state.preset && state.preset.manager ? String(state.preset.manager) : '';
+    var pr = state.preset && state.preset.region ? String(state.preset.region) : '';
+    var labels = [];
+
+    state.fManager = '';
+    state.fRegion = '';
+    if (pm && managers.indexOf(pm) > -1) { state.fManager = pm; labels.push('运营经理 ' + pm); }
+    if (pr && regions.indexOf(pr) > -1) { state.fRegion = pr; labels.push('省区 ' + pr); }
+
+    if (labels.length) {
+      state.presetActive = true;
+      state.presetLabel = labels.join(' · ');
+      if (el.preset) el.preset.hidden = false;
+      if (el.presetTxt) el.presetTxt.textContent = '已为你筛选：' + state.presetLabel;
+      if (el.fManager) el.fManager.value = state.fManager;
+      if (el.fRegion) el.fRegion.value = state.fRegion;
+    } else {
+      state.presetActive = false;
+      state.presetLabel = '';
+      if (el.preset) el.preset.hidden = true;
+    }
+  }
+
+  function clearPreset() {
+    state.presetActive = false;
+    state.presetLabel = '';
+    state.fManager = '';
+    state.fRegion = '';
+    if (el.preset) el.preset.hidden = true;
+    renderFilters();
+    renderList();
+    updateBar();
+  }
+
+  /* ---------------- 交互 ---------------- */
+  if (el.presetClear) el.presetClear.addEventListener('click', clearPreset);
+  el.fRegion.addEventListener('change', function () {
+    state.fRegion = el.fRegion.value;
+    renderList();
+  });
+  el.fManager.addEventListener('change', function () {
+    state.fManager = el.fManager.value;
+    renderList();
+  });
+  var searchTimer = null;
+  el.fSearch.addEventListener('input', function () {
+    state.kw = el.fSearch.value;
+    if (searchTimer) clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderList, 120);
+  });
+
+  /* 输入 → 实时存草稿 */
+  el.list.addEventListener('input', function (e) {
+    var t = e.target;
+    if (!t || !t.classList || !t.classList.contains('inp')) return;
+    setDraft(t.getAttribute('data-store'), t.getAttribute('data-field'), t.value);
+    clearInvalid(t);
+    updateBar();
+  });
+
+  /* 推荐条点击 → 填入省区 */
+  el.list.addEventListener('click', function (e) {
+    var rec = e.target.closest ? e.target.closest('.rec') : null;
+    if (!rec) return;
+    var store = rec.getAttribute('data-rec');
+    var value = rec.getAttribute('data-value') || '';
+    var input = findInput(store, 'region');
+    if (!input) return;
+    input.value = value;
+    setDraft(store, 'region', value);
+    clearInvalid(input);
+    rec.classList.add('used');
+    var mark = rec.querySelector('.rec-mark');
+    if (mark) mark.textContent = '已填入';
+    updateBar();
+    toast('已填入 ' + value, 'ok');
+  });
+
+  function findInput(storeName, field) {
+    var list = el.list.querySelectorAll('.inp');
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].getAttribute('data-store') === storeName && list[i].getAttribute('data-field') === field) return list[i];
+    }
+    return null;
+  }
+  function clearInvalid(input) {
+    if (!input) return;
+    input.classList.remove('invalid');
+    var box = input.parentNode.querySelector('.err-msg');
+    if (box) { box.hidden = true; box.textContent = ''; }
+  }
+  function markInvalid(storeName, field, msg) {
+    var input = findInput(storeName, field);
+    if (!input) {
+      /* 被筛选条件隐藏时，先清空筛选再标红 */
+      state.fRegion = ''; state.fManager = ''; state.kw = '';
+      renderFilters();
+      renderList();
+      input = findInput(storeName, field);
+    }
+    if (!input) { toast(msg, 'warn'); return; }
+    input.classList.add('invalid');
+    var box = input.parentNode.querySelector('.err-msg');
+    if (box) { box.textContent = msg; box.hidden = false; }
+    try { input.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e2) { input.scrollIntoView(); }
+    setTimeout(function () { try { input.focus({ preventScroll: true }); } catch (e3) {} }, 220);
+  }
+
+  /* ---------------- 校验 + 提交 ---------------- */
+  function buildFills() {
+    var d = state.data || {};
+    var stores = Array.isArray(d.stores) ? d.stores : [];
+    var fills = [];
+    var bad = null;
+
+    stores.forEach(function (s) {
+      var missing = Array.isArray(s.missing) ? s.missing : [];
+      var item = { storeName: s.storeName };
+      var any = false;
+
+      for (var i = 0; i < missing.length; i++) {
+        var f = missing[i];
+        var raw = getDraft(s.storeName, f);
+        if (isBlank(raw)) continue;
+
+        if (f === 'region') {
+          item.region = String(raw).trim();
+          any = true;
+          continue;
+        }
+        var n = Number(String(raw).trim());
+        if (!isFinite(n)) {
+          if (!bad) bad = { store: s.storeName, field: f, msg: '请输入数字' };
+          continue;
+        }
+        if (f === 'opsScore') {
+          if (!isFinite(n) || Math.round(n) !== n || n < 0 || n > 110) {
+            if (!bad) bad = { store: s.storeName, field: f, msg: '经营评分需为 0~110 的整数' };
+            continue;
+          }
+        } else if (n < 0 || n > 5) {
+          if (!bad) bad = { store: s.storeName, field: f, msg: '星级需在 0~5 之间' };
+          continue;
+        }
+        item[f] = n;
+        any = true;
+      }
+      if (any) fills.push(item);
+    });
+
+    return { fills: fills, bad: bad };
+  }
+
+  function submit() {
+    if (state.submitting || !state.data) return;
+
+    var built = buildFills();
+    if (built.bad) {
+      markInvalid(built.bad.store, built.bad.field, built.bad.msg);
+      toast('请先修正标红的输入项', 'warn');
+      return;
+    }
+    if (!built.fills.length) {
+      toast('还没有填写任何门店', 'warn');
+      return;
+    }
+
+    state.submitting = true;
+    updateBar();
+
+    fetch(API_SUBMIT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ token: token, fills: built.fills })
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        return { ok: res.ok, body: body || {} };
+      });
+    }).then(function (r) {
+      state.submitting = false;
+
+      if (r.body && r.body.ok === true) {
+        /* 成功后清空草稿并重新拉取 */
+        state.draft = {};
+        try { window.localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+        toast(r.body.message || '提交成功', 'ok');
+        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+        loadForm(false);
+        return;
+      }
+
+      var msg = (r.body && r.body.error) ? String(r.body.error) : '提交失败，请稍后重试';
+      if (msg.length > 60) msg = '提交失败，请稍后重试';
+      toast(msg, 'danger');
+      updateBar();
+    }).catch(function () {
+      state.submitting = false;
+      toast('网络异常，提交失败，填好的内容已暂存本机', 'danger');
+      updateBar();
+    });
+  }
+
+  el.btn.addEventListener('click', submit);
+
+  /* ---------------- 启动 ---------------- */
+  if (!token) {
+    showError('链接不完整', '请向运营主管重新获取填报链接', false);
+  } else {
+    readDraft();
+    loadForm(false);
+  }
+})();
+</script>
+</body>
+</html>

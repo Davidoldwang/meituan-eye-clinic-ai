@@ -1,0 +1,111 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#F2F6FD',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* 顶部色带 */}
+    <Box style={{
+        position: 'absolute', top: 0, left: 0, width: 1280, height: 92,
+        background: 'linear-gradient(90deg, #0B2A6B 0%, #1B5FD9 65%, #2E86E8 100%)',
+    }} />
+    <Box style={{ position: 'absolute', top: 22, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 36, background: '#35C8F0', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 31, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.2 }}>把两小时压成两分钟</Text>
+            <Text style={{ fontSize: 12.5, color: '#ADE8FF', marginTop: 3, letterSpacing: 1 }}>
+                同样的活，做法的区别在哪
+            </Text>
+        </Box>
+    </Box>
+    <Image src="assets/logo_2026.png" style={{
+        position: 'absolute', top: 24, right: 64,
+        width: 110, height: 46, objectFit: 'contain', opacity: 0.4,
+    }} />
+
+    {/* B 内容区：三组对比 */}
+    <Box style={{
+        position: 'absolute', top: 116, left: 64, right: 64, height: 452,
+        flexDirection: 'column', gap: 14,
+    }}>
+        {[
+            {
+                t: '一条美团文案',
+                before: '2', beforeUnit: '小时', after: '1.9', afterUnit: '秒',
+                d: '从查门店信息、想卖点、写正文、配图到改违禁词，压缩到一次生成加一轮修改',
+                note: '接口实测 1.92 秒返回',
+            },
+            {
+                t: '一次经营诊断',
+                before: '3', beforeUnit: '天', after: '1.4', afterUnit: '秒',
+                d: '从挨家登录经营参谋截图、Excel 手工拼表，变成五个维度同时打分并给出行动项',
+                note: '接口实测 1.36 秒返回',
+            },
+            {
+                t: '一家门店的数据采集',
+                before: '7', beforeUnit: '张表', after: '7', afterUnit: '张图',
+                d: '同样七个界面，但不用再逐项抄字段：上传截图即可，识别结果可直接校对修改',
+                note: '含移动端拍照上传',
+            },
+        ].map((r) => (
+            <Box key={r.t} style={{
+                flex: 1,
+                background: '#FFFFFF', borderRadius: 12,
+                padding: 18, paddingLeft: 22,
+                flexDirection: 'row', alignItems: 'center', gap: 22,
+                boxShadow: '0 4px 18px rgba(11,42,107,0.07)',
+                borderLeft: '4px solid #1B5FD9',
+            }}>
+                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0B2A6B', width: 156, lineHeight: 1.35 }}>
+                    {r.t}
+                </Text>
+
+                <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+                    <Text style={{ fontSize: 40, fontWeight: 'bold', color: '#B9C6DC', lineHeight: 1.0, fontFamily: 'Arial, sans-serif' }}>{r.before}</Text>
+                    <Text style={{ fontSize: 13, color: '#B9C6DC', marginBottom: 4 }}>{r.beforeUnit}</Text>
+                </Box>
+
+                <Box style={{
+                    width: 34, height: 34, borderRadius: 17,
+                    background: 'rgba(27,95,217,0.09)',
+                    justifyContent: 'center', alignItems: 'center',
+                }}>
+                    <Text style={{ fontSize: 16, color: '#1B5FD9', fontWeight: 'bold' }}>→</Text>
+                </Box>
+
+                <Box style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 5 }}>
+                    <Text style={{ fontSize: 52, fontWeight: 'bold', color: '#1B5FD9', lineHeight: 1.0, fontFamily: 'Arial, sans-serif' }}>{r.after}</Text>
+                    <Text style={{ fontSize: 14, color: '#1B5FD9', marginBottom: 6, fontWeight: 'bold' }}>{r.afterUnit}</Text>
+                </Box>
+
+                <Box style={{ flex: 1, paddingLeft: 8 }}>
+                    <Text style={{ fontSize: 12, color: '#5A6B8C', lineHeight: 1.65, marginBottom: 5 }}>{r.d}</Text>
+                    <Text style={{ fontSize: 10.5, color: '#1B5FD9', fontWeight: 'bold' }}>{r.note}</Text>
+                </Box>
+            </Box>
+        ))}
+    </Box>
+
+    {/* 底部结论条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 52, height: 56,
+        background: 'linear-gradient(90deg, rgba(27,95,217,0.10) 0%, rgba(53,200,240,0.10) 100%)',
+        borderRadius: 9, paddingLeft: 20, paddingRight: 20,
+        flexDirection: 'row', alignItems: 'center', gap: 14,
+    }}>
+        <Box style={{ width: 7, height: 7, borderRadius: 4, background: '#35C8F0' }} />
+        <Text style={{ fontSize: 13, color: '#0B2A6B', lineHeight: 1.5, flex: 1 }}>
+            省下来的不是时间本身，是门店愿意持续做这件事的可能性——运营动作频次上去了，数据才有得看。
+        </Text>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 18,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 12.5, color: '#8494B4' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 12.5, color: '#8494B4', fontFamily: 'Arial, sans-serif' }}>11 / 15</Text>
+    </Box>
+</Slide>

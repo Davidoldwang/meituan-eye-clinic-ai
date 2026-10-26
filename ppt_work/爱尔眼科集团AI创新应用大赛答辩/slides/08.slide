@@ -1,0 +1,112 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#0B2A6B',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* 背景光晕 */}
+    <Box style={{
+        position: 'absolute', top: -120, right: -80, width: 620, height: 620,
+        background: 'radial-gradient(circle, rgba(53,200,240,0.20) 0%, rgba(53,200,240,0) 68%)',
+    }} />
+
+    {/* A 标题块 */}
+    <Box style={{ position: 'absolute', top: 26, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 36, background: '#35C8F0', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.2 }}>AI 内容生产：从 2 小时到分钟级</Text>
+            <Text style={{ fontSize: 12.5, color: '#8FC4F8', marginTop: 3, letterSpacing: 1 }}>
+                文案 · 套图 · 主图诊断 · 文案优化 · 话术建议，五件套全在同一个工作台
+            </Text>
+        </Box>
+    </Box>
+    <Image src="assets/logo_2026.png" style={{
+        position: 'absolute', top: 28, right: 64,
+        width: 112, height: 48, objectFit: 'contain', opacity: 0.38,
+    }} />
+
+    {/* B 内容区 */}
+    <Box style={{
+        position: 'absolute', top: 104, left: 56, right: 56, height: 532,
+        flexDirection: 'row', gap: 16,
+    }}>
+        {/* 左：三张截图 */}
+        <Box style={{ width: 630, flexDirection: 'column', gap: 9 }}>
+            <Box style={{
+                background: 'rgba(255,255,255,0.94)', borderRadius: 9, padding: 6,
+                border: '1px solid rgba(53,200,240,0.28)',
+            }}>
+                <Image src="assets/ui_copy.png" style={{ width: '100%', height: 246, objectFit: 'cover', borderRadius: 5 }} />
+            </Box>
+            <Box style={{ flexDirection: 'row', gap: 9 }}>
+                <Box style={{
+                    flex: 1, background: 'rgba(255,255,255,0.94)', borderRadius: 9, padding: 6,
+                    border: '1px solid rgba(53,200,240,0.28)',
+                }}>
+                    <Image src="assets/ui_img.png" style={{ width: '100%', height: 226, objectFit: 'cover', borderRadius: 5 }} />
+                </Box>
+                <Box style={{
+                    flex: 1, background: 'rgba(255,255,255,0.94)', borderRadius: 9, padding: 6,
+                    border: '1px solid rgba(53,200,240,0.28)',
+                }}>
+                    <Image src="assets/ui_imgdiag.png" style={{ width: '100%', height: 226, objectFit: 'cover', borderRadius: 5 }} />
+                </Box>
+            </Box>
+        </Box>
+
+        {/* 右：能力矩阵 */}
+        <Box style={{ flex: 1, flexDirection: 'column', gap: 9 }}>
+            {[
+                { t: '文案生成', d: '按项目 / 人群 / 语气出多版本文案，直接可用', tag: 'REQ-03', c: '#35C8F0' },
+                { t: '套图生成', d: 'Seedream 批量出图，统一集团品牌视觉与尺寸规范', tag: 'REQ-03', c: '#35C8F0' },
+                { t: '主图诊断', d: '构图、卖点、合规三维打分，指出具体改哪一处', tag: 'REQ-03', c: '#ADE8FF' },
+                { t: '文案优化', d: '原有文案润色 + 违禁词与医疗广告合规检查', tag: 'REQ-04', c: '#ADE8FF' },
+                { t: '话术建议', d: '咨询、到店、术后随访分场景转化话术', tag: 'REQ-05', c: '#FF8A3D' },
+            ].map((r, i) => (
+                <Box key={r.t} style={{
+                    flex: 1,
+                    background: 'rgba(255,255,255,0.07)',
+                    borderRadius: 9,
+                    paddingLeft: 14, paddingRight: 14, paddingTop: 10, paddingBottom: 10,
+                    flexDirection: 'row', alignItems: 'center', gap: 12,
+                    borderLeft: `3px solid ${r.c}`,
+                }}>
+                    <Box style={{ flex: 1 }}>
+                        <Box style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                            <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#FFFFFF' }}>{r.t}</Text>
+                            <Box style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 3, padding: '1px 5px' }}>
+                                <Text style={{ fontSize: 9, color: r.c, fontFamily: 'Arial, sans-serif', fontWeight: 'bold' }}>{r.tag}</Text>
+                            </Box>
+                        </Box>
+                        <Text style={{ fontSize: 11, color: '#AFC8E8', lineHeight: 1.5 }}>{r.d}</Text>
+                    </Box>
+                </Box>
+            ))}
+
+            <Box style={{
+                background: 'linear-gradient(120deg, rgba(53,200,240,0.24) 0%, rgba(53,200,240,0.08) 100%)',
+                borderRadius: 9, padding: 13,
+                flexDirection: 'row', alignItems: 'center', gap: 14,
+            }}>
+                <Box style={{ alignItems: 'center' }}>
+                    <Text style={{ fontSize: 34, fontWeight: 'bold', color: '#35C8F0', lineHeight: 1.0, fontFamily: 'Arial, sans-serif' }}>5</Text>
+                    <Text style={{ fontSize: 10, color: '#8FC4F8' }}>类能力</Text>
+                </Box>
+                <Box style={{ width: 1, height: 38, background: 'rgba(255,255,255,0.18)' }} />
+                <Text style={{ fontSize: 11, color: '#C8D9F5', lineHeight: 1.55, flex: 1 }}>
+                    一次生成后可原地改写、换语气、再出图，不用在多个工具间来回搬运
+                </Text>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 14,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 12.5, color: '#6E93C8' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 12.5, color: '#6E93C8', fontFamily: 'Arial, sans-serif' }}>08 / 15</Text>
+    </Box>
+</Slide>

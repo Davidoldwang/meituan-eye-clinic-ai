@@ -1,0 +1,88 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#F2F6FD',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* A 标题块 */}
+    <Box style={{ position: 'absolute', top: 26, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 36, background: '#1B5FD9', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0B2A6B', lineHeight: 1.2 }}>10 个模块与 5 大需求对照</Text>
+            <Text style={{ fontSize: 12.5, color: '#5A6B8C', marginTop: 3, letterSpacing: 1 }}>
+                每个需求都有对应落地模块，没有悬空的规划
+            </Text>
+        </Box>
+    </Box>
+    <Box style={{ position: 'absolute', top: 28, right: 64, background: 'rgba(27,95,217,0.10)', borderRadius: 5, padding: '5px 11px' }}>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#1B5FD9' }}>附录 · 不演讲</Text>
+    </Box>
+
+    {/* B 内容区：矩阵表 */}
+    <Box style={{
+        position: 'absolute', top: 100, left: 64, right: 64, height: 548,
+        background: '#FFFFFF', borderRadius: 11,
+        boxShadow: '0 4px 18px rgba(11,42,107,0.08)',
+        padding: 18,
+        flexDirection: 'column',
+    }}>
+        {/* 表头 */}
+        <Box style={{
+            flexDirection: 'row', alignItems: 'center',
+            background: '#0B2A6B', borderRadius: 7,
+            paddingTop: 11, paddingBottom: 11, paddingLeft: 14, paddingRight: 14,
+            marginBottom: 8,
+        }}>
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFFFFF', width: 132 }}>功能模块</Text>
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFFFFF', flex: 1 }}>核心作用</Text>
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFFFFF', width: 82, textAlign: 'center' }}>需求编号</Text>
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFFFFF', width: 96, textAlign: 'center' }}>状态</Text>
+        </Box>
+
+        {[
+            ['经营驾驶舱', '四维经营视图汇总，跨门店横向对比', 'REQ-01', '已上线'],
+            ['门诊采集', '七界面截图上传、识别与手动录入', 'REQ-01', '已上线'],
+            ['竞品分析', '竞品评分销量价格带对比与缺口识别', 'REQ-02', '已上线'],
+            ['美团运营诊断', '五维体检、状态打分与行动项输出', 'REQ-02 / 05', '已上线'],
+            ['文案生成', '按项目人群语气批量产出可用文案', 'REQ-03', '已上线'],
+            ['套图生成', 'Seedream 批量出图，统一品牌视觉', 'REQ-03', '已上线'],
+            ['主图诊断', '构图、卖点、合规三维打分与改法', 'REQ-03', '已上线'],
+            ['文案优化', '润色改写与医疗广告合规检查', 'REQ-04', '已上线'],
+            ['评价管理', '差评分类归因与分层回复建议', 'REQ-04', '已上线'],
+            ['话术建议', '咨询、到店、随访分场景转化话术', 'REQ-05', '已上线'],
+        ].map((row, i) => (
+            <Box key={row[0]} style={{
+                flex: 1,
+                flexDirection: 'row', alignItems: 'center',
+                background: i % 2 === 0 ? 'rgba(27,95,217,0.035)' : 'transparent',
+                borderRadius: 5,
+                paddingLeft: 14, paddingRight: 14,
+            }}>
+                <Box style={{ width: 132, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Box style={{ width: 3, height: 16, background: '#1B5FD9', borderRadius: 2 }} />
+                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#0B2A6B' }}>{row[0]}</Text>
+                </Box>
+                <Text style={{ fontSize: 11, color: '#5A6B8C', flex: 1, lineHeight: 1.4 }}>{row[1]}</Text>
+                <Text style={{ fontSize: 10.5, color: '#1B5FD9', fontWeight: 'bold', width: 82, textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>{row[2]}</Text>
+                <Box style={{ width: 96, alignItems: 'center' }}>
+                    <Box style={{
+                        background: 'rgba(53,200,240,0.16)', borderRadius: 4,
+                        paddingTop: 3, paddingBottom: 3, paddingLeft: 9, paddingRight: 9,
+                    }}>
+                        <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0E93C4' }}>{row[3]}</Text>
+                    </Box>
+                </Box>
+            </Box>
+        ))}
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 16,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 12.5, color: '#8494B4' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 12.5, color: '#8494B4', fontFamily: 'Arial, sans-serif' }}>15 / 15</Text>
+    </Box>
+</Slide>

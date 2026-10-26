@@ -1,0 +1,132 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#F2F6FD',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* 顶部色带 */}
+    <Box style={{
+        position: 'absolute', top: 0, left: 0, width: 1280, height: 96,
+        background: 'linear-gradient(90deg, #0B2A6B 0%, #1B5FD9 70%, #1B5FD9 100%)',
+    }} />
+    <Box style={{
+        position: 'absolute', top: 0, right: 0, width: 420, height: 96,
+        background: 'linear-gradient(90deg, rgba(27,95,217,0) 0%, rgba(53,200,240,0.28) 100%)',
+    }} />
+
+    <Box style={{ position: 'absolute', top: 24, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 38, background: '#35C8F0', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.2 }}>
+                一个工作台，串起美团经营全链路
+            </Text>
+            <Text style={{ fontSize: 13, color: '#ADE8FF', marginTop: 4, letterSpacing: 1 }}>
+                看数据 → 判问题 → 产内容 → 管评价 → 给建议
+            </Text>
+        </Box>
+    </Box>
+
+    {/* B 内容区：左环形闭环 + 右五步链路 */}
+    <Box style={{
+        position: 'absolute', top: 120, left: 64, right: 64, height: 520,
+        flexDirection: 'row', gap: 26,
+    }}>
+        {/* 左：闭环示意 */}
+        <Box style={{
+            width: 430,
+            background: 'linear-gradient(160deg, #0B2A6B 0%, #1B5FD9 100%)',
+            borderRadius: 16,
+            padding: 26,
+            flexDirection: 'column',
+            position: 'relative',
+            overflow: 'hidden',
+        }}>
+            <Text style={{ fontSize: 19, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 4 }}>
+                经营闭环
+            </Text>
+            <Text style={{ fontSize: 12, color: '#8FC4F8', marginBottom: 10, lineHeight: 1.5 }}>
+                数据进来 → 结论出去 → 动作落地
+            </Text>
+
+            <Box style={{ alignItems: 'center', justifyContent: 'center', flex: 1, position: 'relative' }}>
+                <svg width={318} height={318} viewBox='0 0 318 318'>
+                    {/* 外环 */}
+                    <circle cx='159' cy='159' r='132' fill='none' stroke='rgba(53,200,240,0.30)' strokeWidth='2' strokeDasharray='7 9' />
+                    {/* 内环实线 */}
+                    <circle cx='159' cy='159' r='92' fill='none' stroke='#35C8F0' strokeWidth='2.5' opacity='0.5' />
+
+                    {/* 五个节点 */}
+                    <circle cx='159' cy='27' r='27' fill='#35C8F0' />
+                    <text x='159' y='34' fontSize='17' fontWeight='bold' fill='#0B2A6B' textAnchor='middle' fontFamily='Microsoft YaHei'>采集</text>
+
+                    <circle cx='281' cy='124' r='27' fill='#35C8F0' />
+                    <text x='281' y='131' fontSize='17' fontWeight='bold' fill='#0B2A6B' textAnchor='middle' fontFamily='Microsoft YaHei'>分析</text>
+
+                    <circle cx='222' cy='266' r='27' fill='#35C8F0' />
+                    <text x='222' y='273' fontSize='17' fontWeight='bold' fill='#0B2A6B' textAnchor='middle' fontFamily='Microsoft YaHei'>创作</text>
+
+                    <circle cx='96' cy='266' r='27' fill='#35C8F0' />
+                    <text x='96' y='273' fontSize='17' fontWeight='bold' fill='#0B2A6B' textAnchor='middle' fontFamily='Microsoft YaHei'>评价</text>
+
+                    <circle cx='37' cy='124' r='27' fill='#35C8F0' />
+                    <text x='37' y='131' fontSize='17' fontWeight='bold' fill='#0B2A6B' textAnchor='middle' fontFamily='Microsoft YaHei'>决策</text>
+
+                    {/* 中心 */}
+                    <text x='159' y='150' fontSize='26' fontWeight='bold' fill='#FFFFFF' textAnchor='middle' fontFamily='Microsoft YaHei'>AI 助手</text>
+                    <text x='159' y='180' fontSize='13' fill='#ADE8FF' textAnchor='middle' fontFamily='Microsoft YaHei'>10 个功能模块</text>
+                </svg>
+            </Box>
+
+            <Box style={{
+                flexDirection: 'row', alignItems: 'center', gap: 8,
+                background: 'rgba(255,255,255,0.10)',
+                borderRadius: 8, padding: '11px 14px',
+            }}>
+                <Box style={{ width: 7, height: 7, borderRadius: 4, background: '#35C8F0' }} />
+                <Text style={{ fontSize: 12, color: '#D6E8FF', lineHeight: 1.5, flex: 1 }}>
+                    全部数据来自门店真实经营参谋截图，分析结论可回溯到具体数字
+                </Text>
+            </Box>
+        </Box>
+
+        {/* 右：五步链路 */}
+        <Box style={{ flex: 1, flexDirection: 'column', gap: 12 }}>
+            {[
+                { n: '01', t: '看数据', d: '经营驾驶舱汇总评分、漏斗、评价、星级四维视图', c: '#1B5FD9' },
+                { n: '02', t: '判问题', d: '竞品比价 + 项目结构分析，定位定价与品类缺口', c: '#1B5FD9' },
+                { n: '03', t: '产内容', d: '文案生成、套图生成、主图诊断、话术建议', c: '#35C8F0' },
+                { n: '04', t: '管评价', d: '差评智能分析 + 分级回复建议，不漏一条', c: '#35C8F0' },
+                { n: '05', t: '给建议', d: '五维运营诊断 + P0/P1 优先级行动项', c: '#FF8A3D' },
+            ].map((s, i) => (
+                <Box key={s.n} style={{
+                    flex: 1,
+                    background: '#FFFFFF',
+                    borderRadius: 10,
+                    paddingLeft: 18, paddingRight: 18, paddingTop: 12, paddingBottom: 12,
+                    flexDirection: 'row', alignItems: 'center', gap: 16,
+                    borderLeft: `4px solid ${s.c}`,
+                    boxShadow: '0 3px 14px rgba(11,42,107,0.06)',
+                }}>
+                    <Text style={{ fontSize: 26, fontWeight: 'bold', color: s.c, fontFamily: 'Arial, sans-serif', width: 46 }}>{s.n}</Text>
+                    <Box style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#0B2A6B', marginBottom: 3 }}>{s.t}</Text>
+                        <Text style={{ fontSize: 13, color: '#5A6B8C', lineHeight: 1.55 }}>{s.d}</Text>
+                    </Box>
+                    {i < 4 ? (
+                        <Box style={{ width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: '7px solid #B9CBE8' }} />
+                    ) : null}
+                </Box>
+            ))}
+        </Box>
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 20,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 13, color: '#8494B4' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 13, color: '#8494B4', fontFamily: 'Arial, sans-serif' }}>03 / 15</Text>
+    </Box>
+</Slide>

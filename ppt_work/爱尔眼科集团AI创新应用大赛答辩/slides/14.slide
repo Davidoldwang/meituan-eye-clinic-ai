@@ -1,0 +1,100 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#F2F6FD',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* A 标题块 */}
+    <Box style={{ position: 'absolute', top: 26, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 36, background: '#FF8A3D', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#0B2A6B', lineHeight: 1.2 }}>答辩预案：四类问题怎么答</Text>
+            <Text style={{ fontSize: 12.5, color: '#5A6B8C', marginTop: 3, letterSpacing: 1 }}>
+                技术壁垒 · 落地成本 · 数据安全 · 可复制性
+            </Text>
+        </Box>
+    </Box>
+    <Box style={{ position: 'absolute', top: 28, right: 64, background: 'rgba(255,138,61,0.12)', borderRadius: 5, padding: '5px 11px' }}>
+        <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#D96B15' }}>附录 · 不演讲</Text>
+    </Box>
+
+    {/* B 内容区：四象限 */}
+    <Box style={{
+        position: 'absolute', top: 102, left: 64, right: 64, height: 540,
+        flexDirection: 'row', gap: 14,
+    }}>
+        {[
+            {
+                t: '技术壁垒',
+                qs: [
+                    ['为什么用截图而不是 API 对接？', '经营参谋本身不开放接口，等下去没有时间表。截图方案让门店零学习成本，今天就能用上。'],
+                    ['OCR 准确率怎么保证？', '七个界面各自对应固定字段，识别范围收窄后准确率可控；同时保留手动录入，识别结果可直接对照修改。'],
+                    ['和通用 SaaS 比差别在哪？', '通用工具不懂眼科项目结构，也不知道爱尔的评分口径。我们要的是能直接用的口径和话术，不是又一套后台。'],
+                ],
+                c: '#1B5FD9',
+            },
+            {
+                t: '落地成本',
+                qs: [
+                    ['门店会不会嫌麻烦？', '比原来更省事：原来要抄字段进表，现在拍七张图。手机端做完全程，不用开电脑。'],
+                    ['28 家推广要多久？', '辽宁直营门诊按一个月跑通并固定口径，其他门诊主要成本是一轮培训，不需要新增硬件投入。'],
+                    ['要不要额外买设备或额度？', '不需要。门店沿用现有手机，集团侧用现有模型服务额度，没有额外采购。'],
+                ],
+                c: '#2E86E8',
+            },
+            {
+                t: '数据安全',
+                qs: [
+                    ['经营数据会不会外泄？', '数据只在集团自有环境和已签约的大模型服务间流转，不落到第三方公共平台，前端也不做持久化存储。'],
+                    ['截图含患者隐私吗？', '采集范围限定在经营参谋的经营数据界面，不涉及患者姓名、病历等诊疗信息。'],
+                    ['谁能看到别家门店的数据？', '按门店账号隔离，跨店汇总只在总部管理视角可见，门店之间互相看不到。'],
+                ],
+                c: '#35C8F0',
+            },
+            {
+                t: '可复制性',
+                qs: [
+                    ['能给别的业务线用吗？', '评分口径、话术库、模板都是配置项，换业务线只换配置，不动代码结构。'],
+                    ['视觉模型权限没开通怎么办？', '五个端点自动探测降级，手动录入保底，业务不中断；权限开通即刻启用，不需要改代码。'],
+                    ['后续维护谁来做？', '模板和话术库由总部统一维护更新，门店只负责输入和确认，不用自己养技术。'],
+                ],
+                c: '#FF8A3D',
+            },
+        ].map((box) => (
+            <Box key={box.t} style={{
+                flex: 1,
+                background: '#FFFFFF', borderRadius: 11,
+                padding: 16,
+                flexDirection: 'column', gap: 10,
+                borderTop: `4px solid ${box.c}`,
+                boxShadow: '0 4px 16px rgba(11,42,107,0.07)',
+            }}>
+                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0B2A6B', marginBottom: 2 }}>{box.t}</Text>
+                {box.qs.map((q, qi) => (
+                    <Box key={qi} style={{
+                        flex: 1,
+                        background: 'rgba(27,95,217,0.04)',
+                        borderRadius: 7, padding: 11,
+                    }}>
+                        <Text style={{ fontSize: 11, fontWeight: 'bold', color: box.c, lineHeight: 1.45, marginBottom: 5 }}>
+                            Q：{q[0]}
+                        </Text>
+                        <Text style={{ fontSize: 10.5, color: '#4A5A7A', lineHeight: 1.6 }}>
+                            {q[1]}
+                        </Text>
+                    </Box>
+                ))}
+            </Box>
+        ))}
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 16,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 12.5, color: '#8494B4' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 12.5, color: '#8494B4', fontFamily: 'Arial, sans-serif' }}>14 / 15</Text>
+    </Box>
+</Slide>

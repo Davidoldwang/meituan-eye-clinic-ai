@@ -1,0 +1,133 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#F2F6FD',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* 顶部斜切色带 */}
+    <Image src="assets/bg_bar.jpg" style={{
+        position: 'absolute', top: 0, left: 0, width: 1280, height: 104, objectFit: 'cover',
+    }} />
+    <Box style={{
+        position: 'absolute', top: 0, left: 0, width: 1280, height: 104,
+        background: 'linear-gradient(90deg, rgba(11,42,107,0.95) 0%, rgba(27,95,217,0.85) 55%, rgba(27,95,217,0.60) 100%)',
+    }} />
+
+    <Box style={{ position: 'absolute', top: 24, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 38, background: '#35C8F0', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.2 }}>五个场景，全部对齐集团需求规格</Text>
+            <Text style={{ fontSize: 13, color: '#ADE8FF', marginTop: 4, letterSpacing: 1 }}>
+                《爱尔小龙虾美团商家版需求规格说明书 v1.0》REQ-01 ~ REQ-05
+            </Text>
+        </Box>
+    </Box>
+    <Image src="assets/logo_2026.png" style={{
+        position: 'absolute', top: 26, right: 64,
+        width: 128, height: 54, objectFit: 'contain', opacity: 0.42,
+    }} />
+
+    {/* B 内容区：5 张场景卡 */}
+    <Box style={{
+        position: 'absolute', top: 128, left: 64, right: 64, height: 508,
+        flexDirection: 'row', gap: 13,
+    }}>
+        {[
+            {
+                req: 'REQ-01', t: '经营数据采集与驾驶舱', n: '10',
+                d: '经营参谋截图 / API / 页面操作三种方式采集，统一汇总至集团后台，形成 4 维经营驾驶舱',
+                m: '经营驾驶舱、门诊采集',
+                k: ['7 个界面分图上传指引', '门店 / 周期 / 数据类型三维筛选', '经营评分 · 漏斗 · 评价 · 星级'],
+                c: '#1B5FD9',
+            },
+            {
+                req: 'REQ-02', t: '项目智能分析与竞争定价', n: '8',
+                d: '综合竞品门店评分、销量、价格带，判断项目卖得好不好、定价合不合理，识别价格缺口',
+                m: '竞品分析、运营诊断',
+                k: ['竞品门店横向对比', '价格带缺口识别', '高销量 / 低销量双向预警'],
+                c: '#1B5FD9',
+            },
+            {
+                req: 'REQ-03', t: '图片与营销素材智能生成', n: '5',
+                d: '总部按月提供品牌视觉模板，门店一键生成符合集团视觉规范的文案、套图与主图',
+                m: '文案生成、套图生成、主图诊断',
+                k: ['总部模板机制下发', 'Seedream 批量出图', '主图构图与合规诊断'],
+                c: '#35C8F0',
+            },
+            {
+                req: 'REQ-04', t: '差评智能分析与回复', n: '4',
+                d: '支持文本粘贴与差评截图输入，OCR 提取内容后自动分类并生成分层回复建议',
+                m: '评价管理、文案优化',
+                k: ['差评自动分类归因', '分层回复话术建议', '文案润色与合规检查'],
+                c: '#35C8F0',
+            },
+            {
+                req: 'REQ-05', t: '流量活动与促销智能决策', n: '2',
+                d: '持续监测经营指标，识别异常波动，主动输出运营策略与活动建议',
+                m: '话术建议',
+                k: ['经营指标异常识别', '分场景转化话术', '活动与促销策略建议'],
+                c: '#FF8A3D',
+            },
+        ].map((s, idx) => (
+            <Box key={s.req} style={{
+                flex: 1,
+                background: '#FFFFFF',
+                borderRadius: 12,
+                padding: 20, paddingTop: 18,
+                flexDirection: 'column',
+                boxShadow: '0 5px 20px rgba(11,42,107,0.09)',
+                borderTop: `4px solid ${s.c}`,
+            }}>
+                <Box style={{
+                    alignSelf: 'flex-start',
+                    background: s.c,
+                    borderRadius: 5, padding: '4px 9px',
+                    marginBottom: 14,
+                }}>
+                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'Arial, sans-serif' }}>{s.req}</Text>
+                </Box>
+
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#0B2A6B', lineHeight: 1.35, marginBottom: 12, minHeight: 48 }}>
+                    {s.t.replace('\n', '')}
+                </Text>
+
+                <Text style={{ fontSize: 12.5, color: '#5A6B8C', lineHeight: 1.65, marginBottom: 12 }}>
+                    {s.d}
+                </Text>
+
+                {/* 关键能力点 */}
+                <Box style={{ flex: 1, flexDirection: 'column', gap: 7, marginBottom: 12 }}>
+                    {s.k.map((item, ki) => (
+                        <Box key={ki} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 7 }}>
+                            <Box style={{
+                                width: 5, height: 5, borderRadius: 3,
+                                background: s.c, marginTop: 7,
+                            }} />
+                            <Text style={{ fontSize: 11.5, color: '#3A4A66', lineHeight: 1.5, flex: 1 }}>{item}</Text>
+                        </Box>
+                    ))}
+                </Box>
+
+                <Box style={{
+                    background: idx === 4 ? 'rgba(255,138,61,0.10)' : 'rgba(27,95,217,0.07)',
+                    borderRadius: 7, padding: '10px 12px',
+                }}>
+                    <Text style={{ fontSize: 11, color: idx === 4 ? '#B4560F' : '#5A6B8C', marginBottom: 6, letterSpacing: 1 }}>对应模块</Text>
+                    <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: idx === 4 ? '#D96B15' : '#1B5FD9', lineHeight: 1.5 }}>
+                        {s.m}
+                    </Text>
+                </Box>
+            </Box>
+        ))}
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 20,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 13, color: '#8494B4' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 13, color: '#8494B4', fontFamily: 'Arial, sans-serif' }}>05 / 15</Text>
+    </Box>
+</Slide>

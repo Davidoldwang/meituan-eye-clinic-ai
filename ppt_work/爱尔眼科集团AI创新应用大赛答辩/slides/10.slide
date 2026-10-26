@@ -1,0 +1,151 @@
+<Slide style={{
+    width: 1280, height: 720,
+    position: 'relative',
+    background: '#0B2A6B',
+    fontFamily: "'Microsoft YaHei', '微软雅黑', sans-serif",
+    overflow: 'hidden',
+}}>
+    {/* 背景光效 */}
+    <Box style={{
+        position: 'absolute', top: 0, left: 0, width: 1280, height: 720,
+        background: 'linear-gradient(135deg, rgba(27,95,217,0.55) 0%, rgba(11,42,107,0) 55%)',
+    }} />
+
+    {/* A 标题块 */}
+    <Box style={{ position: 'absolute', top: 30, left: 64, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Box style={{ width: 6, height: 38, background: '#35C8F0', borderRadius: 3 }} />
+        <Box>
+            <Text style={{ fontSize: 32, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 1.2 }}>三个技术判断，决定了它能落地</Text>
+            <Text style={{ fontSize: 13, color: '#8FC4F8', marginTop: 4, letterSpacing: 1 }}>
+                不是把大模型接进来就叫 AI，关键是让它扛得住门诊的真实场景
+            </Text>
+        </Box>
+    </Box>
+    <Image src="assets/logo_2026.png" style={{
+        position: 'absolute', top: 32, right: 64,
+        width: 118, height: 50, objectFit: 'contain', opacity: 0.35,
+    }} />
+
+    {/* B 内容区：三个技术锚点 */}
+    <Box style={{
+        position: 'absolute', top: 132, left: 64, right: 64, height: 400,
+        flexDirection: 'row', gap: 18,
+    }}>
+        {/* 锚点 1 */}
+        <Box style={{
+            flex: 1,
+            background: 'rgba(255,255,255,0.08)',
+            borderRadius: 14, padding: 24,
+            borderTop: '4px solid #35C8F0',
+            flexDirection: 'column',
+        }}>
+            <Text style={{ fontSize: 64, fontWeight: 'bold', color: '#35C8F0', lineHeight: 1.0, fontFamily: 'Arial, sans-serif', marginBottom: 6 }}>
+                01
+            </Text>
+            <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 12, lineHeight: 1.3 }}>
+                截图优先，不依赖 API 对接
+            </Text>
+            <Text style={{ fontSize: 12.5, color: '#AFC8E8', lineHeight: 1.75, flex: 1 }}>
+                美团经营参谋的数据不对外开放接口，硬等 API 就是无限期拖延。我们反过来做：门店按 7 个界面分别上传截图，视觉模型直接读数。门店不用学新系统，集团当天就能拿到数据。
+            </Text>
+            <Box style={{
+                marginTop: 12, background: 'rgba(53,200,240,0.14)',
+                borderRadius: 8, padding: '11px 13px',
+            }}>
+                <Text style={{ fontSize: 11, color: '#8FE3F8', lineHeight: 1.55 }}>
+                    代价是识别准确率，所以配了手动录入作为保底通道
+                </Text>
+            </Box>
+        </Box>
+
+        {/* 锚点 2 */}
+        <Box style={{
+            flex: 1,
+            background: 'rgba(255,255,255,0.08)',
+            borderRadius: 14, padding: 24,
+            borderTop: '4px solid #ADE8FF',
+            flexDirection: 'column',
+        }}>
+            <Text style={{ fontSize: 64, fontWeight: 'bold', color: '#ADE8FF', lineHeight: 1.0, fontFamily: 'Arial, sans-serif', marginBottom: 6 }}>
+                02
+            </Text>
+            <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 12, lineHeight: 1.3 }}>
+                双通道兜底，业务永不中断
+            </Text>
+            <Text style={{ fontSize: 12.5, color: '#AFC8E8', lineHeight: 1.75, flex: 1 }}>
+                五个视觉模型端点按顺序自动探测，哪个能用走哪个；全部不可用就降级为手动录入，已上传的截图不会白传。模型层抽出来做成可替换的，换模型不动业务代码。
+            </Text>
+            <Box style={{
+                marginTop: 12, background: 'rgba(53,200,240,0.14)',
+                borderRadius: 8, padding: '11px 13px',
+            }}>
+                <Text style={{ fontSize: 11, color: '#8FE3F8', lineHeight: 1.55 }}>
+                    今天视觉模型权限尚未开通，系统仍可完整跑通
+                </Text>
+            </Box>
+        </Box>
+
+        {/* 锚点 3 */}
+        <Box style={{
+            flex: 1,
+            background: 'rgba(53,200,240,0.16)',
+            borderRadius: 14, padding: 24,
+            borderTop: '4px solid #FF8A3D',
+            flexDirection: 'column',
+        }}>
+            <Text style={{ fontSize: 64, fontWeight: 'bold', color: '#FF8A3D', lineHeight: 1.0, fontFamily: 'Arial, sans-serif', marginBottom: 6 }}>
+                03
+            </Text>
+            <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 12, lineHeight: 1.3 }}>
+                拒绝随机数，结论必须可回溯
+            </Text>
+            <Text style={{ fontSize: 12.5, color: '#AFC8E8', lineHeight: 1.75, flex: 1 }}>
+                早期版本的分析结论是随机生成的，用户一输入就发现对不上。现在所有指标都由真实输入算出：评分、转化率、价格带、差评数逐项推导，每条建议都能指回具体数字。
+            </Text>
+            <Box style={{
+                marginTop: 12, background: 'rgba(255,138,61,0.16)',
+                borderRadius: 8, padding: '11px 13px',
+            }}>
+                <Text style={{ fontSize: 11, color: '#FFC9A0', lineHeight: 1.55 }}>
+                    输入 118 条评价 / 18 条差评 → 输出「跟进 18 条差评」
+                </Text>
+            </Box>
+        </Box>
+    </Box>
+
+    {/* 底部截图条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 56, height: 84,
+        flexDirection: 'row', gap: 12, alignItems: 'center',
+    }}>
+        <Text style={{ fontSize: 11.5, color: '#6E93C8', width: 96, lineHeight: 1.5 }}>
+            实测响应<br />耗时
+        </Text>
+        {[
+            { k: '竞品分析', v: '1.45s' },
+            { k: '运营诊断', v: '1.36s' },
+            { k: '话术建议', v: '1.29s' },
+            { k: '差评回复', v: '1.09s' },
+            { k: '文案生成', v: '1.92s' },
+        ].map((m) => (
+            <Box key={m.k} style={{
+                flex: 1,
+                background: 'rgba(255,255,255,0.09)',
+                borderRadius: 8, paddingTop: 12, paddingBottom: 12,
+                alignItems: 'center',
+            }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#35C8F0', fontFamily: 'Arial, sans-serif', marginBottom: 3 }}>{m.v}</Text>
+                <Text style={{ fontSize: 10.5, color: '#AFC8E8' }}>{m.k}</Text>
+            </Box>
+        ))}
+    </Box>
+
+    {/* C 页脚条 */}
+    <Box style={{
+        position: 'absolute', left: 64, right: 64, bottom: 18,
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    }}>
+        <Text style={{ fontSize: 12.5, color: '#6E93C8' }}>美团电商眼科运营AI助手 · 爱尔眼科集团AI创新应用大赛</Text>
+        <Text style={{ fontSize: 12.5, color: '#6E93C8', fontFamily: 'Arial, sans-serif' }}>10 / 15</Text>
+    </Box>
+</Slide>
