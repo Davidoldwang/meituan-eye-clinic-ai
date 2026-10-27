@@ -697,6 +697,111 @@ app.get('/api/image-generate-status', (req, res) => {
   res.json(job);
 });
 
+// ===== POST /api/copy-to-images（粘贴文案 → 逐屏生成7屏分解图，异步任务）=====
+// 解析粘贴的文案为分屏数组：优先按「第N屏」标记切分，无标记则按空行分段
+function parseCopyScreens(text) {
+  const t = String(text || '').replace(/\r\n/g, '\n').trim();
+  if (!t) return [];
+  const re = /(^|\n)\s*(第\s*[0-9一二三四五六七八九十]+\s*屏[^\n]*)/g;
+  const marks = [];
+  let m;
+  while ((m = re.exec(t)) !== null) {
+    // titleStart = 标题行开头（m[2] 起点），bodyStart = 标题行结尾（[^\n]* 恰好吃到行尾）
+    marks.push({
+      titleStart: m.index + m[0].length - m[2].length,
+      bodyStart: m.index + m[0].length,
+      title: m[2].replace(/\s+/g, ' ').trim()
+    });
+  }
+  if (marks.length >= 2) {
+    const screens = [];
+    for (let i = 0; i < marks.length; i++) {
+      const start = marks[i].bodyStart;
+      const end = i + 1 < marks.length ? marks[i + 1].titleStart : t.length;
+      const body = t.slice(start, end).trim();
+      screens.push({ title: marks[i].title, body });
+    }
+    return screens;
+  }
+  return t.split(/\n{2,}/).map((seg, i) => ({ title: `第${i + 1}屏`, body: seg.trim() })).filter(s => s.body);
+}
+
+// 逐屏调用 Seedream 生成竖版分解图（900×1200），走同一套 IMG_JOBS 异步轮询协议
+function runCopySplitJob(jobId, screens, style) {
+  const job = IMG_JOBS.get(jobId);
+  const st = GEN_STYLES[style] || GEN_STYLES.typography;
+  job.styleLabel = st.label;
+  const stem = `copyimg-${Date.now()}`;
+  const images = [];
+  let i = 0;
+  const step = () => {
+    if (job.status === 'error') return;
+    if (i >= screens.length) {
+      job.status = 'done';
+      job.images = images;
+      console.log(`  [copy-to-images] 任务 ${jobId} 完成（${images.length}/${screens.length} 屏）`);
+      return;
+    }
+    const sc = screens[i];
+    job.progress = i;
+    const bodyText = sc.body.replace(/\s+/g, ' ').slice(0, 180);
+    const prompt = [
+      `${st.prompt}。美团内页文案宣传竖版海报（全套第${i + 1}屏，共${screens.length}屏）`,
+      `海报顶部主标题文字为「${sc.title}」，版面主体呈现以下文案：「${bodyText}」`,
+      '中文文字必须书写准确、笔画清晰，信息层级分明，版式现代、对齐严谨、留白得当',
+      '竖版3:4构图，标题在上、内容居中、底部留信息区；画面所有文字图形必须完整呈现在画幅之内，四周保留安全边距，不得裁切、不得贴边出血',
+      '适合美团/大众点评平台展示，高清商业设计'
+    ].join('；');
+    console.log(`  [copy-to-images] 任务 ${jobId} 生成 ${sc.title}（${i + 1}/${screens.length}）...`);
+    callSeedreamOnce({ prompt, imageBase64: null, size: '1800x2400' })
+      .then(remoteUrl => localizeAndResize(remoteUrl, 900, 1200, `${stem}-${i}`))
+      .then(localUrl => {
+        images.push({ name: sc.title, url: localUrl, width: 900, height: 1200, screenBody: sc.body });
+        i++;
+        step();
+      })
+      .catch(err => {
+        console.error(`[copy-to-images] 任务 ${jobId} 失败于 ${sc.title}:`, err.message);
+        job.status = 'error';
+        job.error = `${sc.title} 生成失败: ${err.message}`;
+      });
+  };
+  step();
+}
+
+app.post('/api/copy-to-images', async (req, res) => {
+  try {
+    const { text, style } = req.body;
+    const screens = parseCopyScreens(text);
+    if (!screens.length) {
+      return res.status(400).json({ error: '未能从文案中识别出任何分屏内容，请检查粘贴内容' });
+    }
+    if (screens.length > 10) {
+      return res.status(400).json({ error: `识别出 ${screens.length} 屏，超出上限10屏，请检查分屏标记` });
+    }
+    const st = GEN_STYLES[style] || GEN_STYLES.typography;
+    const jobId = 'cjob-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    IMG_JOBS.set(jobId, { status: 'running', progress: 0, total: screens.length, images: null, error: null, kind: 'copy-split', startedAt: Date.now() });
+    setTimeout(() => IMG_JOBS.delete(jobId), 15 * 60 * 1000);
+    if (VOLC_API_KEY) {
+      runCopySplitJob(jobId, screens, style);
+    } else {
+      // 无 Key 兜底：后台生成每屏占位信息（同一异步协议，前端渲染占位卡）
+      const job = IMG_JOBS.get(jobId);
+      job.styleLabel = st.label;
+      setTimeout(() => {
+        job.status = 'done';
+        job.images = screens.map(sc => ({ name: sc.title, width: 900, height: 1200, mockBody: sc.body }));
+        console.log(`  [copy-to-images] 任务 ${jobId} 本地模板兜底完成`);
+      }, 1200);
+    }
+    return res.json({ async: true, jobId, total: screens.length, screens, styleLabel: st.label, mock: !VOLC_API_KEY });
+  } catch (e) {
+    console.error('copy-to-images error:', e);
+    res.status(500).json({ error: '文案分解图服务异常: ' + (e.message || '请稍后重试') });
+  }
+});
+
 // ===== POST /api/script-suggest =====
 app.post('/api/script-suggest', async (req, res) => {
   try {

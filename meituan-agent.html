@@ -1196,7 +1196,10 @@ table.mi-table tr:last-child td{border-bottom:none}
           <div class="card">
             <div class="card-header">
               <div class="card-title">7屏内页文案预览</div>
-              <button class="btn btn-primary btn-sm" onclick="copyAllCopywriting()">&#9998; 一键复制全部文案</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-outline btn-sm" onclick="openPasteCopyModal()">&#128203; 粘贴文案生成分解图</button>
+                <button class="btn btn-primary btn-sm" onclick="copyAllCopywriting()">&#9998; 一键复制全部文案</button>
+              </div>
             </div>
             <div id="accList"></div>
           </div>
@@ -1805,6 +1808,23 @@ table.mi-table tr:last-child td{border-bottom:none}
       </div>
       <div id="addLoading" style="display:none;text-align:center;padding:20px"><div class="spinner" style="margin:0 auto 10px"></div><div style="font-size:13px;color:var(--text-sub)">AI正在识别门诊信息...</div></div>
       <button class="btn btn-primary btn-lg" style="width:100%;margin-top:12px" onclick="submitAddClinic()">✅ 确认新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- 粘贴文案 → 7屏分解图 弹窗（body顶层，避免被 page display:none 连带隐藏） -->
+<div class="mi-modal-mask" id="paste-copy-modal" onclick="if(event.target===this)closePasteCopyModal()">
+  <div class="mi-modal" style="max-width:760px">
+    <div class="mi-modal-title">&#128203; 粘贴文案 &middot; 生成7屏分解图</div>
+    <div class="mi-modal-sub">粘贴美团内页文案：支持「第N屏」标记自动分屏；无标记则按空行分段。每屏生成一张 900&times;1200 竖版分解图，AI将把文案文字直接渲染进画面。</div>
+    <textarea id="paste-copy-text" oninput="updatePasteParse()" placeholder="在此粘贴文案，例如：&#10;第1屏 · 利益钩子&#10;儿童青少年视力检查 | 仅¥39.9 ...&#10;&#10;第2屏 · 痛点场景&#10;..." style="width:100%;min-height:180px;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:13px;line-height:1.7;resize:vertical;font-family:inherit;box-sizing:border-box"></textarea>
+    <div id="paste-copy-parse" class="mi-modal-sub" style="margin:10px 0 4px;color:var(--primary);font-weight:700"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px" id="paste-copy-styles"></div>
+    <div id="paste-copy-progress" style="display:none;margin:12px 0 4px;color:var(--primary);font-weight:700;font-size:13px"></div>
+    <div id="paste-copy-result" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin:12px 0 4px"></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px">
+      <button class="btn btn-outline btn-sm" onclick="closePasteCopyModal()">关闭</button>
+      <button class="btn btn-primary btn-sm" id="paste-copy-go" onclick="startCopySplit()">&#10024; 开始生成分解图</button>
     </div>
   </div>
 </div>
@@ -3119,6 +3139,140 @@ function toggleAcc(head) {
 function copyAllCopywriting() {
   var all = SCREENS.map(function(s){ return '=== '+s.title+' ===\n'+s.body; }).join('\n\n');
   copyText(all);
+}
+
+/* ===== 粘贴文案 → 7屏分解图 ===== */
+var pasteSplitStyle = 'typography';
+var pasteSplitBusy = false;
+
+function openPasteCopyModal() {
+  // 默认把当前预览的7屏文案填入，方便直接生成
+  var ta = document.getElementById('paste-copy-text');
+  if (!ta.value.trim()) {
+    ta.value = SCREENS.map(function(s){ return s.title + '\n' + s.body; }).join('\n\n');
+  }
+  renderPasteStyles();
+  updatePasteParse();
+  document.getElementById('paste-copy-result').innerHTML = '';
+  document.getElementById('paste-copy-progress').style.display = 'none';
+  document.getElementById('paste-copy-modal').classList.add('show');
+}
+
+function closePasteCopyModal() {
+  if (pasteSplitBusy) { showToast('正在生成中，请稍候...', 'info'); return; }
+  document.getElementById('paste-copy-modal').classList.remove('show');
+}
+
+function renderPasteStyles() {
+  document.getElementById('paste-copy-styles').innerHTML = STYLES.map(function(s){
+    return '<div class="product-tab ' + (s.id===pasteSplitStyle?'active':'') + '" onclick="selectPasteStyle(\''+s.id+'\',this)" style="cursor:pointer">'+s.name+'</div>';
+  }).join('');
+}
+
+function selectPasteStyle(id, el) {
+  pasteSplitStyle = id;
+  el.parentNode.querySelectorAll('.product-tab').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+// 客户端分屏解析预览（与服务端 parseCopyScreens 逻辑一致）
+function parseCopyScreensLocal(text) {
+  var t = String(text || '').replace(/\r\n/g, '\n').trim();
+  if (!t) return [];
+  var re = /(^|\n)\s*(第\s*[0-9一二三四五六七八九十]+\s*屏[^\n]*)/g;
+  var marks = [], m;
+  while ((m = re.exec(t)) !== null) {
+    marks.push({
+      titleStart: m.index + m[0].length - m[2].length,
+      bodyStart: m.index + m[0].length,
+      title: m[2].replace(/\s+/g, ' ').trim()
+    });
+  }
+  if (marks.length >= 2) {
+    var screens = [];
+    for (var i = 0; i < marks.length; i++) {
+      var start = marks[i].bodyStart;
+      var end = i + 1 < marks.length ? marks[i + 1].titleStart : t.length;
+      screens.push({ title: marks[i].title, body: t.slice(start, end).trim() });
+    }
+    return screens;
+  }
+  return t.split(/\n{2,}/).map(function(seg, i){ return { title: '第' + (i+1) + '屏', body: seg.trim() }; }).filter(function(s){ return s.body; });
+}
+
+function updatePasteParse() {
+  var screens = parseCopyScreensLocal(document.getElementById('paste-copy-text').value);
+  var el = document.getElementById('paste-copy-parse');
+  if (!screens.length) { el.textContent = ''; return; }
+  el.textContent = '✔ 已识别 ' + screens.length + ' 屏：' + screens.map(function(s, i){ return (i+1) + '.' + s.title.slice(0, 14); }).join('　');
+}
+
+async function startCopySplit() {
+  if (pasteSplitBusy) return;
+  var text = document.getElementById('paste-copy-text').value;
+  if (!text.trim()) { showToast('请先粘贴文案内容', 'warn'); return; }
+  pasteSplitBusy = true;
+  var goBtn = document.getElementById('paste-copy-go');
+  var prog = document.getElementById('paste-copy-progress');
+  var result = document.getElementById('paste-copy-result');
+  goBtn.disabled = true;
+  prog.style.display = 'block';
+  prog.textContent = '正在提交任务...';
+  result.innerHTML = '';
+
+  try {
+    var data = await callAPI('/copy-to-images', { text: text, style: pasteSplitStyle });
+    prog.textContent = '已识别 ' + data.total + ' 屏，开始生成分解图（全程约 ' + (data.total * 40 + 20) + ' 秒，请勿关闭弹窗）...';
+
+    // 轮询任务状态
+    var job = await new Promise(function(resolve, reject){
+      var failCount = 0;
+      var timer = setInterval(function(){
+        fetch(API_BASE + '/image-generate-status?jobId=' + encodeURIComponent(data.jobId))
+          .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function(j){
+            failCount = 0;
+            if (j.status === 'done') { clearInterval(timer); resolve(j); }
+            else if (j.status === 'error') { clearInterval(timer); reject(new Error(j.error || '生成失败')); }
+            else if (j.total) { prog.textContent = 'AI正在生成第 ' + Math.min(j.progress + 1, j.total) + ' / ' + j.total + ' 屏分解图，请稍候...'; }
+          })
+          .catch(function(){
+            failCount++;
+            if (failCount > 12) { clearInterval(timer); reject(new Error('任务状态查询失败，请重试')); }
+          });
+      }, 3000);
+    });
+
+    // 渲染结果
+    if (job.images && job.images.length) {
+      result.innerHTML = job.images.map(function(img, idx){
+        if (img.url) {
+          return '<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff">' +
+            '<img src="' + img.url + '" style="width:100%;display:block" loading="lazy" alt="' + img.name + '">' +
+            '<div style="padding:8px;display:flex;align-items:center;justify-content:space-between;gap:6px">' +
+              '<div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + img.name + '</div>' +
+              '<a href="' + img.url + '" target="_blank" download class="btn btn-outline btn-sm" style="padding:4px 10px;font-size:12px">\u2b07</a>' +
+            '</div></div>';
+        }
+        // 无 Key 兜底占位卡
+        return '<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:linear-gradient(160deg,#1a3a5c,#3b82f6);color:#fff;min-height:200px;padding:16px;display:flex;flex-direction:column;justify-content:center;text-align:center">' +
+          '<div style="font-size:15px;font-weight:800;margin-bottom:8px">' + img.name + '</div>' +
+          '<div style="font-size:12px;opacity:.85;line-height:1.6;word-break:break-all;max-height:120px;overflow:hidden">' + (img.mockBody || '').slice(0, 80) + '</div>' +
+          '<div style="font-size:11px;opacity:.6;margin-top:10px">占位预览（线上未配置出图Key）</div>' +
+        '</div>';
+      }).join('');
+      prog.textContent = job.images[0] && job.images[0].url
+        ? '✔ 全部 ' + job.images.length + ' 屏分解图生成完成，可直接点击下载'
+        : '分屏解析完成（当前环境未配置出图Key，展示占位预览）';
+      showToast('分解图生成完成！', 'success');
+    }
+  } catch(e) {
+    prog.textContent = '✖ ' + (e.message || '生成失败，请重试');
+    showToast(e.message || '生成失败', 'error');
+  } finally {
+    pasteSplitBusy = false;
+    goBtn.disabled = false;
+  }
 }
 
 /* ===== IMAGE GEN ===== */
